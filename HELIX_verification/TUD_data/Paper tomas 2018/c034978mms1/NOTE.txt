@@ -1,0 +1,5 @@
+The CAD geometry of the sting-mounted propeller is only approximate.
+A separate support sting connected the back end of the nacelle to the balance. 
+A sleeve was positioned around this sting, without surface contact, to avoid aerodynamic forces acting on the sting. 
+In the CAD model, the sleeve has been extended up to the propeller axis to fill all gaps between sting and sleeve.
+A picture is added to this ZIP file to illustrate the actual setup as installed in the wind tunnel tunnel (with one half of the sleeve removed).
