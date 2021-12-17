@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import niceplots
 
-data = pd.read_csv('/Users/joaquinexalto/Documents/TU_Delft/code/HELIX_verification/tud_data.csv', dtype=np.float16, sep=',', skiprows=(2), header=None).values
+data = pd.read_csv('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/tud_data.csv', dtype=np.float16, sep=',', skiprows=(2), header=None).values
 
 # Polar,  Run,    AoA,    Vinf,   rhoInf,     Tinf,   Pinf,       n,      J=Vinf/nD,  CT=T/rho*n2*D4, CP=P/rho*n3*D5, eta=J*CT/CP
 
@@ -35,7 +35,7 @@ ax3.scatter(J, eta)
 
 # Plot HELIX Result
 ax3.set_xlim([0.6,  1])
-ax3.set_ylim([0,    0.16])
+ax3.set_ylim([0,    1.])
 ax3.set_xlabel("Advance Ratio [-]")
 ax3.set_ylabel(r"Thrust coefficient $[-]$")
 niceplots.adjust_spines(ax3, outward=True)
