@@ -1,3 +1,1 @@
-Sources of discrepanceis:
-    The hub is not very clearly defined, could be at 0.148r or 0.295r
-    
+Sources of discrepanceis:    
