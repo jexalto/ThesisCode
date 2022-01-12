@@ -61,6 +61,16 @@ def set_simparam(v_inf):
 ## Generate Vehicle
 ###############################################################################
 def geometry_definition(rpm):
+    # Retrieve geometry
+    data = pd.read_csv('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/Ilinois_data/da4052_9x6.75_geom.txt', dtype=np.float16, sep=' ', skiprows=(1), header=None).values
+
+    rR = data[:, 0]
+    cR = data[:, 1]
+    beta = data[:, 2]
+
+    radius = 0.2286/2
+    rhub = 0.15*radius
+
     # Initialize Geometry Component Definitions Holder
     geometry_def = geo_def.t_geometry_def()
 
@@ -101,18 +111,6 @@ def geometry_definition(rpm):
         "hub_offset": 0.0,
         "n_dofs": 0,
     }
-
-    # Geometry
-    data = pd.read_csv('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/Ilinois_data/da4052_9x6.75_geom.txt', dtype=np.float16, sep='  ', skiprows=(1), header=None).values
-
-    rR = data[:, 0]
-    cR = data[:, 1]
-    beta = data[:, 2]
-
-    print(rR, cR, beta)
-
-    radius = 0.232
-    rhub = 0.15*radius
 
     # ------------------------ Blade Section Definition ---------------------- #
     for i in range(0, N_span-2):
