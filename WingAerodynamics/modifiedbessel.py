@@ -2,13 +2,14 @@ import numpy as np
 import scipy.special as sp
 import time
 
-lst =  np.arange(0, 5, 0.1)
+lst =  np.arange(0, 5.1, 0.1) # np.array([0.1])
 
 def modifiedbessel(order, x):
     bessel = 0
 
     for m in range(100):
-        addition = (x/2)**(2*m + order)/(factorial(m) * factorial(m + order + 1 - 1))
+        # Rewrite factorial into smarter call
+        addition = (x/2)**(2*m + order)/(factorial(m) * factorial(m + order))
         bessel += addition
 
     return bessel
@@ -30,9 +31,5 @@ print('--- %s seconds passed: scipy ---' % round((time.time()-startscipy), 6))
 
 print(' --- Convergence is: %s ---' % round(sum(abs(scipybessel - mybessel)), 15))
 
-i=10
-print(factorial(i))
-print(sp.factorial(i))
-
 print(scipybessel)
-print(mybessel)
+print(sum(mybessel))
