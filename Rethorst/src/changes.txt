@@ -1,0 +1,4 @@
+changed integration --> integration -1 to match lists. Shouldn't matter though since the integrals should converge
+changed mulambda into etalambda
+
+make list for gamma function

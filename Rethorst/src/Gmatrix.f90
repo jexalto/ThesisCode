@@ -1,40 +1,44 @@
 program Gmatrix
-    ! call cpu_time(start)
-    ! call cpu_time(finish)
-    ! print*, "Time = ", finish-start, "seconds"
-    ! real :: start, finish
-    
-    use MOD_MODIFIEDBESSEL, only: &
-        firstkind_bessel
+    use MOD_INTEGRALS, only: &
+    Iv_integral, Kv_integral, Wjj_int, Woj_int, Wjo_int, Woo_int
+
+    use MOD_MODIFIEDBESSEL, only:&
+    firstkind_bessel, secondkind_bessel
 
     implicit none
 
-    character(len=*), parameter :: name = 'hello world'
-    real :: dlambda, lambda, lambdab, fk_bessel, int_Iv, beta, int_Kv
-    integer :: order, m
+    real(8) :: ksi, eta, mu, c, d, pi, r, lambda, output
+    real(8) :: Wjj_int_out, Woj_int_out, Wjo_int_out, Woo_int_out
+    real(8) :: sum_jj, sum_jo, sum_oj, sum_oo
+    real(8) :: Gjj, Gjo, Goj, Goo
+    integer :: order, summation, m
+    real(8) :: end, start
 
+    call cpu_time(start)
+    c = 1.2
+    d = 1.3
+    mu = 0.9
+    ksi = 0.5
+    eta = 0.1
+    r = 1.0
     order = 1
-    lambda = 0.
-    fk_bessel = 0.
-    int_Iv = 0.
-    int_Kv = 0.
-    beta = 1.1
+    lambda = 0.5
 
-    ! Iv_lambdaB integral
-    do m = 1, 50+1
-        lambdab = lambda * beta
-        call firstkind_bessel(order, lambdab, fk_bessel)
-        lambda = lambda + 0.1
-        int_Iv = int_Iv + fk_bessel*dlambda/(lambdab)
+    pi = 3.1415926
+    sum_jj = 0.
+    summation = 10
+
+    do m = 1, summation
+        call Wjj_int(order, eta, ksi, mu, c, d, Wjj_int_out)
+        sum_jj = sum_jj + (order)**2 * Wjj_int_out
+
+        order = 2 * m + 1
     end do
 
-    ! Kv_lambdaB integral
-    lambda = 0.
-    do m = 1, 50+1
-        lambdab = lambda * beta
-        call secondkind_bessel(order, lambdab, sk_bessel)
-        lambda = lambda + 0.1
-        int_Iv = int_Kv + sk_bessel*dlambda/(lambdab)
-    end do
-
+    Gjj = 8/(r * eta * pi) * sum_jj
+    call cpu_time(end)
+    print*, '--- FORTRAN ---'
+    print*, 'Gjj value: ', Gjj
+    print*, 'Time need to converge: ', (end-start), ' seconds'
+    
 end program Gmatrix
