@@ -86,7 +86,6 @@ module MOD_INTEGRALS
             call firstkind_bessel(order, etalambda, Iv_etalambda)! Iv(mu*lambda)
             ! --- Get nested integral ---
             call Iv_integral(order, lambda, c, d, int_Iv)
-            print*, 'Iv_etalambda, Iv, Kv ', lambda, Iv_etalambda, Iv
 
             multiplier = (Kv * Kv_p * Iv_etalambda)/(1/( (1/mu**2 - 1) ) - lambda * Iv * Kv_p)
             

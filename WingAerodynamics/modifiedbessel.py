@@ -14,8 +14,9 @@ def modifiedbessel(order, x):
     steps=1000
     dt = 2*pi/steps
 
-    for m in range(10):
+    for m in range(5):
         addition = (x/2)**(2*m + order)/(factorial(m) * factorial(m + order))
+        print(m+order, factorial(m), factorial(m+order))
         bessel += addition
     # for m in range(steps):
     #     addition = 1/pi * np.exp(x*np.cos(t)) * np.cos(order*t) * dt
@@ -67,8 +68,11 @@ plt.plot(lst, (modifiedbessel(order, lst)-sp.iv(order, lst))/sp.iv(order, lst), 
 # plt.plot(lst, sp.kv(4, lst), label='competition')
 plt.legend()
 plt.grid()
-plt.show()
+print('-----')
+# print(sp.iv(5, 4.8))
+print(modifiedbessel(5, 4.8))
+# plt.show()
 # alpha = 0.5
 # bessel_der = 0.5 * (modifiedbessel(1-1, alpha) + modifiedbessel(1+1, alpha))
-print('Second kind bessel function: ', secondorderbessel_cosh(3, 4.8))
+# print('Second kind bessel function: ', secondorderbessel_cosh(3, 4.8))
 # print('Scipy bessel function: ', sp.ivp(2, alpha))

@@ -10,10 +10,10 @@ module MOD_MATH
     subroutine factorial(fac, facout)
 
         integer, parameter :: LargeInt_K = selected_int_kind (32)
-        integer(kind=LargeInt_K), intent(inout) :: facout
+        integer(kind=LargeInt_K), intent(inout) :: facout, fac
         ! integer, parameter :: MyLongIntType = selected_int_kind (12) (kind=MyLongIntType) 
         integer(kind=LargeInt_K) :: ret
-        integer :: m, fac
+        integer :: m
         
         ret = 1
 

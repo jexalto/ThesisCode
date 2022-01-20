@@ -12,11 +12,11 @@ module MOD_MODIFIEDBESSEL
 
         real(8), intent(inout) :: fk_bessel
         real(8), intent(inout) :: x
-        real(8) :: addition, pi, t, dt, facout2, gammainput
+        real(8) :: addition, pi, t, dt
         integer, intent(inout) :: order
         integer :: m, discretisation
         integer, parameter :: LargeInt_K = selected_int_kind (32)
-        integer(kind=LargeInt_K) :: facout
+        integer(kind=LargeInt_K) :: facout, facout2, gammainput
         
         fk_bessel = 0.
         facout = 1
@@ -26,14 +26,14 @@ module MOD_MODIFIEDBESSEL
         discretisation = 100
         dt = 100./discretisation
 
-        do m = 0, 5
+        do m = 0, 5-1
             if(m==0)then
                 facout = 1
             else
                 facout = facout * m
             endif
             gammainput = order + m + 1
-            call gamma(gammainput, facout2)
+            call factorial(gammainput, facout2)
             addition = (x/2)**(2*m + order) * 1/(facout * facout2)
             fk_bessel = fk_bessel + addition
         end do

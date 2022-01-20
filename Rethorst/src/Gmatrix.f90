@@ -22,30 +22,24 @@ program Gmatrix
     ksi = 0.5
     eta = 0.1
     r = 1.0
-    order = 5
+    order = 1
     lambda = 4.8
 
     pi = 3.1415926
     sum_jj = 0.
-    summation = 1
+    summation = 10
 
-    ! do m = 1, summation
-    !     call Wjj_int(order, eta, ksi, mu, c, d, Wjj_int_out)
-    !     sum_jj = sum_jj + (order)**2 * Wjj_int_out
-    !     print*, 'Order, Wjj ', order, Wjj_int_out * (order)**2
-    !     order = 2 * m + 1
-    ! end do
-    
-    call Iv_integral(order, lambda, c, d, int_Iv)
-    call secondkind_bessel(order, lambda, fk_bessel)
-    print*, 'Lambda ', lambda
-    print*, 'sk_bessel ', fk_bessel
-    print*, 'int_Iv', int_Iv
+    do m = 1, summation
+        call Wjj_int(order, eta, ksi, mu, c, d, Wjj_int_out)
+        sum_jj = sum_jj + (order)**2 * Wjj_int_out
+        ! print*, 'Order, Wjj ', order, Wjj_int_out * (order)**2
+        order = 2 * m + 1
+    end do
 
-    ! Gjj = 8/(r * eta * pi) * sum_jj
-    ! call cpu_time(end)
-    ! print*, '--- FORTRAN ---'
-    ! print*, 'Gjj value: ', Gjj
-    ! print*, 'Time need to converge: ', (end-start), ' seconds'
+    Gjj = 8/(r * eta * pi) * sum_jj
+    call cpu_time(end)
+    print*, '--- FORTRAN ---'
+    print*, 'Gjj value: ', Gjj
+    print*, 'Time need to converge: ', (end-start), ' seconds'
     
 end program Gmatrix

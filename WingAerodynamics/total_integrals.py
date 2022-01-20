@@ -10,7 +10,7 @@ dzeta = 0.5
 eta = 0.1
 r0 = 1.0
 
-p = np.array([2]) # np.arange(1, 2, 1)
+p = np.arange(0, 10, 1)
 p = p.reshape(p.size, 1, 1)
 
 dlbda = 0.1
@@ -64,4 +64,4 @@ print('Time needed to converge: %f seconds' %(end - start))
 # print(I_[0:-1, 0, 0, 0])
 # print(int_I[0:-1, 0, 0, 0])
 # print(I[0:-1, 0, 0, 0])
-print(sp.iv(5, 4.8))
+# print(sp.iv(5, 4.8))
