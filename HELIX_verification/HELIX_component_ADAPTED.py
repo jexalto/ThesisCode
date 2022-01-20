@@ -114,19 +114,19 @@ def geometry_definition(rpm):
 
     # ------------------------ Blade Section Definition ---------------------- #
     for i in range(0, N_span-2):
-        rotor1.sec[0].chord = (rR[i+1] - rR[i]) * radius
+        rotor1.sec[0].chord = (cR[i+1] - cR[i]) * radius
         rotor1.sec[0].twist = (beta[i+1] + beta[i])/2
-        rotor1.sec[0].thick = 0.00216916
-        rotor1.sec[0].alpha_0 = 0.3595378
-        rotor1.sec[0].alpha_L0 = -0.03490658503
-        rotor1.sec[0].Cl_alpha = 5.3407
+        rotor1.sec[0].thick = 0.0
+        rotor1.sec[0].alpha_0 = 0.35            # radians
+        rotor1.sec[0].alpha_L0 = -0.03490658503 # zero lift angle of attack
+        rotor1.sec[0].Cl_alpha = 5.3407         # cl alpha
         rotor1.sec[0].M = 50.0
 
         # Span 1  ------------------
-        rotor1.span[0].span = 0.00126238
+        rotor1.span[0].span = (rR[i+1] - rR[i]) * radius
         rotor1.span[0].sweep = 0.0
         rotor1.span[0].dihed = 0.0
-        rotor1.span[0].N_elem_span = 1
+        rotor1.span[0].N_elem_span = i
         rotor1.span[0].span_type = 1
 
 

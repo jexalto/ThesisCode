@@ -29,17 +29,17 @@ module MOD_MATH
     end subroutine factorial
 
     subroutine gamma(z, gam)
+
         integer :: discretisation, i
         real(8) :: dx, x
         real(8), intent(inout) :: z
         real(8), intent(inout) :: gam
 
-        x = 0.001
+        x = 0.0001
         discretisation = 100
-        dx = 10./discretisation
+        dx = 9./discretisation
         gam = 0.
-    
-        do i = 1, 50
+        do i = 1, discretisation
             gam = gam + x**(z-1) * exp(-x) * dx
             x = x + dx
         end do

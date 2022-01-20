@@ -12,7 +12,7 @@ module MOD_MODIFIEDBESSEL
 
         real(8), intent(inout) :: fk_bessel
         real(8), intent(inout) :: x
-        real(8) :: addition, pi, t, dt, max_int, facout2, gammainput
+        real(8) :: addition, pi, t, dt, facout2, gammainput
         integer, intent(inout) :: order
         integer :: m, discretisation
         integer, parameter :: LargeInt_K = selected_int_kind (32)
@@ -23,11 +23,10 @@ module MOD_MODIFIEDBESSEL
         facout2 = 1
         t = 0.
         pi = 3.141592653
-        max_int = pi - t
         discretisation = 100
-        dt = max_int/discretisation
+        dt = 100./discretisation
 
-        do m = 0, 2
+        do m = 0, 5
             if(m==0)then
                 facout = 1
             else
@@ -39,17 +38,21 @@ module MOD_MODIFIEDBESSEL
             fk_bessel = fk_bessel + addition
         end do
 
-        if (order .le. 2)then
-            fk_bessel = fk_bessel
-        else
-            fk_bessel = fk_bessel/order
-        endif
+        ! if (order .le. 2)then
+        !     fk_bessel = fk_bessel
+        ! else
+        !     fk_bessel = fk_bessel/order
+        ! endif
 
         ! do m = 0, discretisation
         !     fk_bessel = fk_bessel + 1/pi * exp(x*cos(t)) * cos(order*t) * dt
 
         !     t = t + dt
         ! end do
+
+        ! max_int = pi - t
+        ! discretisation = 100
+        ! dt = max_int/discretisation
 
     end subroutine firstkind_bessel
 
@@ -61,15 +64,15 @@ module MOD_MODIFIEDBESSEL
         integer :: m, discretisation
 
         pi = 3.141592653589793
-        sk_bessel = 0.
-        gam = 0.
-        discretisation = 10
+        sk_bessel = 0._8
+        gam = 0._8
+        discretisation = 1000
         t = 0.0001
         dt = 10./discretisation
 
         order_alt = order + 0.5
 
-        call gamma(order_alt, gam)
+        ! call gamma(order_alt, gam)
 
         do m = 0, discretisation
             sk_bessel = sk_bessel + exp(-x*cosh(t)) * cosh(order*t) * dt

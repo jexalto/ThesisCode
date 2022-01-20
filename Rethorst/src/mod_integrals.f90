@@ -16,11 +16,11 @@ module MOD_INTEGRALS
     subroutine Iv_integral(order, lambda, c, d, int_Iv)
 
         real(8) :: dlambda, maxlambda, startlambda, lambda_run, fk_bessel     ! Running variables
-        real(8), intent(out) :: int_Iv                                             ! Integral quantities
+        real(8), intent(out) :: int_Iv                                        ! Integral quantities
         real(8), intent(inout) :: lambda, c, d
         integer :: order, m, integration
 
-        integration = 200
+        integration = 100
         maxlambda = lambda*d
         startlambda = lambda*c
         dlambda = (maxlambda - startlambda)/integration
@@ -71,25 +71,26 @@ module MOD_INTEGRALS
         real(8) :: lambda, dlambda, multiplier
         integer :: integration, m, order
 
-        integration = 30
+        integration = 100
 
-        lambda = 0.001
+        lambda = 0.1
         BIG_int = 0.
-        dlambda = (5.-lambda)/integration
+        dlambda = (4.8-lambda)/integration
         etalambda = lambda * eta
 
-        do m = 1, integration-1
+        do m = 1, integration+1
             ! --- Get modified bessel functions ---
             call secondkind_bessel(order, lambda, Kv)            ! Kv
             call firstkind_bessel(order, lambda, Iv)             ! Iv
             call secondkind_bessel_der(order, lambda, Kv_p)      ! Kv_prime
-            call firstkind_bessel(order, etalambda, Iv_etalambda)  ! Iv(mu*lambda)
+            call firstkind_bessel(order, etalambda, Iv_etalambda)! Iv(mu*lambda)
             ! --- Get nested integral ---
             call Iv_integral(order, lambda, c, d, int_Iv)
+            print*, 'Iv_etalambda, Iv, Kv ', lambda, Iv_etalambda, Iv
 
-            multiplier = (Kv * Kv_p * Iv_etalambda)/(1/(lambda * (1/mu**2 - 1)) - Iv * Kv_p)
+            multiplier = (Kv * Kv_p * Iv_etalambda)/(1/( (1/mu**2 - 1) ) - lambda * Iv * Kv_p)
             
-            BIG_int = BIG_int + ( multiplier * sin(ksi*lambda)/lambda * int_Iv ) * dlambda
+            BIG_int = BIG_int + ( multiplier * sin(ksi*lambda) ) * int_Iv * dlambda
 
             lambda = lambda + dlambda
             etalambda = lambda * eta

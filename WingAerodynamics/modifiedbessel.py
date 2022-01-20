@@ -4,7 +4,8 @@ import scipy.special as sp
 import time
 from matplotlib import pyplot as plt
 
-lst =  np.arange(3, 9, 0.1)
+lst =  np.arange(1, 10, 0.1)
+order = 4
 
 def modifiedbessel(order, x):
     bessel = 0
@@ -16,10 +17,10 @@ def modifiedbessel(order, x):
     for m in range(10):
         addition = (x/2)**(2*m + order)/(factorial(m) * factorial(m + order))
         bessel += addition
-    for m in range(steps):
-        addition = 1/pi * np.exp(x*np.cos(t)) * np.cos(order*t) * dt
-        bessel += addition
-        t = t + dt
+    # for m in range(steps):
+    #     addition = 1/pi * np.exp(x*np.cos(t)) * np.cos(order*t) * dt
+    #     bessel += addition
+    #     t = t + dt
 
     return bessel
 
@@ -44,13 +45,11 @@ def gamma(z):
 
 def secondorderbessel(order, x):
     sk_bessel = 0
-    t = 0.0
+    t = 0.001
     dt = 0.01
     for i in range(1000):
         sk_bessel += gamma(order+0.5)*(2*x)**order/np.sqrt(np.pi) * np.cos((t))/(t**2 + x**2)**(order+0.5)*dt
         t += dt
-    # plt.grid()
-    # plt.show()
     
     return sk_bessel
 
@@ -64,7 +63,12 @@ def secondorderbessel_cosh(order, x):
     
     return sk_bessel
 
-alpha = 0.5
-bessel_der = 0.5 * (modifiedbessel(1-1, alpha) + modifiedbessel(1+1, alpha))
-print('Second kind bessel function: ', modifiedbessel(2, alpha)*4)
-print('Scipy bessel function: ', sp.ivp(2, alpha))
+plt.plot(lst, (modifiedbessel(order, lst)-sp.iv(order, lst))/sp.iv(order, lst), label='hometeam')
+# plt.plot(lst, sp.kv(4, lst), label='competition')
+plt.legend()
+plt.grid()
+plt.show()
+# alpha = 0.5
+# bessel_der = 0.5 * (modifiedbessel(1-1, alpha) + modifiedbessel(1+1, alpha))
+print('Second kind bessel function: ', secondorderbessel_cosh(3, 4.8))
+# print('Scipy bessel function: ', sp.ivp(2, alpha))

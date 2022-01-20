@@ -7,10 +7,10 @@ c = 1.2
 d = 1.3
 mu = 0.9
 dzeta = 0.5
-eta = 0.5
+eta = 0.1
 r0 = 1.0
 
-p = np.arange(0, 10, 1)
+p = np.array([2]) # np.arange(1, 2, 1)
 p = p.reshape(p.size, 1, 1)
 
 dlbda = 0.1
@@ -43,6 +43,8 @@ sin = np.sin(dzeta*lbda)
 mu1 = (1/((1/mu**2)-1))
 mu2 = ((1/mu)-mu)
 
+input  = 0.5
+order = 2
 # print('Iv with input %f and order %f is %f' %(input, order, sp.iv(order, input)))
 
 #calculate 4 corrections
@@ -51,15 +53,15 @@ int_jj = np.where(np.isnan(int_jj), 0, int_jj)
 int_jj = np.sum(int_jj, axis=0)
 
 sum_jj = (2*p+1)**2*int_jj
-print(2*p+1)
-print(sum_jj[0:-1, 0, 0])
 
 sum_jj = np.sum(sum_jj, axis=0)
 Gjjo = 8/(r0*np.pi*eta)*sum_jj
 end = time.time()
 
-print(sum_jj)
-print(8/(r0*np.pi*eta))
 print('--- PYTHON ---')
 print('Gjj value: %f' %(Gjjo))
 print('Time needed to converge: %f seconds' %(end - start))
+# print(I_[0:-1, 0, 0, 0])
+# print(int_I[0:-1, 0, 0, 0])
+# print(I[0:-1, 0, 0, 0])
+print(sp.iv(5, 4.8))
