@@ -2,3 +2,5 @@ changed integration --> integration -1 to match lists. Shouldn't matter though s
 changed mulambda into etalambda
 
 make list for gamma function
+
+number of iterations of G.. might cause errors at higher orders
