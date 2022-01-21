@@ -4,8 +4,12 @@ import scipy.special as sp
 import time
 from matplotlib import pyplot as plt
 
+<<<<<<< HEAD
 lst =  np.arange(1, 10, 0.1)
 order = 4
+=======
+lst =  np.arange(0, 5.1, 0.1) # np.array([0.1])
+>>>>>>> 66d153c2425ddf4f7062e8084c690c655e326a7e
 
 def modifiedbessel(order, x):
     bessel = 0
@@ -14,7 +18,12 @@ def modifiedbessel(order, x):
     steps=1000
     dt = 2*pi/steps
 
+<<<<<<< HEAD
     for m in range(5):
+=======
+    for m in range(100):
+        # Rewrite factorial into smarter call
+>>>>>>> 66d153c2425ddf4f7062e8084c690c655e326a7e
         addition = (x/2)**(2*m + order)/(factorial(m) * factorial(m + order))
         bessel += addition
         print(m, m+order, factorial(m), factorial(m + order))
@@ -54,6 +63,7 @@ def secondorderbessel(order, x):
     
     return sk_bessel
 
+<<<<<<< HEAD
 def secondorderbessel_cosh(order, x):
     sk_bessel = 0
     t = 0.0001
@@ -76,3 +86,7 @@ print(modifiedbessel(5, 4.8))
 # bessel_der = 0.5 * (modifiedbessel(1-1, alpha) + modifiedbessel(1+1, alpha))
 # print('Second kind bessel function: ', secondorderbessel_cosh(3, 4.8))
 # print('Scipy bessel function: ', sp.ivp(2, alpha))
+=======
+print(scipybessel)
+print(sum(mybessel))
+>>>>>>> 66d153c2425ddf4f7062e8084c690c655e326a7e
