@@ -72,14 +72,14 @@ module MOD_INTEGRALS
         real(8) :: lambda, dlambda, multiplier
         integer :: integration, m, order
 
-        integration = 100
+        integration = 50
 
-        lambda = 0.1
-        BIG_int = 0.
-        dlambda = (4.8-lambda)/integration
+        lambda = 0.1_8
+        BIG_int = 0._8
+        dlambda = (5._8-lambda)/integration
         etalambda = lambda * eta
 
-        do m = 1, integration+1
+        do m = 1, integration
             ! --- Get modified bessel functions ---
             call secondkind_bessel(order, lambda, Kv)            ! Kv
             call firstkind_bessel(order, lambda, Iv)             ! Iv
@@ -101,32 +101,32 @@ module MOD_INTEGRALS
     subroutine Woj_int(order, eta, ksi, mu, c, d, BIG_int)
         ! Woj, vortex INSIDE jet
         real(8), intent(inout) :: eta, ksi, mu, c, d
-        real(8) :: Iv, Kv, Kv_p, Kv_mulambda, int_Iv, mulambda
+        real(8) :: Iv, Kv, Kv_p, Kv_etalambda, int_Iv, etalambda
         real(8) :: lambda, dlambda, BIG_int, multiplier
         integer :: integration, m, order
 
         integration = 50
 
-        lambda = 0.001
-        BIG_int = 0.
-        dlambda = 5./integration
-        mulambda = lambda * mu
+        lambda = 0.1_8
+        BIG_int = 0._8
+        dlambda = (5.0_8-lambda)/integration
+        etalambda = lambda * eta
 
         do m = 1, integration
             ! --- Get modified bessel functions ---
             call secondkind_bessel(order, lambda, Kv)            ! Kv
             call firstkind_bessel(order, lambda, Iv)             ! Iv
             call secondkind_bessel_der(order, lambda, Kv_p)      ! Kv_prime
-            call secondkind_bessel(order, lambda, Kv_mulambda)   !  Iv(mu*lambda)
+            call secondkind_bessel(order, etalambda, Kv_etalambda)   ! Iv(eta*lambda)
             ! --- Get nested integral ---
             call Iv_integral(order, lambda, c, d, int_Iv)
 
-            multiplier = (1 / (mu - lambda*(1/mu - mu) * Iv * Kv_p) - 1) 
+            multiplier = (1 / (mu - lambda*(1/mu - mu) * Iv * Kv_p) - 1)
 
-            BIG_int = BIG_int + (multiplier * (Kv_mulambda * sin(ksi*lambda))/lambda * int_Iv ) * dlambda
+            BIG_int = BIG_int + (multiplier * (Kv_etalambda * sin(ksi*lambda))/lambda * int_Iv ) * dlambda
 
             lambda = lambda + dlambda
-            mulambda = lambda * mu
+            etalambda = lambda * eta
         end do
 
     end subroutine Woj_int
@@ -134,32 +134,32 @@ module MOD_INTEGRALS
     subroutine Wjo_int(order, eta, ksi, mu, c, d, BIG_int)
         ! Wjo, vortex OUTSIDE jet
         real(8), intent(inout) :: eta, ksi, mu, c, d
-        real(8) :: Iv, Kv, Kv_p, Iv_mulambda, int_Kv, mulambda
+        real(8) :: Iv, Kv, Kv_p, Iv_etalambda, int_Kv, etalambda
         real(8) :: lambda, dlambda, BIG_int, multiplier
         integer :: integration, m, order
 
         integration = 50
 
-        lambda = 0.001
-        BIG_int = 0.
-        dlambda = 5./integration
-        mulambda = lambda * mu
+        lambda = 0.1_8
+        BIG_int = 0._8
+        dlambda = (5._8-lambda)/integration
+        etalambda = lambda * eta
 
         do m = 1, integration
             ! --- Get modified bessel functions ---
             call secondkind_bessel(order, lambda, Kv)            ! Kv
             call firstkind_bessel(order, lambda, Iv)             ! Iv
             call firstkind_bessel_der(order, lambda, Kv_p)       ! Iv_prime
-            call firstkind_bessel(order, lambda, Iv_mulambda)    ! Iv(mu*lambda)
+            call firstkind_bessel(order, etalambda, Iv_etalambda)    ! Iv(mu*lambda)
             ! --- Get nested integral ---
             call Kv_integral(order, lambda, c, d, int_Kv)
 
             multiplier = 1 / (mu - lambda*(1/mu - mu) * Iv * Kv_p) - 1
 
-            BIG_int = BIG_int + multiplier * (Iv_mulambda * sin(ksi*lambda))/lambda * int_Kv * dlambda
+            BIG_int = BIG_int + multiplier * (Iv_etalambda * sin(ksi*lambda))/lambda * int_Kv * dlambda
 
             lambda = lambda + dlambda
-            mulambda = lambda * mu
+            etalambda = lambda * eta
         end do
 
     end subroutine Wjo_int
@@ -167,16 +167,16 @@ module MOD_INTEGRALS
     subroutine Woo_int(order, eta, ksi, mu, c, d, BIG_int)
         ! Woo, vortex OUTSIDE jet
         real(8), intent(inout) :: eta, ksi, mu, c, d
-        real(8) :: Iv, Kv, Kv_p, Kv_mulambda, int_Kv, Iv_p, mulambda
+        real(8) :: Iv, Kv, Kv_p, Kv_etalambda, int_Kv, Iv_p, etalambda
         real(8) :: lambda, dlambda, BIG_int, multiplier
         integer :: integration, m, order
 
         integration = 50
 
-        lambda = 0.001
-        BIG_int = 0.
-        dlambda = 5./integration
-        mulambda = lambda * mu
+        lambda = 0.1_8
+        BIG_int = 0._8
+        dlambda = (5._8-lambda)/integration
+        etalambda = lambda * eta
 
         do m = 1, integration
             ! --- Get modified bessel functions ---
@@ -184,16 +184,16 @@ module MOD_INTEGRALS
             call firstkind_bessel(order, lambda, Iv)             ! Iv
             call secondkind_bessel_der(order, lambda, Kv_p)      ! Kv_prime
             call firstkind_bessel_der(order, lambda, Iv_p)       ! Kv_prime
-            call secondkind_bessel(order, lambda, Kv_mulambda)   ! Kv(mu*lambda)
+            call secondkind_bessel(order, etalambda, Kv_etalambda)   ! Kv(mu*lambda)
             ! --- Get nested integral ---
             call Kv_integral(order, lambda, c, d, int_Kv)
 
-            multiplier = (Iv * Iv_p * Kv_mulambda)/(1/(lambda * (1/mu**2 - 1)) - Iv * Kv_p)
+            multiplier = (Iv * Iv_p * Kv_etalambda)/(1/(lambda * (1/mu**2 - 1)) - Iv * Kv_p)
 
             BIG_int = BIG_int + multiplier * sin(ksi*lambda)/lambda * int_Kv * dlambda
 
             lambda = lambda + dlambda
-            mulambda = lambda * mu
+            etalambda = lambda * eta
         end do
 
     end subroutine Woo_int

@@ -11,14 +11,13 @@ module MOD_MODIFIEDBESSEL
     subroutine firstkind_bessel(order, x, fk_bessel)
 
         real(8), intent(inout) :: fk_bessel, x
-        real(8) :: addition, start, end
+        real(8) :: addition
         integer, intent(inout) :: order
         integer :: m
         integer, parameter :: LargeInt_K = selected_int_kind (32)
         integer(kind=LargeInt_K) :: facout, facout2, gammainput
 
-        fk_bessel = 0.
-    
+        fk_bessel = 0._8
         facout = 1
         facout2 = 1
 
@@ -28,11 +27,9 @@ module MOD_MODIFIEDBESSEL
             else
                 facout = facout * m
             endif
-
             gammainput = order + m
             call factorial(gammainput, facout2)
             addition = (x/2)**(2*m + order) / (facout * facout2)
-
             fk_bessel = fk_bessel + addition
 
         end do
@@ -42,15 +39,14 @@ module MOD_MODIFIEDBESSEL
     subroutine secondkind_bessel(order, x, sk_bessel)
         
         real(8), intent(inout) :: x, sk_bessel
-        real(8) :: pi, t, dt
+        real(8) :: t, dt
         integer, intent(inout) :: order
         integer :: m, discretisation
 
-        pi = 3.141592653_8
         sk_bessel = 0._8
         discretisation = 1000_8
         t = 0.001_8
-        dt = 10./discretisation
+        dt = 10._8/discretisation
 
         do m = 0, discretisation
             sk_bessel = sk_bessel + exp(-x*cosh(t)) * cosh(order*t) * dt
