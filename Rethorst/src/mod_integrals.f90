@@ -18,6 +18,7 @@ module MOD_INTEGRALS
         real(8) :: dlambda, maxlambda, startlambda, lambda_run, fk_bessel     ! Running variables
         real(8), intent(out) :: int_Iv                                        ! Integral quantities
         real(8), intent(inout) :: lambda, c, d
+        real(8) :: start, finish
         integer :: order, m, integration
 
         integration = 100

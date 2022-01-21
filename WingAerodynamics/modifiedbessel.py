@@ -16,8 +16,8 @@ def modifiedbessel(order, x):
 
     for m in range(5):
         addition = (x/2)**(2*m + order)/(factorial(m) * factorial(m + order))
-        print(m+order, factorial(m), factorial(m+order))
         bessel += addition
+        print(m, m+order, factorial(m), factorial(m + order))
     # for m in range(steps):
     #     addition = 1/pi * np.exp(x*np.cos(t)) * np.cos(order*t) * dt
     #     bessel += addition

@@ -16,11 +16,11 @@ module MOD_MATH
         integer :: m
         
         ret = 1
-
+        
         if(fac==0)then
             facout = 1
         else
-            do m = 1, fac-1
+            do m = 1, fac
                 ret = ret * m
             end do
             facout = ret
