@@ -24,6 +24,5 @@ program main
     call Gjo_odd(mu, ksi, eta, c, d, r, Gjo_out)
 
     call Goo_odd(mu, ksi, eta, c, d, r, Goo_out)
-    
 
 end program main
