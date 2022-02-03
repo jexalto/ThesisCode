@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 
-dir_prop_wing = 'Validation/SecIIIC_ModelII/'
+dir_prop_wing = '/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/Validation/SecIIIC_ModelII/'
 
 fig24 = pd.read_csv(dir_prop_wing+'SecIIIC_Fig24_CLCD_ModelII_conventional_ReD640k.txt',
                    header=20)

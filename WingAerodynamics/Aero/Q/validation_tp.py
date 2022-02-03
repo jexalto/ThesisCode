@@ -15,7 +15,7 @@ from vlm_or import PyVLM
 
 from BEM import BEM
 from bezier import bezier
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 
 
 dir_prop_wing = 'Validation/SecIIIC_ModelII/'

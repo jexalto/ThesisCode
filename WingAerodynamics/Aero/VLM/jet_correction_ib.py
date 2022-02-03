@@ -158,7 +158,6 @@ def jet_correction_ib(y, mu, crd, loc, ib_loc, dlbda=0.1, dlb=0.005, p_max=10, l
     # Influence of single horseshoe vortex
     Ge[:,0] *= 0.5 #At beta=0 there's only one hs vortex
     G_ = Go + Ge
-    G_2 = Go + Ge
     G_ *= 0.5
     G_[:, 0] *= 2
 
@@ -176,5 +175,4 @@ def jet_correction_ib(y, mu, crd, loc, ib_loc, dlbda=0.1, dlb=0.005, p_max=10, l
     G = G[::-1, ::-1]                               #invert
 
     return G
-
 

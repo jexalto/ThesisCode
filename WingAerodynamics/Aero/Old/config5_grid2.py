@@ -190,7 +190,7 @@ if __name__ == '__main__':
         ib.grid_N = i
         wt.grid_N = i
         propellers = [ib, wt]  # propellers to be taken into account
-        from Q_prop2 import WingSys
+        from Aero.VLM.Q_prop2 import WingSys
         wingsys = WingSys(fc, ib, wt, wing, options, propellers, plot=False)
         t0 = time.time()
         res = wingsys.analyse()

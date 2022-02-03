@@ -10,6 +10,9 @@ if 'BEM/' not in sys.path:
     
 if 'VLM/' not in sys.path:
     sys.path.append('VLM/')
+
+sys.path.insert(1, '/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/VLM')
+sys.path.insert(1, '/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/BEM')
     
 from vlm_or import PyVLM    # original non-adapted vlm
 from BEM import BEM
@@ -21,7 +24,7 @@ vlm_dct2 = {}
 conv_dct = {}
 
 ### ISOLATED PROP
-dir_prop_wing = 'Validation/SecIIIC_ModelII/'
+dir_prop_wing = '/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/Validation/SecIIIC_ModelII/'
 
 fig24 = pd.read_csv(dir_prop_wing+'SecIIIC_Fig24_CLCD_ModelII_tipMounted_ReD640k.txt',
                    header=20)
@@ -44,7 +47,7 @@ B = 4
 rR_beta = 0.75
 pitch = 23.9-1.2 #deg
 sign_rotation = 1 #1 = outboard up, -1 = inboard up
-prop_geom = pd.read_csv('Validation/SecIIIC_ModelII/prop_geom.txt')
+prop_geom = pd.read_csv('/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/Validation/SecIIIC_ModelII/prop_geom.txt')
 
 x = 0.853*R
 z = 0.042*R

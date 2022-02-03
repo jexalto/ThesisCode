@@ -7,7 +7,7 @@ from scipy import interpolate as si
 import pandas as pd
 import mat4py
 from config5 import config
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 
 
 fc, ib, wt, wing, options = config()    # load configuration

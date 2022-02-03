@@ -8,7 +8,7 @@ import numpy as np
 from scipy import interpolate as si
 import pandas as pd
 import mat4py
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 
 
 def load_config(matfile, viscous=False,skinfriction=True, iter_max=1):

@@ -15,7 +15,7 @@ if 'VLM/' not in sys.path:
 from vlm import PyVLM
 from BEM import BEM
 from bezier import bezier
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 
 bem_dct = {}
 vlm_dct = {}

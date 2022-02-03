@@ -347,7 +347,7 @@ class PyVLM(object):
         #     gradient at each panel' position within the local chord
 
         Vinf_n = np.zeros(N)  # upstream (normal) velocity
-      #  mach = np.zeros(N)   # local mach number
+        # mach = np.zeros(N)   # local mach number
 
         if self.NACA is not None:
             self.airfoil = NACA4(self.NACA)
@@ -421,7 +421,7 @@ class PyVLM(object):
                                                 self.jet_corr_settings['lbda_max'])
                             G_ib += Gi
             G = np.zeros((N, N))
-            G_r = G_wt + G_ib
+            G_r = G_wt + G_ib # assumes linearity for correction
 
             for i, panel_pivot in enumerate(Panels):        # Panels on one wing half do not have an influence on the other wing half
                 i_ = panel_pivot.idx
@@ -815,9 +815,10 @@ class PyVLM(object):
         self.Vpert['turb'] = False
 
 
-# if __name__ == "__main__":
-#     import pickle
-#     with open('self_vlm', 'rb') as self_file:
-#         vlm_load = pickle.load(self_file)
-#         vlm = vlm_load
-#         vlm.vlm()
+if __name__ == "__main__":
+    import pickle
+    with open('/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/VLM/self_vlm', 'rb') as self_file:
+        vlm_load = pickle.load(self_file)
+        vlm = vlm_load
+        # vlm.__init__()
+        vlm.vlm()

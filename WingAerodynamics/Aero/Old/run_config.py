@@ -9,7 +9,7 @@ import mat4py
 from config5 import config
 import time
 import pickle
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 
 
 def run(alpha, fp='cruise'):

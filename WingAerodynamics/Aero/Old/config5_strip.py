@@ -202,7 +202,7 @@ if __name__ == '__main__':
             wing.m[1] = wing.m[1] +1
         wing.m = wing.m.astype(int).tolist()
         propellers = [ib, wt]  # propellers to be taken into account
-        from Q_prop2 import WingSys
+        from Aero.VLM.Q_prop2 import WingSys
         wingsys = WingSys(fc, ib, wt, wing, options, propellers, plot=False)
         print(len(wingsys.vlm.Panels))
         t0 = time.time()

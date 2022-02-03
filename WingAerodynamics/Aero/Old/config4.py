@@ -171,7 +171,7 @@ if __name__ == '__main__':
     wing = Wing()
     options = Options()
     propellers = [ib, wt]  # propellers to be taken into account
-    from Q_prop2 import WingSys
+    from Aero.VLM.Q_prop2 import WingSys
     wingsys = WingSys(fc, ib, wt, wing, options, propellers, plot=True)
     res = wingsys.analyse()
     print('Done')

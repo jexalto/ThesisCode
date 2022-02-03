@@ -7,10 +7,10 @@ import time
 import pickle
 
 if 'BEM/' not in sys.path:
-    sys.path.append('BEM/')
+    sys.path.append('/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/BEM/')
 
 if 'VLM/' not in sys.path:
-    sys.path.append('VLM/')
+    sys.path.append('/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/VLM/')
 
 from vlm import PyVLM
 from BEM import BEM
@@ -29,7 +29,7 @@ conv_dct_ ={}
 
 
 ### ISOLATED PROP
-dir_prop_wing = 'Validation/SecIIIC_ModelII/'
+dir_prop_wing = '/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/Validation/SecIIIC_ModelII/'
 
 fig24 = pd.read_csv(dir_prop_wing + 'SecIIIC_Fig24_CLCD_ModelII_conventional_ReD640k.txt',
                     header=20)
@@ -67,7 +67,7 @@ class InboardPropeller(object):
 
     rR_beta = 0.75
 
-    prop_geom = pd.read_csv('Validation/SecIIIC_ModelII/prop_geom.txt')
+    prop_geom = pd.read_csv('/home/jexalto/code/MDO_lab_env/ThesisCode/WingAerodynamics/Aero/Validation/SecIIIC_ModelII/prop_geom.txt')
     theta = prop_geom['theta'].to_numpy()
     rR = prop_geom['rR'].to_numpy()
     cR = prop_geom['cR'].to_numpy()

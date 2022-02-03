@@ -1,7 +1,7 @@
 # Perform convergence study on propeller wing system
 # by varying number of panels
 from runme import load_config
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 import numpy as np
 import copy
 import time

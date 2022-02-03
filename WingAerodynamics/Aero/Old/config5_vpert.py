@@ -22,7 +22,7 @@ if 'BEM/' not in sys.path:
 from BEM import BEM
 
 from Q.get_f import Get_f
-from Q_prop2 import wing_to_prop
+from Aero.VLM.Q_prop2 import wing_to_prop
 
 
 # --------------- Inboard Propeller ----------------
@@ -185,7 +185,7 @@ wt = WTMP()
 wing = Wing()
 options = Options()
 propellers = [ib, wt]  # propellers to be taken into account
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 import matplotlib.pyplot as plt
 wingsys = WingSys(fc, ib, wt, wing, options, propellers, plot=False)
 self = wingsys

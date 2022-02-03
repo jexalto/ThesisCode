@@ -184,7 +184,7 @@ wt = WTMP()
 wing = Wing()
 options = Options()
 propellers = [ib, wt]  # propellers to be taken into account
-from Q_prop2 import WingSys
+from Aero.VLM.Q_prop2 import WingSys
 
 #options.visc = False
 #options.N_iter_max = 1
