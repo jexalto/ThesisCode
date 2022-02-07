@@ -38,7 +38,7 @@ module MOD_GVALUES_ODD
         ! Input: mu (tip speed ratio), ksi (location x/r), eta (location y/r), c-d (location vortex), r (radius)
         ! Output; Gjj (correction factor)
         real(8) :: mu, ksi, eta, c, d, pi, r
-        real(8) :: Woj_int_out, sum_oj, Goj_out, start, end
+        real(8), intent(inout) :: Woj_int_out, sum_oj, Goj_out, start, end
         integer :: order, summation, m
 
         order = 1

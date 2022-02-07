@@ -7,12 +7,12 @@ program main
     real(8) :: mu, ksi, eta, c, d, r
     real(8) :: Gjj_out, Goj_out, Gjo_out, Goo_out
 
-    mu = 0.9
-    ksi = 0.5
-    eta = 0.3
+    mu = 0.95
+    ksi = 1.01
+    eta = 1.
     r = 1.0
-    c = 1.2
-    d = 1.3
+    c = 0.4
+    d = 0.5
 
     ! Subscript: first letter is control point, second letter is vortex
     ! o = outside, j = jet - inside jet

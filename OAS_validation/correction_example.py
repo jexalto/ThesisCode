@@ -9,6 +9,7 @@ into the problem, including wing geometry and flight conditions.
 """
 
 import numpy as np
+import pandas as pd
 
 from openaerostruct.geometry.utils import generate_mesh
 
@@ -24,8 +25,8 @@ import matplotlib.pyplot as plt
 # Create a dictionary to store options about the surface
 mesh_dict = {
         # Wing definition
-        "num_x": 3,  # number of chordwise points
-        "num_y": 21,  # number of spanwise points --> NEEDS to be more than 11
+        "num_x": 5,  # number of chordwise points
+        "num_y": 29,  # number of spanwise points --> NEEDS to be more than 11
         "wing_type": "rect",  # initial shape of the wing
         # either 'CRM' or 'rect'
         # 'CRM' can have different options
@@ -49,21 +50,22 @@ mesh = generate_mesh(mesh_dict) # twist_cp
 # --- Correction factor calculation ---
 # --- Include error for too little mesh points ---
 # y = np.linspace(0, mesh_dict["span"]/2, int((mesh_dict["num_y"])) )
-y = np.linspace(0, mesh_dict["span"]/2, int((mesh_dict["num_y"])) )
+y = np.linspace(0, 10, 15 ) # np.linspace(0, mesh_dict["span"]/2, int((mesh_dict["num_y"])) )
 mu = 0.95
 crd = 1.0
-loc = 0.5*mesh_dict["span"] - 0.25
-ib_loc = 0.5*mesh_dict["span"]/2
+loc = 5-0.25 # 0.5*mesh_dict["span"]/2 - 0.25
+ib_loc = 5 # 0.5*mesh_dict["span"]/2
 
 if mesh_dict["num_x"] == 1:
     n = 1
 else:
     n = int((mesh_dict["num_x"]-3)/2 + 1)
 
-G = np.zeros((mesh_dict["num_y"]-1, mesh_dict["num_y"]-1)) # jet_correction_ib(y, mu, crd, loc, ib_loc) #
-# G = np.tile(G, (n, 1))
-# G = np.tile(G, (1, n))
+G = jet_correction_ib(y, mu, crd, loc, ib_loc) # np.zeros((mesh_dict["num_y"]-1, mesh_dict["num_y"]-1)) # 
+G = np.tile(G, (n, 1))
+G = np.tile(G, (1, n))
 
+quit()
 # -------------------------------------
 
 surface = {
@@ -91,7 +93,7 @@ surface = {
     "t_over_c_cp": np.array([0.15]),  # thickness over chord ratio (NACA0015)
     "c_max_t": 0.303,  # chordwise location of maximum (NACA0015)
     # thickness
-    "with_viscous": True,
+    "with_viscous": False,
     "with_wave": False,  # if true, compute wave drag
     # Structural values are based on aluminum 7075
     "E": 70.0e9,  # [Pa] Young's modulus of the spar
@@ -113,10 +115,10 @@ prob = om.Problem()
 # Add problem information as an independent variables component
 indep_var_comp = om.IndepVarComp()
 indep_var_comp.add_output("v", val=100, units="m/s")
-indep_var_comp.add_output("alpha", val=5.0, units="deg")
-indep_var_comp.add_output("Mach_number", val=0.84)
+indep_var_comp.add_output("alpha", val=1.0, units="deg")
+indep_var_comp.add_output("Mach_number", val=0.)
 indep_var_comp.add_output("re", val=1.0e6, units="1/m")
-indep_var_comp.add_output("rho", val=0.38, units="kg/m**3")
+indep_var_comp.add_output("rho", val=1.225, units="kg/m**3")
 indep_var_comp.add_output("CT", val=grav_constant * 17.0e-6, units="1/s")
 indep_var_comp.add_output("R", val=11.165e6, units="m")
 indep_var_comp.add_output("W0", val=0.4 * 3e5, units="kg")
@@ -190,8 +192,16 @@ for alpha in alphas:
     print("CD:", prob["AS_point_0.wing_perf.CD"])
 
 totlift = np.concatenate( (prob['AS_point_0.wing_perf.aero_funcs.liftcoeff.Cl'], np.flip(prob['AS_point_0.wing_perf.aero_funcs.liftcoeff.Cl'])) )
-plt.plot(np.linspace(-mesh_dict["span"]/2, mesh_dict["span"]/2, int((mesh_dict["num_y"]-1))), totlift)
+plt.plot(np.linspace(-mesh_dict["span"]/2, mesh_dict["span"]/2, int((mesh_dict["num_y"]-1))), totlift, label="OAS data")
 plt.grid()
-plt.xlim((-mesh_dict["span"]/2, mesh_dict["span"]/2))
-plt.ylim((min(totlift)*1.2, max(totlift)*1.2))
-plt.savefig("/home/jexalto/code/MDO_lab_env/OpenAeroStruct/openaerostruct/examples/Figures/liftdistribution.png")
+# plt.xlim((-mesh_dict["span"]/2, mesh_dict["span"]/2))
+# plt.ylim((min(totlift)*0.98, max(totlift)*1.2))
+
+data, target = np.array_split(np.loadtxt('/home/jexalto/code/MDO_lab_env/ThesisCode/OAS_validation/vlm_verification.txt', dtype=float), [-1], axis=0)
+
+y_vlm_verification = data[:, 0]
+cl_vlm_verification = data[:, 1]
+
+plt.plot(y_vlm_verification, cl_vlm_verification, label="VLM verification data")
+plt.legend()
+plt.savefig("/home/jexalto/code/MDO_lab_env/ThesisCode/OAS_validation/Figures/liftdistribution.png")

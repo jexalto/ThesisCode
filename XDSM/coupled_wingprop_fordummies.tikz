@@ -1,0 +1,237 @@
+
+%%% Preamble Requirements %%%
+% \usepackage{geometry}
+% \usepackage{amsfonts}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{tikz}
+
+% Optional packages such as sfmath set through python interface
+% \usepackage{sfmath}
+
+% \usetikzlibrary{arrows,chains,positioning,scopes,shapes.geometric,shapes.misc,shadows}
+
+%%% End Preamble Requirements %%%
+
+\input{"/home/jexalto/code/MDO_lab_env/pyXDSM/pyxdsm/diagram_styles"}
+\begin{tikzpicture}
+
+\matrix[MatrixSetup]{
+%Row 0
+\node [DataIO] (output_opt) {$\begin{array}{c}l^0, \mathbf{\phi}^0, c_r^0, c_t^0 \\ B^0, R^0, \mathbf{\theta}^0 \\ \mathbf{c}^0, J^0, c^0\end{array}$};&
+\node [DataIO] (output_MDA) {$W_f^0$};&
+&
+&
+&
+&
+&
+&
+&
+\\
+%Row 1
+\node [Optimization] (opt) {$\text{Optimizer (SNOPT)}$};&
+&
+\node [DataInter] (opt-propeller) {$\begin{array}{c}B, R, \mathbf{\theta} \\ \mathbf{c}, J, c\end{array}$};&
+&
+\node [DataInter] (opt-wing) {$l, \mathbf{\phi}, c_r, c_t$};&
+&
+&
+&
+&
+\\
+%Row 2
+&
+\node [MDA] (MDA) {$\text{MDA coordinator}$};&
+\node [DataInter] (MDA-propeller) {$\hat{\alpha}$};&
+&
+\node [DataInter] (MDA-wing) {$\hat{W}_{fuel}$};&
+&
+&
+&
+&
+\\
+%Row 3
+&
+&
+\node [Function] (propeller) {$\text{Propeller}$};&
+\node [DataInter] (propeller-slipstream) {$\mathbf{v_j}$};&
+&
+\node [DataInter] (propeller-performance) {$Power$};&
+\node [DataInter] (propeller-F) {$Power$};&
+\node [DataInter] (propeller-G) {$Thrust$};&
+&
+\\
+%Row 4
+&
+&
+&
+\node [Function] (slipstream) {$\text{Slipstream model}$};&
+\node [DataInter] (slipstream-wing) {$\mathbf{G}$};&
+&
+&
+&
+&
+\\
+%Row 5
+&
+\node [DataInter] (wing-MDA) {$\alpha$};&
+&
+&
+\node [Function] (wing) {$\text{Wing}$};&
+\node [DataInter] (wing-performance) {$Lift, Drag, W_{str}$};&
+&
+\node [DataInter] (wing-G) {$Drag$};&
+\node [DataInter] (wing-G2) {$Lift, W_{structural}$};&
+\\
+%Row 6
+&
+\node [DataInter] (performance-MDA) {$W_{fuel}$};&
+&
+&
+&
+\node [Function] (performance) {$\text{Performance}$};&
+&
+&
+\node [DataInter] (performance-G2) {$W_{fuel}$};&
+\\
+%Row 7
+\node [DataInter] (F-opt) {$Power$};&
+&
+&
+&
+&
+&
+\node [ImplicitFunction] (F) {$\text{Objective function}$};&
+&
+&
+\\
+%Row 8
+\node [DataInter] (G-opt) {$Thrust=Drag$};&
+&
+&
+&
+&
+&
+&
+\node [ImplicitFunction] (G) {$\begin{array}{c}\text{Thrust} \\ \text{constraint}\end{array}$};&
+&
+\\
+%Row 9
+\node [DataInter] (G2-opt) {$Lift=Weight$};&
+&
+&
+&
+&
+&
+&
+&
+\node [ImplicitFunction] (G2) {$\begin{array}{c}\text{Lift} \\ \text{constraint}\end{array}$};&
+\\
+};
+
+% XDSM process chains
+{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (opt);
+\chainin (MDA) [join=by ProcessHVA];
+\chainin (propeller) [join=by ProcessHVA];
+\chainin (slipstream) [join=by ProcessHVA];
+\chainin (wing) [join=by ProcessHVA];
+\chainin (performance) [join=by ProcessHVA];
+\chainin (F) [join=by ProcessHVA];
+\chainin (opt) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (propeller);
+\chainin (performance) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (propeller);
+\chainin (F) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (propeller);
+\chainin (G) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (wing);
+\chainin (MDA) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (wing);
+\chainin (G) [join=by ProcessHVA];
+\chainin (opt) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (wing);
+\chainin (G2) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (performance);
+\chainin (G2) [join=by ProcessHVA];
+\chainin (opt) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (performance);
+\chainin (MDA) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (MDA);
+\chainin (wing) [join=by ProcessHVA];
+\end{pgfonlayer}
+}
+
+\begin{pgfonlayer}{data}
+\path
+% Horizontal edges
+(opt) edge [DataLine] (opt-propeller)
+(opt) edge [DataLine] (opt-wing)
+(MDA) edge [DataLine] (MDA-wing)
+(MDA) edge [DataLine] (MDA-propeller)
+(propeller) edge [DataLine] (propeller-slipstream)
+(propeller) edge [DataLine] (propeller-performance)
+(slipstream) edge [DataLine] (slipstream-wing)
+(wing) edge [DataLine] (wing-performance)
+(wing) edge [DataLine] (wing-MDA)
+(performance) edge [DataLine] (performance-MDA)
+(propeller) edge [DataLine] (propeller-F)
+(propeller) edge [DataLine] (propeller-G)
+(wing) edge [DataLine] (wing-G)
+(wing) edge [DataLine] (wing-G2)
+(performance) edge [DataLine] (performance-G2)
+(F) edge [DataLine] (F-opt)
+(G) edge [DataLine] (G-opt)
+(G2) edge [DataLine] (G2-opt)
+% Vertical edges
+(opt-propeller) edge [DataLine] (propeller)
+(opt-wing) edge [DataLine] (wing)
+(MDA-wing) edge [DataLine] (wing)
+(MDA-propeller) edge [DataLine] (propeller)
+(propeller-slipstream) edge [DataLine] (slipstream)
+(propeller-performance) edge [DataLine] (performance)
+(slipstream-wing) edge [DataLine] (wing)
+(wing-performance) edge [DataLine] (performance)
+(wing-MDA) edge [DataLine] (MDA)
+(performance-MDA) edge [DataLine] (MDA)
+(propeller-F) edge [DataLine] (F)
+(propeller-G) edge [DataLine] (G)
+(wing-G) edge [DataLine] (G)
+(wing-G2) edge [DataLine] (G2)
+(performance-G2) edge [DataLine] (G2)
+(F-opt) edge [DataLine] (opt)
+(G-opt) edge [DataLine] (opt)
+(G2-opt) edge [DataLine] (opt)
+(MDA) edge [DataLine] (output_MDA)
+(opt) edge [DataLine] (output_opt);
+\end{pgfonlayer}
+
+\end{tikzpicture}
