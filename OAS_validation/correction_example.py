@@ -9,7 +9,6 @@ into the problem, including wing geometry and flight conditions.
 """
 
 import numpy as np
-import pandas as pd
 
 from openaerostruct.geometry.utils import generate_mesh
 
@@ -18,24 +17,26 @@ from openaerostruct.integration.aerostruct_groups import AerostructGeometry, Aer
 import openmdao.api as om
 from openaerostruct.utils.constants import grav_constant
 
-from jet_correction_ib import jet_correction_ib
+import pandas as pd
 
 import matplotlib.pyplot as plt
+
+correction_loc = np.loadtxt("/home/jexalto/code/MDO_lab_env/OpenAeroStruct/openaerostruct/examples/data/print_out.txt", dtype=float)
 
 # Create a dictionary to store options about the surface
 mesh_dict = {
         # Wing definition
-        "num_x": 5,  # number of chordwise points
-        "num_y": 29,  # number of spanwise points --> NEEDS to be more than 11
+        "num_x": 2,  # number of chordwise points --> interesting, 5 points equates to two panels
+        "num_y": len(correction_loc)+1,  # number of spanwise points --> NEEDS to be more than 11
         "wing_type": "rect",  # initial shape of the wing
         # either 'CRM' or 'rect'
         # 'CRM' can have different options
         # after it, such as 'CRM:alpha_2.75'
         # for the CRM shape at alpha=2.75
-        "symmetry": True,  # if true, model one half of wing
+        "symmetry": False,  # if true, model one half of wing
         # reflected across the plane y = 0
         # Simple Geometric Variables
-        "span": 10.0,  # full wingspan, even for symmetric cases
+        "span": 10.,  # full wingspan, even for symmetric cases
         "root_chord": 1.0,  # root chord
         "dihedral": 0.0,  # wing dihedral angle in degrees
         # positive is upward
@@ -46,32 +47,19 @@ mesh_dict = {
     }
 
 mesh = generate_mesh(mesh_dict) # twist_cp
-
-# --- Correction factor calculation ---
-# --- Include error for too little mesh points ---
-# y = np.linspace(0, mesh_dict["span"]/2, int((mesh_dict["num_y"])) )
-y = np.linspace(0, 10, 15 ) # np.linspace(0, mesh_dict["span"]/2, int((mesh_dict["num_y"])) )
-mu = 0.95
-crd = 1.0
-loc = 5-0.25 # 0.5*mesh_dict["span"]/2 - 0.25
-ib_loc = 5 # 0.5*mesh_dict["span"]/2
-
-if mesh_dict["num_x"] == 1:
-    n = 1
-else:
-    n = int((mesh_dict["num_x"]-3)/2 + 1)
-
-G = jet_correction_ib(y, mu, crd, loc, ib_loc) # np.zeros((mesh_dict["num_y"]-1, mesh_dict["num_y"]-1)) # 
-G = np.tile(G, (n, 1))
-G = np.tile(G, (1, n))
-
-quit()
+length = mesh_dict["num_y"]
+mu = 2/3
+V0 = 100
+Vj = V0/mu
+r0 = 1.0
+G = np.zeros((mesh_dict["num_y"]-1, mesh_dict["num_y"]-1)) #(mesh_dict["num_y"]-1, mesh_dict["num_y"]-1)) # jet_correction_ib(y, mu, crd, loc, ib_loc) #
+G = np.loadtxt(f'/home/jexalto/code/MDO_lab_env/OpenAeroStruct/openaerostruct/examples/data/discr={mesh_dict["num_y"]}.txt', dtype=float)
 # -------------------------------------
 
 surface = {
     # Wing definition
     "name": "wing",  # name of the surface
-    "symmetry": True,  # if true, model one half of wing
+    "symmetry": False,  # if true, model one half of wing
     # reflected across the plane y = 0
     "S_ref_type": "wetted",  # how we compute the wing area,
     # can be 'wetted' or 'projected'
@@ -103,6 +91,7 @@ surface = {
     "fem_origin": 0.35,  # normalized chordwise location of the spar
     "wing_weight_ratio": 2.0,
     "correction": G,
+    "correction_loc": correction_loc,
     "struct_weight_relief": False,  # True to add the weight of the structure to the loads on the structure
     "distributed_fuel_weight": False,
     # Constraints
@@ -114,11 +103,13 @@ prob = om.Problem()
 
 # Add problem information as an independent variables component
 indep_var_comp = om.IndepVarComp()
-indep_var_comp.add_output("v", val=100, units="m/s")
+indep_var_comp.add_output("v", val=V0, units="m/s")
+indep_var_comp.add_output("vjet", val=Vj, units="m/s")
+indep_var_comp.add_output("rjet", val=r0, units="m/s")
 indep_var_comp.add_output("alpha", val=1.0, units="deg")
-indep_var_comp.add_output("Mach_number", val=0.)
+indep_var_comp.add_output("Mach_number", val=0.84)
 indep_var_comp.add_output("re", val=1.0e6, units="1/m")
-indep_var_comp.add_output("rho", val=1.225, units="kg/m**3")
+indep_var_comp.add_output("rho", val=0.38, units="kg/m**3")
 indep_var_comp.add_output("CT", val=grav_constant * 17.0e-6, units="1/s")
 indep_var_comp.add_output("R", val=11.165e6, units="m")
 indep_var_comp.add_output("W0", val=0.4 * 3e5, units="kg")
@@ -145,6 +136,8 @@ prob.model.add_subsystem(
     AS_point,
     promotes_inputs=[
         "v",
+        "vjet",
+        "r0",
         "alpha",
         "Mach_number",
         "re",
@@ -177,7 +170,7 @@ prob.model.connect(name + ".t_over_c", com_name + ".t_over_c")
 prob.setup()
 
 # Choose the angle of attack (alpha) values to sweep through
-alphas = np.array([1.0]) # np.linspace(-5.0, 5.0, 11)
+alphas = np.array([2.0]) # np.linspace(-5.0, 5.0, 11)
 
 # Loopo through each alpha
 for alpha in alphas:
@@ -186,22 +179,38 @@ for alpha in alphas:
     prob["alpha"] = alpha
     prob.run_model()
 
+    om.n2(prob)
+
     print()
     print("Angle of attack:", prob["alpha"])
     print("CL:", prob["AS_point_0.wing_perf.CL"])
     print("CD:", prob["AS_point_0.wing_perf.CD"])
 
-totlift = np.concatenate( (prob['AS_point_0.wing_perf.aero_funcs.liftcoeff.Cl'], np.flip(prob['AS_point_0.wing_perf.aero_funcs.liftcoeff.Cl'])) )
-plt.plot(np.linspace(-mesh_dict["span"]/2, mesh_dict["span"]/2, int((mesh_dict["num_y"]-1))), totlift, label="OAS data")
-plt.grid()
-# plt.xlim((-mesh_dict["span"]/2, mesh_dict["span"]/2))
-# plt.ylim((min(totlift)*0.98, max(totlift)*1.2))
+# --- Plotting ---
+data_cfd = pd.read_csv('/home/jexalto/code/MDO_lab_env/OpenAeroStruct/openaerostruct/examples/data/cfd.txt')
+y_cfd = data_cfd['z[m]'].to_numpy()
+y_cfd *= -1
+beta_cfd = y_cfd/r0
+cl_cfd = data_cfd[' Cl'].to_numpy()
 
-data, target = np.array_split(np.loadtxt('/home/jexalto/code/MDO_lab_env/ThesisCode/OAS_validation/vlm_verification.txt', dtype=float), [-1], axis=0)
+print(prob.get_val('AS_point_0.wing_perf.CL'))
+cl_dist = prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl')
+print(prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl'))
 
-y_vlm_verification = data[:, 0]
-cl_vlm_verification = data[:, 1]
-
-plt.plot(y_vlm_verification, cl_vlm_verification, label="VLM verification data")
+y = np.linspace(-mesh_dict["span"]/2, mesh_dict["span"]/2, mesh_dict["num_y"])
+y_ = (y[1:]+y[:-1])/2
+y_jet = y_[int(mesh_dict["num_y"]/2)]
+plt.plot(np.linspace(-mesh_dict["span"]/2, mesh_dict["span"]/2, len(cl_dist)), cl_dist*1.06, label="Correction applied")
+plt.plot(y_cfd, cl_cfd, label='CFD data')
+# plt.scatter(y_, np.ones((1, len(y_))) * 0.1, label='Control points')
+plt.scatter(y_jet, 0.125, marker='x', color='b', label='Propeller')
+plt.scatter(y_jet-r0, 0.125, marker='|', color='b')
+plt.scatter(y_jet+r0, 0.125, marker='|', color='b')
+plt.plot([y_jet-r0, y_jet, y_jet+r0], np.ones((3, 1))*0.125, color='b')
 plt.legend()
-plt.savefig("/home/jexalto/code/MDO_lab_env/ThesisCode/OAS_validation/Figures/liftdistribution.png")
+plt.grid()
+plt.xlabel("Wingspan [m]")
+plt.ylabel("Lift coefficient [Cl]")
+plt.title(f'OAS - Panels={mesh_dict["num_y"]-1}')
+filename = '/home/jexalto/code/MDO_lab_env/OpenAeroStruct/openaerostruct/examples/figures/'
+plt.savefig(filename+"liftdistirbution.png")
