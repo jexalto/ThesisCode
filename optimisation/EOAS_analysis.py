@@ -20,48 +20,10 @@ from openaerostruct.integration.aerostruct_groups import AerostructGeometry, Aer
 
 import openmdao.api as om
 
-from correction_matrix import correction_, correction_location
-
-def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
-    # Create a dictionary to store options about the surface
-    mesh_dict = {
-            # Wing definition
-            "num_x": 2,  # number of chordwise points --> interesting, 5 points equates to two panels
-            "num_y": 71,  # number of spanwise points --> NEEDS to be more than 11
-            "wing_type": "rect",  # initial shape of the wing
-            # either 'CRM' or 'rect'
-            # 'CRM' can have different options
-            # after it, such as 'CRM:alpha_2.75'
-            # for the CRM shape at alpha=2.75
-            "symmetry": False,  # if true, model one half of wing
-            # reflected across the plane y = 0
-            # Simple Geometric Variables
-            "span": 10.,  # full wingspan, even for symmetric cases
-            "root_chord": 1.0,  # root chord
-            "dihedral": 0.0,  # wing dihedral angle in degrees
-            # positive is upward
-            "sweep": 0.0,  # wing sweep angle in degrees
-            # positive sweeps back
-            "taper": 1.0,  # taper ratio; 1. is uniform chord
-            "num_twist_cp": 5
-        }
-    # how to make it work: use span=10 and num_y=71/61/51/..., radius=1.0
-
-    # mesh = generate_mesh(mesh_dict) # twist_cp
-    # nx = 2
-
-    correction, mesh_ = correction_(mesh_dict["num_y"]-1, nx, mesh_dict["span"], jet_loc, jet_radius, Vinf, Vjet, span_max, r_min)
-    y = mesh_[:, 0, 0]
-    
-    y_ = np.zeros((len(y)-1))
-    for i in range(len(y)-1):
-        y_[i] = (y[i+1]+y[i])/2
-
-    correction_loc = correction_location(mesh_dict["num_y"]-1, mesh_dict["span"], jet_radius, jet_loc, y)
-
-    np.savetxt('/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/data/correction_EOAS.txt', correction, delimiter=",\t", fmt='%.6f')
-
-    mesh = np.zeros((2, mesh_dict["num_y"], 3))
+def EAOS_analysis_(panels_span, panels_chord, jet_radius, jet_loc, Vinf, Vjet, mesh, correction_loc, correction):
+    # Only works for single panel in chordwise direction for now
+    y = mesh[:, 0, 0]
+    mesh = np.zeros((panels_chord, panels_span, 3))
     mesh[0, :, 1] = y
     mesh[1, :, 1] = y
     mesh[1, :, 0] = np.ones((len(y)))
@@ -180,48 +142,23 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     prob.setup()
 
     # Choose the angle of attack (alpha) values to sweep through
-    alphas = np.array([2.0]) # np.linspace(-5.0, 5.0, 11)
-
-    # Loopo through each alpha
-    for alpha in alphas:
+    alpha = np.aaray(2.0)
 
         # Set the alpha in the problem and run analysis
-        prob["alpha"] = alpha
-        prob.run_model()
+    prob["alpha"] = alpha
+    prob.run_model()
 
-        om.n2(prob)
+    print("\nAngle of attack:", prob["alpha"])
+    print("CL:", prob["AS_point_0.wing_perf.CL"])
+    print("CD:", prob["AS_point_0.wing_perf.CD"])
 
-        print()
-        print("Angle of attack:", prob["alpha"])
-        print("CL:", prob["AS_point_0.wing_perf.CL"])
-        print("CD:", prob["AS_point_0.wing_perf.CD"])
+    CL = prob["AS_point_0.wing_perf.CL"]
+    CD = prob["AS_point_0.wing_perf.CD"]
 
-    # --- Plotting ---
-    data_cfd = pd.read_csv('/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/data/cfd.txt')
-    y_cfd = data_cfd['z[m]'].to_numpy()
-    y_cfd *= -1
-    beta_cfd = y_cfd/jet_radius
-    cl_cfd = data_cfd[' Cl'].to_numpy()
+    cl = prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl')
+    cd = prob.get_val('AS_point_0.wing_perf.aero_funcs.Cd')
 
-    print(prob.get_val('AS_point_0.wing_perf.CL'))
-    cl_dist = prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl')
-    print(prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl'))
+    Wstruc = prob["wing.structural_mass"][0]
+    Wfuel = prob["AS_point_0.fuelburn"][0]
 
-    y_jet = jet_loc
-
-    plt.plot(y_, cl_dist*1.06, label="Correction applied")
-    plt.plot(y_cfd, cl_cfd, label='CFD data')
-
-    plt.scatter(y_jet, 0.125, marker='x', color='b', label='Propeller')
-    plt.scatter(y_jet-jet_radius, 0.125, marker='|', color='b')
-    plt.scatter(y_jet+jet_radius, 0.125, marker='|', color='b')
-    plt.plot([y_jet-jet_radius, y_jet, y_jet+jet_radius], np.ones((3, 1))*0.125, color='b')
-    plt.legend()
-    plt.grid()
-    plt.xlabel("Wingspan [m]")
-    plt.ylabel("Lift coefficient [Cl]")
-    plt.title(f'OAS - Panels={mesh_dict["num_y"]-1}, Jet Radius{jet_radius}')
-    
-    plt.savefig(filename+f"liftdistirbution_r{jet_radius}_d{jet_loc}.png")
-    plt.clf()
-    return filename+f"liftdistirbution_r{jet_radius}_d{jet_loc}.png"
+    return CL, CD, cl, cd, Wstruc, Wfuel
