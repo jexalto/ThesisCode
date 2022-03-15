@@ -1,61 +1,49 @@
 import numpy as np
 import openmdao.api as om
 
-prob = om.Problem()
+from EOAS_system import EOAS
+from rethorst_system import Rethorst
 
+class Circuit(om.group):
+
+    def setup(self):
+        self.add_subsystem('rethorst', subsys=Rethorst(panels_VLM=71),  promotes_inputs=[(  'rethorst.span', 'rethorst.jet_loc', 'rethorst.jet_radius',
+                                                                                            'rethorst.Vinf', 'rethorst.Vjet')],
+                                                                        promotes_outputs=[( 'rethorst.correction_matrix', 'rethorst.mesh')])
+        
+        self.add_subsystem('EOAS', subsys=EOAS(panels_VLM=71),          promotes_inputs=[(  'EOAS.mesh', 'EOAS.correction_matrix', 'EOAS.chord', 
+                                                                                            'EOAS.jet_loc', 'EOAS.jet_radius',
+                                                                                            'EOAS.Vinf', 'EOAS.Vjet',
+                                                                                            'EOAS.aoa')],
+                                                                        promotes_outputs=[( 'EOAS.CL', 'EOAS.CD', 'EOAS.cl', 'EOAS.cd',
+                                                                                            'EOAS.Wstruc', 'EOAS.Wfuel')])
+
+        self.connect('transfer.va', 'dv2.v1')
+
+        self.add_design_var('span', lower=10, upper=30)
+        self.add_design_var('chord', lower=0.5, upper=4)
+        self.add_design_var('jet_loc', lower=0, upper=10)
+        self.add_design_var('jet_radius', lower=0.5, upper=.5)
+        self.add_design_var('Vinf', lower=0, upper=28.5)
+        self.add_design_var('Vjet', lower=0, upper=28.5)
+        self.add_design_var('aoa', lower=0, upper=28.5)
+
+        self.add_constraint('dinc', lower=28.5, upper=28.5, scaler=1.0)
+
+        self.add_objective('delta_v', scaler=1.0)
+
+prob = om.Problem()
 model = prob.model
 
-model.add_subsystem('leo', subsys=VCircComp(), promotes_inputs=[('r', 'r1'), 'mu'])
-model.add_subsystem('geo', subsys=VCircComp(), promotes_inputs=[('r', 'r2'), 'mu'])
+model.add_subsystem('circuit', Circuit())
 
-model.add_subsystem('transfer', subsys=TransferOrbitComp(),
-                    promotes_inputs=[('rp', 'r1'), ('ra', 'r2'), 'mu'])
-
-model.add_subsystem('dv1', subsys=DeltaVComp(), promotes_inputs=[('dinc', 'dinc1')])
-
-model.connect('leo.vcirc', 'dv1.v1')
-model.connect('transfer.vp', 'dv1.v2')
-
-model.add_subsystem('dv2', subsys=DeltaVComp(), promotes_inputs=[('dinc', 'dinc2')])
-
-model.connect('transfer.va', 'dv2.v1')
-model.connect('geo.vcirc', 'dv2.v2')
-
-model.add_subsystem('dv_total',
-                    subsys=om.ExecComp('delta_v=dv1+dv2',
-                                       delta_v={'units': 'km/s'},
-                                       dv1={'units': 'km/s'},
-                                       dv2={'units': 'km/s'}),
-                    promotes=['delta_v'])
-
-model.connect('dv1.delta_v', 'dv_total.dv1')
-model.connect('dv2.delta_v', 'dv_total.dv2')
-
-model.add_subsystem('dinc_total',
-                    subsys=om.ExecComp('dinc=dinc1+dinc2',
-                                       dinc={'units': 'deg'},
-                                       dinc1={'units': 'deg'},
-                                       dinc2={'units': 'deg'}),
-                    promotes=['dinc', 'dinc1', 'dinc2'])
-
-prob.driver = om.ScipyOptimizeDriver()
-
-model.add_design_var('dinc1', lower=0, upper=28.5)
-model.add_design_var('dinc2', lower=0, upper=28.5)
-model.add_constraint('dinc', lower=28.5, upper=28.5, scaler=1.0)
-model.add_objective('delta_v', scaler=1.0)
-
-# set defaults for our promoted variables to remove ambiguities in value and/or units
-model.set_input_defaults('r1', val=6778.0)
-model.set_input_defaults('r2', val=42164.0)
-model.set_input_defaults('mu', val=398600.4418)
-model.set_input_defaults('dinc1', val=0., units='deg')
-model.set_input_defaults('dinc2', val=28.5, units='deg')
-
-# Setup the problem
 prob.setup()
 
-# Execute the model with the given inputs
-prob.run_model()
+prob.set_val('circuit.I_in', 0.1)
+prob.set_val('circuit.Vg', 0.)
 
-print('Delta-V (km/s):', prob['delta_v'][0])
+# set some initial guesses
+prob.set_val('circuit.n1.V', 10.)
+prob.set_val('circuit.n2.V', 1e-3)
+
+prob.run_model()

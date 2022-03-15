@@ -160,5 +160,3 @@ def EAOS_analysis_(panels_span, panels_chord, jet_radius, jet_loc, Vinf, Vjet, m
 
     Wstruc = prob["wing.structural_mass"][0]
     Wfuel = prob["AS_point_0.fuelburn"][0]
-
-    return CL, CD, cl, cd, Wstruc, Wfuel

@@ -45,11 +45,8 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
             "taper": 1.0,  # taper ratio; 1. is uniform chord
             "num_twist_cp": 5
         }
-    # how to make it work: use span=10 and num_y=71/61/51/..., radius=1.0
 
-    # mesh = generate_mesh(mesh_dict) # twist_cp
-    # nx = 2
-
+    nx = mesh_dict['num_x']
     correction, mesh_ = correction_(mesh_dict["num_y"]-1, nx, mesh_dict["span"], jet_loc, jet_radius, Vinf, Vjet, span_max, r_min)
     y = mesh_[:, 0, 0]
     
