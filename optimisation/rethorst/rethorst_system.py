@@ -2,7 +2,7 @@ import numpy as np
 from RethorstCorrection_pyf90.mod_overset_interpolation import overset_interpolation
 import openmdao.api as om
 
-class Rethorst(om.ExplicitComponent):
+class Rethorst(om.Group):
     def initialize(self):
         self.options.declare('panels_VLM', default=71, desc='number of spanwise panels on the VLM')
         self.options.declare('nx', default=1, desc='number of chordwise panels')
@@ -16,8 +16,8 @@ class Rethorst(om.ExplicitComponent):
         self.add_input('span', val=1.0, units='m')
         self.add_input('jet_loc', val=1.0, units='m')
         self.add_input('jet_radius', val=1.0, units='m')
-        self.add_input('Vinf', val=1.0, units='m')
-        self.add_input('Vjet', val=1.0, units='m')
+        self.add_input('vinf', val=1.0, units='m')
+        self.add_input('vjet', val=1.0, units='m')
 
         self.add_output('correction_matrix', shape=(panels_VLM, panels_VLM), val=np.zeros((panels_VLM, panels_VLM)))
         self.add_output('mesh', shape=(nx, panels_VLM), val=np.zeros((nx, panels_VLM)))

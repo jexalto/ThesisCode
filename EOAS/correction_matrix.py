@@ -5,8 +5,8 @@ from RethorstCorrection_pyf90.mod_overset_interpolation import overset_interpola
 def correction_(panels_VLM, nx, span, jet_loc, jet_radius, Vinf, Vjet, span_max, r_min):
     correction_matrix = np.zeros((panels_VLM, panels_VLM), order='F')
     mesh = np.zeros((panels_VLM+1, 3, nx), order='F')
-    panels_jet = 91
-    panels_overset_wing = 3101
+    panels_jet = 101
+    panels_overset_wing = 2101
 
     overset_interpolation(span, 1., jet_loc, jet_radius, Vinf, Vjet, panels_jet,\
         panels_overset_wing, nx, panels_VLM, span_max, r_min, correction_matrix, mesh)

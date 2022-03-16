@@ -1,5 +1,4 @@
 import numpy as np
-from RethorstCorrection_pyf90.mod_overset_interpolation import overset_interpolation
 import openmdao.api as om
 
 from openaerostruct.utils.constants import grav_constant
@@ -7,28 +6,39 @@ from openaerostruct.integration.aerostruct_groups import AerostructGeometry, Aer
 
 class EOAS(om.Group):
     def initialize(self):
-        self.options.declare('panels_VLM', default=71, desc='number of spanwise panels on the VLM')
-        self.options.declare('nx', default=2, desc='number of chordwise panels')
 
     def setup(self):
-        panels_VLM = self.options['panels_VLM']
-        nx = self.options['nx']
+        self.options.declare('panels_VLM', default=71, desc='number of spanwise panels on the VLM')
+        self.options.declare('nx', default=2, desc='number of chordwise panels')
+        
+        # panels_VLM = self.options['panels_VLM']
+        # nx = self.options['nx']
 
-        self.add_input('mesh', shape=(nx, panels_VLM), val=np.zeros((nx, panels_VLM)))
-        self.add_input('correction_matrix', shape=(panels_VLM, panels_VLM), val=np.zeros((panels_VLM, panels_VLM)))
-        self.add_input('chord', val=1.0, units='m')
-        self.add_input('jet_loc', val=1.0, units='m')
-        self.add_input('jet_radius', val=1.0, units='m')
-        self.add_input('Vinf', val=1.0, units='m/s')
-        self.add_input('Vjet', val=1.0, units='m/s')
-        self.add_input('aoa', val=1.0, units='deg')
+        # self.add_input('mesh', shape=(nx, panels_VLM), val=np.zeros((nx, panels_VLM)))
+        # self.add_input('correction_matrix', shape=(panels_VLM, panels_VLM), val=np.zeros((panels_VLM, panels_VLM)))
+        # self.add_input('chord', val=1.0, units='m')
+        # self.add_input('jet_loc', val=1.0, units='m')
+        # self.add_input('jet_radius', val=1.0, units='m')
+        # self.add_input('vinf', val=1.0, units='m/s')
+        # self.add_input('vjet', val=1.0, units='m/s')
+        # self.add_input('aoa', val=1.0, units='deg')
 
-        self.add_output('CL', val=1.0)
-        self.add_output('CD', val=1.0)
-        self.add_output('cl', shape=(1, panels_VLM), val=np.zeros((1, panels_VLM)))
-        self.add_output('cd', shape=(1, panels_VLM), val=np.zeros((1, panels_VLM)))
-        self.add_output('Wfuel', val=1.0)
-        self.add_output('Wwing', val=1.0)
+        # self.add_input("Mach_number", val=0.84)
+        # self.add_input("re", val=1.0e6, units="1/m")
+        # self.add_input("rho", val=0.38, units="kg/m**3")
+        # self.add_input("CT", val=grav_constant * 17.0e-6, units="1/s")
+        # self.add_input("R", val=11.165e6, units="m")
+        # self.add_input("W0", val=0.4 * 3e5, units="kg")
+        # self.add_input("speed_of_sound", val=295.4, units="m/s")
+        # self.add_input("load_factor", val=1.)
+        # self.add_input("empty_cg", val=np.zeros((3)), units="m")
+
+        # self.add_output('CL', val=1.0)
+        # self.add_output('CD', val=1.0)
+        # self.add_output('cl', shape=(1, panels_VLM), val=np.zeros((1, panels_VLM)))
+        # self.add_output('cd', shape=(1, panels_VLM), val=np.zeros((1, panels_VLM)))
+        # self.add_output('Wfuel', val=1.0)
+        # self.add_output('Wwing', val=1.0)
 
     def setup_partials(self):
         self.declare_partials('*', '*', method='fd')
@@ -37,8 +47,8 @@ class EOAS(om.Group):
         span = inputs['span']
         jet_loc = inputs['jet_loc']
         jet_radius = inputs['jet_radius']
-        Vinf = inputs['Vinf']
-        Vjet = inputs['Vjet']
+        Vinf = inputs['vinf']
+        Vjet = inputs['vjet']
         mesh = inputs['mesh']
         correction = inputs['correction']
         alpha = inputs['aoa']
@@ -46,6 +56,8 @@ class EOAS(om.Group):
 
         panels_VLM = self.options['panels_VLM']
         panels_chord = self.options['nx']
+
+        self.add_subsystem('correction_loc_array', )
         
         y = mesh[:, 0, 0]
         correction_loc = np.zeros((panels_VLM))
@@ -106,7 +118,6 @@ class EOAS(om.Group):
         indep_var_comp = om.IndepVarComp()
         indep_var_comp.add_output("v", val=Vinf, units="m/s")
         indep_var_comp.add_output("vjet", val=Vjet, units="m/s")
-        indep_var_comp.add_output("rjet", val=jet_radius, units="m/s")
         indep_var_comp.add_output("alpha", val=1.0, units="deg")
         indep_var_comp.add_output("Mach_number", val=0.84)
         indep_var_comp.add_output("re", val=1.0e6, units="1/m")

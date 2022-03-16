@@ -22,12 +22,12 @@ import openmdao.api as om
 
 from correction_matrix import correction_, correction_location
 
-def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
+def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     # Create a dictionary to store options about the surface
     mesh_dict = {
             # Wing definition
             "num_x": 2,  # number of chordwise points --> interesting, 5 points equates to two panels
-            "num_y": 71,  # number of spanwise points --> NEEDS to be more than 11
+            "num_y": 101,  # number of spanwise points --> NEEDS to be more than 11
             "wing_type": "rect",  # initial shape of the wing
             # either 'CRM' or 'rect'
             # 'CRM' can have different options
@@ -45,7 +45,7 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
             "taper": 1.0,  # taper ratio; 1. is uniform chord
             "num_twist_cp": 5
         }
-
+    
     nx = mesh_dict['num_x']
     correction, mesh_ = correction_(mesh_dict["num_y"]-1, nx, mesh_dict["span"], jet_loc, jet_radius, Vinf, Vjet, span_max, r_min)
     y = mesh_[:, 0, 0]
@@ -62,7 +62,9 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     mesh[0, :, 1] = y
     mesh[1, :, 1] = y
     mesh[1, :, 0] = np.ones((len(y)))
-
+    mesh = generate_mesh(mesh_dict)
+    print('y', y)
+    
     surface = {
         # Wing definition
         "name": "wing",  # name of the surface
@@ -74,6 +76,8 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         "thickness_cp": np.array([0.1, 0.2, 0.3]),
         # "twist_cp": twist_cp,
         "mesh": mesh,
+        # 'span': 10.,
+        # 'propeller': 1,
         # Aerodynamic performance of the lifting surface at
         # an angle of attack of 0 (alpha=0).
         # These CL0 and CD0 values are added to the CL and CD
@@ -97,8 +101,6 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         "mrho": 3.0e3,  # [kg/m^3] material density
         "fem_origin": 0.35,  # normalized chordwise location of the spar
         "wing_weight_ratio": 2.0,
-        "correction": correction,
-        "correction_loc": correction_loc,
         "struct_weight_relief": False,  # True to add the weight of the structure to the loads on the structure
         "distributed_fuel_weight": False,
         # Constraints
@@ -112,7 +114,10 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     indep_var_comp = om.IndepVarComp()
     indep_var_comp.add_output("v", val=Vinf, units="m/s")
     indep_var_comp.add_output("vjet", val=Vjet, units="m/s")
-    indep_var_comp.add_output("rjet", val=jet_radius, units="m/s")
+    indep_var_comp.add_output("jet_radius", val=jet_radius, units="m")
+    indep_var_comp.add_output("jet_loc", val=jet_loc, units="m")
+    indep_var_comp.add_output("correction", val=correction)
+    indep_var_comp.add_output("correction_loc", val=correction_loc)
     indep_var_comp.add_output("alpha", val=1.0, units="deg")
     indep_var_comp.add_output("Mach_number", val=0.84)
     indep_var_comp.add_output("re", val=1.0e6, units="1/m")
@@ -123,19 +128,21 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     indep_var_comp.add_output("speed_of_sound", val=295.4, units="m/s")
     indep_var_comp.add_output("load_factor", val=1.0)
     indep_var_comp.add_output("empty_cg", val=np.zeros((3)), units="m")
+    # indep_var_comp.add_output("span", val=10., units="m")
 
     prob.model.add_subsystem("prob_vars", indep_var_comp, promotes=["*"])
 
     aerostruct_group = AerostructGeometry(surface=surface)
+
+    # prob.model.connect('mesh_input', 'wing.geometry.mesh.rotate.in_mesh')
 
     name = "wing"
 
     # Add tmp_group to the problem with the name of the surface.
     prob.model.add_subsystem(name, aerostruct_group)
 
-    point_name = "AS_point_0"
+    point_name = "AS_oint_0"        # Create the aero point group and add it to the model
 
-    # Create the aero point group and add it to the model
     AS_point = AerostructPoint(surfaces=[surface])
 
     prob.model.add_subsystem(
@@ -144,7 +151,8 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         promotes_inputs=[
             "v",
             "vjet",
-            "r0",
+            'jet_radius',
+            'jet_loc',
             "alpha",
             "Mach_number",
             "re",
@@ -155,10 +163,13 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
             "speed_of_sound",
             "empty_cg",
             "load_factor",
+            'correction',
+            'correction_loc',
         ],
     )
 
     com_name = point_name + "." + name + "_perf"
+    # prob.model.connect('wing.geometry.mesh.stretch.span', 'span')
     prob.model.connect(name + ".local_stiff_transformed", point_name + ".coupled." + name + ".local_stiff_transformed")
     prob.model.connect(name + ".nodes", point_name + ".coupled." + name + ".nodes")
 
