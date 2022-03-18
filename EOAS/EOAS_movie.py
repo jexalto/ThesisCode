@@ -8,7 +8,7 @@ span_max = 40
 r_min = 0.5
 Vjet = 150
 Vinf = 100
-jet_loc = 0.
+jet_loc = 1.
 jet_radius = 0.5
 
 jet_radii = np.linspace(r_min, 2., steps)
