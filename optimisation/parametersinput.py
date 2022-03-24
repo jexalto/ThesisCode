@@ -9,8 +9,7 @@ class parameters(om.IndepVarComp):
         pass
 
     def setup(self):
-        self.add_output("vinf", val=1., units="m/s")
-        self.add_output("vjet", val=1., units="m/s")
+        self.add_output("vinf", val=100., units="m/s")
         self.add_output("alpha", val=1., units="deg")
         self.add_output("Mach_number", val=0.84)
         self.add_output("re", val=1.0e6, units="1/m")

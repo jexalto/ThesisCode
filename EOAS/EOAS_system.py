@@ -22,12 +22,12 @@ import openmdao.api as om
 
 from correction_matrix import correction_, correction_location
 
-def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
+def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_input, prop_discr):
     # Create a dictionary to store options about the surface
     mesh_dict = {
             # Wing definition
-            "num_x": 2,  # number of chordwise points --> interesting, 5 points equates to two panels
-            "num_y": 201,  # number of spanwise points --> NEEDS to be more than 11
+            "num_x": nx_input,  # number of chordwise points --> interesting, 5 points equates to two panels
+            "num_y": 401,  # number of spanwise points --> NEEDS to be more than 11
             "wing_type": "rect",  # initial shape of the wing
             # either 'CRM' or 'rect'
             # 'CRM' can have different options
@@ -46,16 +46,23 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
             "num_twist_cp": 5
         }
     
-    panels_overset_wing = 1501
-    panels_jet = 25
-    
-    nx = mesh_dict['num_x']
-    correction, panels_jet, panels_overset_wing, G_, _, y_VLM, _, _ = \
-        correction_(mesh_dict["num_y"]-1, mesh_dict["span"], jet_loc, jet_radius, Vinf, Vjet, span_max, r_min, panels_overset_wing, panels_jet)
-    
-    y = y_VLM
+    panels_overset_wing = 2501
+    panels_jet = 101
 
-    print('y', y)
+    steps = 100
+    step = np.arange(0, steps, 1)
+
+    def x2(steps):
+        return 150-(0.1*steps-3)**2
+
+    vel_distr_input = np.array(x2(step), order='F')
+    radii_input = np.array(np.linspace(0.01, jet_radius, steps), order='F')
+
+    correction, y_VLM, vel_vec = correction_(   mesh_dict["num_y"]-1, mesh_dict["num_x"]-1,  panels_overset_wing, panels_jet,
+                                                mesh_dict["span"], mesh_dict["root_chord"], span_max, r_min, Vinf,
+                                                vel_distr_input, radii_input, prop_discr, jet_loc)
+    print(vel_vec)
+    y = y_VLM
     
     y_ = np.zeros((len(y)-1))
     for i in range(len(y)-1):
@@ -81,7 +88,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         # "twist_cp": twist_cp,
         "mesh": mesh,
         # "span": 10.,
-        # "propeller": 1,
+        "propeller": 1,
         # Aerodynamic performance of the lifting surface at
         # an angle of attack of 0 (alpha=0).
         # These CL0 and CD0 values are added to the CL and CD
@@ -117,10 +124,10 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     # Add problem information as an independent variables component
     indep_var_comp = om.IndepVarComp()
     indep_var_comp.add_output("v", val=Vinf, units="m/s")
-    indep_var_comp.add_output("vjet", val=Vjet, units="m/s")
-    indep_var_comp.add_output("jet_radius", val=jet_radius, units="m")
-    indep_var_comp.add_output("jet_loc", val=jet_loc, units="m")
     indep_var_comp.add_output("correction", val=correction)
+    indep_var_comp.add_output("jet_loc", val=jet_loc, units='m')
+    indep_var_comp.add_output("jet_radius", val=jet_radius, units='m')
+    indep_var_comp.add_output('velocity_distr', val=vel_vec, units='m/s')
     indep_var_comp.add_output("alpha", val=1.0, units="deg")
     indep_var_comp.add_output("Mach_number", val=0.84)
     indep_var_comp.add_output("re", val=1.0e6, units="1/m")
@@ -153,9 +160,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         AS_point,
         promotes_inputs=[
             "v",
-            "vjet",
-            'jet_radius',
-            'jet_loc',
+            "velocity_distr",
             "alpha",
             "Mach_number",
             "re",
@@ -172,8 +177,8 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
 
     # prob.model.connect('span', 'wing.geometry.mesh.stretch.span')
     prob.model.connect('wing.mesh', 'AS_point_0.coupled.mesh')
-    # prob.model.connect('jet_loc', 'wing.geometry.mesh.jet_loc')
-    # prob.model.connect('jet_radius', 'wing.geometry.mesh.jet_radius')
+    prob.model.connect('jet_loc', 'wing.geometry.mesh.jet_loc') #                               you need to reintroduce these!
+    prob.model.connect('jet_radius', 'wing.geometry.mesh.jet_radius')
 
     prob.model.connect(name + ".local_stiff_transformed", point_name + ".coupled." + name + ".local_stiff_transformed")
     prob.model.connect(name + ".nodes", point_name + ".coupled." + name + ".nodes")
@@ -219,7 +224,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
 
     # print(prob.get_val('AS_point_0.wing_perf.CL'))
     cl_dist = prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl')
-    mesh_error = sum(mesh[1, :, 1]-prob['wing.mesh'][0, :, 1])
+    mesh_error = sum(y_VLM-prob['wing.mesh'][0, :, 1])
     print(f'mesh error: {mesh_error}')
 
     y_jet = jet_loc
@@ -237,9 +242,11 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     plt.grid()
     plt.xlabel("Wingspan [m]")
     plt.ylabel("Lift coefficient [Cl]")
-    plt.title(f'VLM Panels={mesh_dict["num_y"]-1}, Wing-jet panels={panels_overset_wing}-{panels_jet}, Radius{jet_radius}')
+    plt.title(f'VLM Panels={mesh_dict["num_y"]-1}-{nx_input-1}, Radius{jet_radius}')
     
-    plt.savefig(filename+f"liftdistirbution_r{jet_radius}_d{jet_loc}.png")       # this one is for the movie file
-    # plt.savefig(filename+f"panels/liftdistirbution_r{jet_radius}_d{jet_loc}_p{panels_overset_wing}.png")
+    name_ = f'liftdistribution_r{jet_radius}_d{jet_loc}_prop_discr{prop_discr}.png'
+    plt.savefig(filename+name_)       # this one is for the movie file
+    # plt.savefig(filename+f"panels/liftdistribution_r{jet_radius}_d{jet_loc}_p{panels_overset_wing}.png")
     plt.clf()
-    return filename+f"liftdistirbution_r{jet_radius}_d{jet_loc}.png"
+    print(name_)
+    return filename+name_

@@ -5,50 +5,107 @@ from openaerostruct.utils.constants import grav_constant
 
 from parametersinput import parameters
 from EOAS.EOAS_group import EOAS
-from rethorst.rethorst_system import Rethorst
+from helix.openmdao.om_helix import HELIX_Group
+from helix_dir.helix_config import simparam_definition, geometry_definition, references_definition
+from helix_dir.helix_config import geometry
+from rethorst_dir.rethorst_group import Rethorst
 from constraints.cons_proploc import proploc
 from obj_function import obj_func
 
-class master(om.group):
+class master(om.Problem):
 
     def setup(self):
-        main = self.add_subsystem('main', om.Group(), promotes_inputs=[())])
+        self.add_subsystem('parameters', subsys=parameters())
 
-        main.add_subsystem('parameters', subsys=parameters(),           promotes_outputs=[( '*')])
+        simparam_def = simparam_definition()
+        references_def = references_definition()
+        geometry_def = geometry_definition()
+        self.add_subsystem('helix', subsys=HELIX_Group(
+                                                        simparam_def=simparam_def,
+                                                        references_def=references_def,
+                                                        geometry_def=geometry_def,
+                                                        thrust_calc=True,
+                                                        torque_calc=True,
+                                                        moment_calc=True,
+                                                        loads_calc=True,
+                                                        velocity_distribution_calc=True,
+                                                        ),
+        )
 
-        main.add_subsystem('rethorst', subsys=Rethorst(panels_VLM=71),  promotes_inputs=[(  'rethorst.span', 'rethorst.jet_loc', 'rethorst.jet_radius',
-                                                                                            'rethorst.vinf', 'rethorst.vjet')],
-                                                                        promotes_outputs=[( 'rethorst.correction_matrix', 'rethorst.mesh')])
+        self.add_subsystem('rethorst', subsys=Rethorst(panels_VLM=301))
         
-        main.add_subsystem('EOAS', subsys=EOAS(),                       promotes_outputs=[( 'EOAS.CL', 'EOAS.CD', 'EOAS.cl', 'EOAS.cd',
-                                                                                            'EOAS.Wstruc', 'EOAS.Wfuel')])
+        self.add_subsystem('EOAS', subsys=EOAS())
 
-        self.add_subsystem('obj_fun', subsys=obj_func,                  promotes_inputs=[(  'Wfuel', 'Wstruc', 'CL', 'CD', 'cl', 'cd')],
-                                                                        promotes_outputs=[( 'f')])
+        self.add_subsystem('obj_fun', subsys=obj_func())
         
-        self.add_subsystem('cons_proploc', subsys=proploc(),            promotes_input=[(   'jet_loc', 'jet_radius', 'span')],
-                                                                        promotes_output=[(  'constraint1')])
+        self.add_subsystem('cons_proploc', subsys=proploc())
 
+        self.connect('rethorst.velocity_distribution', 'helix.rotorcomp_0_velocitydistribution')
+        self.connect('rethorst.radii', 'helix.rotorcomp_0_radii')
         
-        self.connect('rethorst.correction_matrix', 'EOAS.correction_matrix')
-        self.connect('rethorst.mesh', 'EOAS.mesh')
+        self.connect('EOAS.span', 'rethorst.span')
 
-        self.add_design_var('span', lower=10, upper=30)
-        self.add_design_var('chord', lower=0.5, upper=4)
-        self.add_design_var('jet_loc', lower=0, upper=10)
-        self.add_design_var('jet_radius', lower=0.5, upper=.5)
-        self.add_design_var('Vinf', lower=0, upper=28.5)
-        self.add_design_var('Vjet', lower=0, upper=28.5)
-        self.add_design_var('aoa', lower=0, upper=28.5)
-
-        self.add_constraint('constraint1', upper=0.)
-
-        self.add_objective('Wfuel', scaler=1.0)
+        self.connect('EOAS.correction_matrix', 'rethorst.correction_matrix')
+        self.connect('EOAS.velocity_vector', 'rethorst.velocity_vector')
+        
+        self.connect('jet_loc', 'EOAS.wing.geometry.mesh.jet_loc')
+        self.connect('radii', 'EOAS.wing.geometry.mesh.jet_radius')
 
 prob = om.Problem()
 model = prob.model
 
 prob.model = master()
+
+# --- Connecting parameters ----
+model.connect('EOAS.v', 'parameters.vinf')
+model.connect('EOAS.alpha', 'parameters.alpha')
+model.connect('EOAS.Mach_number', 'parameters.Mach_number')
+model.connect('EOAS.re', 'parameters.re')
+model.connect('EOAS.rho', 'parameters.rho')
+model.connect('EOAS.CT', 'parameters.CT')
+model.connect('EOAS.R', 'parameters.R')
+model.connect('EOAS.W0', 'parameters.W0')
+model.connect('EOAS.speed_of_sound', 'parameters.speed_of_sound')
+model.connect('EOAS.load_factor', 'parameters.load_factor')
+model.connect('EOAS.empty_cg', 'parameters.empty_cg')
+
+# --- Adding design variables ---
+parametric = geometry_definition()
+for iParametric in range(0, np.size(parametric)):
+    name = "helix.geodef_parametric_{:d}_".format(iParametric)
+    
+    N_chord = np.size(parametric.parametric_def[iParametric].sec)
+    N_span = np.size(parametric.parametric_def[iParametric].span)
+    span = parametric.parametric_def[iParametric].span
+    sweep = parametric.parametric_def[iParametric].sweep
+    dihed = parametric.parametric_def[iParametric].dihed
+    chord = parametric.parametric_def[iParametric].chord
+    twist = parametric.parametric_def[iParametric].twist
+    alpha_0 = parametric.parametric_def[iParametric].alpha_0
+    alpha_L0 = parametric.parametric_def[iParametric].alpha_L0
+    Cl_alpha = parametric.parametric_def[iParametric].Cl_alpha
+    M = parametric.parametric_def[iParametric].M
+
+    model.add_design_var(name + "span", shape=N_span, val=span)
+    model.add_design_var(name + "sweep", shape=N_span, val=sweep)
+    model.add_design_var(name + "dihed", shape=N_span, val=dihed)
+
+    # Section Variables (hard-coding shape for now)
+    model.add_design_var(name + "chord", shape=N_chord, val=chord)
+    model.add_design_var(name + "twist", shape=N_chord, val=twist)
+    model.add_design_var(name + "alpha_0", shape=N_chord, val=alpha_0)
+    model.add_design_var(name + "alpha_L0", shape=N_chord, val=alpha_L0)
+    model.add_design_var(name + "Cl_alpha", shape=N_chord, val=Cl_alpha)
+    model.add_design_var(name + "M", shape=N_chord, val=M)
+
+model.add_design_var('rethorst.span', lower=10, upper=30)
+model.add_design_var('rethorst.jet_loc', lower=0.5, upper=4.)
+model.add_design_var('EOAS.twist', lower=0.5, upper=4.)
+model.add_design_var('EOAS.chord', lower=0.5, upper=4.)
+
+model.add_constraint('constraint1', upper=0.)
+
+model.add_objective('Wfuel', scaler=1.0)
 
 prob.driver = om.ScipyOptimizeDriver()
 prob.driver.options['optimizer'] = 'SLSQP'
