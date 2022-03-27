@@ -5,7 +5,7 @@ class proploc(om.ExplicitComponent):
     def initialize(self):
         pass
 
-    def setup(self);
+    def setup(self):
         self.add_input('jet_loc', val=1.0, units='m')
         self.add_input('jet_radius', val=1.0, units='m')
         self.add_input('span', val=1.0, units='m')

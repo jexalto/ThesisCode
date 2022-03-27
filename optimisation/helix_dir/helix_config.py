@@ -21,7 +21,7 @@ def simparam_definition():
 
     simparam.nt_rev = 30
 
-    simparam.v_inf = np.array([0.0, 0.0, 0.0])
+    simparam.v_inf = np.array([100.0, 0.0, 0.0])
     simparam.rho_inf = 1.25
 
     return simparam
@@ -80,7 +80,7 @@ def geometry_definition():
     rotor1.multiple = True
     rotor1.multiplicity = {
         "mult_type": "rotor",
-        "n_blades": 2,
+        "n_blades": 3,
         "rot_axis": np.array([0.0, 0.0, 1.0]),
         "rot_rate": 500,
         "psi_0": 0.0,
@@ -99,10 +99,10 @@ def geometry_definition():
     rotor1.sec[0].M = 50.0
 
     # Span 1  ------------------
-    rotor1.span[0].span = 0.1  # 0.05
+    rotor1.span[0].span = 1.  # 0.05
     rotor1.span[0].sweep = 0.0
     rotor1.span[0].dihed = 0.0
-    rotor1.span[0].N_elem_span = 10
+    rotor1.span[0].N_elem_span = 20
     rotor1.span[0].span_type = 1
 
     # Chord 2 ------------------

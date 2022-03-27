@@ -3,7 +3,6 @@ import numpy as np
 import openmdao.api as om
 
 from parametersinput import parameters
-from EOAS_analysis import surface
 from openaerostruct.utils.constants import grav_constant
 from openaerostruct.geometry.utils import generate_mesh
 from openaerostruct.integration.aerostruct_groups import AerostructGeometry, AerostructPoint
@@ -11,15 +10,15 @@ from openaerostruct.integration.aerostruct_groups import AerostructGeometry, Aer
 class EOAS(om.Group):
 
     def initialize(self):
-        self.options.declare('panels_VLM', default=201)
-        self.options.declare('panels_chord_VLM', default=3)
+        self.options.declare('panels_span_VLM', default=300)
+        self.options.declare('panels_chord_VLM', default=1)
 
     def setup(self):
         
         mesh_dict = {
             # Wing definition
-            "num_x": self.options['panels_chord_VLM'],  # number of chordwise points
-            "num_y": self.options['panels_VLM'],  # number of spanwise points --> NEEDS to be more than 11
+            "num_x": self.options['panels_chord_VLM']+1,  # number of chordwise points
+            "num_y": self.options['panels_span_VLM']+1,  # number of spanwise points --> NEEDS to be more than 11
             "wing_type": "rect",  # initial shape of the wing
             # either 'CRM' or 'rect'
             # 'CRM' can have different options
@@ -30,15 +29,16 @@ class EOAS(om.Group):
             # Simple Geometric Variables
             "span": 10.,  # full wingspan, even for symmetric cases
             "root_chord": 1.0,  # root chord
-            "dihedral": 0.0,  # wing dihedral angle in degrees
+            # "dihedral": 0.0,  # wing dihedral angle in degrees
             # positive is upward
-            "sweep": 0.0,  # wing sweep angle in degrees
+            # "sweep": 0.0,  # wing sweep angle in degrees
             # positive sweeps back
             "taper": 1.0,  # taper ratio; 1. is uniform chord
             "num_twist_cp": 5
         }
 
-        mesh = generate_mesh(mesh_dict)
+        mesh = generate_mesh(mesh_dict) # twist_cp
+        chord_cp = np.ones((10))
 
         surface = {
             # Wing definition
@@ -51,7 +51,8 @@ class EOAS(om.Group):
             "thickness_cp": np.array([0.1, 0.2, 0.3]),
             # "twist_cp": twist_cp,
             "mesh": mesh,
-            # "span": 10.,
+            "span": 10.,
+            "chord_cp": chord_cp,
             "propeller": 1,
             # Aerodynamic performance of the lifting surface at
             # an angle of attack of 0 (alpha=0).
