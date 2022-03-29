@@ -121,6 +121,8 @@ model.add_design_var('rethorst.jet_loc', lower=0.5, upper=4.)
 # model.add_design_var('EOAS.wing.geometry.twist_cp', lower=0.5, upper=4.)
 # model.add_design_var('EOAS.wing.geometry.chord', lower=0.5, upper=4.)
 
+model.approx_totals()
+
 prob.setup()
 
 prob.set_val(name + "span", val=span)
@@ -137,8 +139,8 @@ prob.driver.options['optimizer'] = 'SLSQP'
 # prob.driver.options['maxiter'] = 100
 prob.driver.options['tol'] = 1e-9
 
-prob.run_driver()
-# prob.run_model()
+# prob.run_driver()
+prob.run_model()
 
 # --- Plotting of results ---
 print("The fuel burn value is", prob["EOAS.AS_point_0.fuelburn"][0], "[kg]")
