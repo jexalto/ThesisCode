@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from EOAS_system import EOAS_system_
-import imageio
 
 # span = 10m
 steps = 15
@@ -9,7 +8,7 @@ span_max = 40
 r_min = 0.4
 Vjet = 150
 Vinf = 100
-jet_loc = 0.
+jet_loc = -1.0
 jet_radius = 1.0
 
 filename = '/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/figures/'

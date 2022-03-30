@@ -13,14 +13,13 @@ def correction_(panels_span_VLM, panels_chord_VLM,  panels_overset_wing, panels_
     y_VLM = np.zeros((panels_span_VLM+1), order='F')
     vel_vec = np.zeros((panels_span_VLM), order='F')
 
-    velocity_distribution_nosym(    span,
-                                    jet_loc, vel_distr_input, radii_input,
+    velocity_distribution_nosym(    jet_loc, vel_distr_input, radii_input,
                                     prop_discr,
                                     Vinf,
                                     panels_jet, panels_overset_wing,
                                     panels_chord_VLM, panels_span_VLM,
                                     span_max, r_min,
-                                    y_VLM, vel_vec,
+                                    vel_vec,
                                     total_correction)
         
 
