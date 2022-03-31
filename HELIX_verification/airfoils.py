@@ -10,6 +10,10 @@ from scipy.interpolate import Akima1DInterpolator
 from scipy.optimize import root
 import matplotlib.pyplot as plt
 
+from proplib import airfoilSecs
+
+import json as js
+
 import sys
 import os.path
 sys.path.append(
@@ -23,84 +27,19 @@ niceplots.setRCParams()
 niceColors = niceplots.get_niceColors()
 
 # Data Directory
-dataDir = "./Airfoils/"
+dataDir = "/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/airfoils/"
 
 # =============================================================================
 # General Parameters
 # =============================================================================
-radius = 1.8288  # [m]
+diameter = 0.237
+radius = diameter/2  # [m]
 omega = 75  # [rad/s]
-rho_inf = 0.98437  # [kg/m3]
+rho_inf = 1.225  # [kg/m3]
 mu_inf = 1.84e-5  # [Pa s]
 a_inf = 346.204  # [m/s]
 
 # Define Airfoil Sections
-airfoilSecs = [
-    {
-        "Name": "Sec. 1: NACA 5412",
-        "airfoil": "NACA_5412.txt",
-        "r": 0.2 * radius,  # [m]
-        "chord": 0.1463,  # [m]
-        "re": None,  # []
-        "mach": None,  # []
-        "alphaMin": -6,  # [deg]
-        "alphaMax": 16,  # [deg]
-        "alpha": None,  # [deg]
-        "cl": None,  # []
-        "cd": None,  # []
-        "cm": None,  # []
-        "alpha_L0": None,  # [rad]
-        "Cl_alpha": None,  # [1/rad]
-    },
-    {
-        "Name": "Sec. 2: NACA 5412",
-        "airfoil": "NACA_5412.txt",
-        "r": 0.45 * radius,  # [m]
-        "chord": 0.1335,  # [m]
-        "re": None,  # []
-        "mach": None,  # []
-        "alphaMin": -6,  # [deg]
-        "alphaMax": 16,  # [deg]
-        "alpha": None,  # [deg]
-        "cl": None,  # []
-        "cd": None,  # []
-        "cm": None,  # []
-        "alpha_L0": None,  # [rad]
-        "Cl_alpha": None,  # [1/rad]
-    },
-    {
-        "Name": "Sec. 3: NACA 5403",
-        "airfoil": "NACA_5405.txt",
-        "r": 0.7 * radius,  # [m]
-        "chord": 0.1210,  # [m]
-        "re": 0.621e6,  # []
-        "mach": 0.277,  # []
-        "alphaMin": -5,  # [deg]
-        "alphaMax": 7,  # [deg]
-        "alpha": None,  # [deg]
-        "cl": None,  # []
-        "cd": None,  # []
-        "cm": None,  # []
-        "alpha_L0": None,  # [rad]
-        "Cl_alpha": None,  # [1/rad]
-    },
-    {
-        "Name": "Sec. 4: NACA 1403",
-        "airfoil": "NACA_1403.txt",
-        "r": 1.0 * radius,  # [m]
-        "chord": 0.09144,  # [m]
-        "re": 0.671e6,  # []
-        "mach": 0.396,  # []
-        "alphaMin": -2,  # [deg]
-        "alphaMax": 6.0,  # [deg]
-        "alpha": None,  # [deg]
-        "cl": None,  # []
-        "cd": None,  # []
-        "cm": None,  # []
-        "alpha_L0": None,  # [rad]
-        "Cl_alpha": None,  # [1/rad]
-    },
-]
 
 
 def airfoilAnalysis(plotting=True):
@@ -124,8 +63,9 @@ def airfoilAnalysis(plotting=True):
     # Solve Airfoils
     # =========================================================================
     for iSec in range(0, np.size(airfoilSecs)):
+        print(airfoilSecs[iSec]['Name'])
         solveAirfoil(airfoilSecs[iSec], omega, rho_inf, mu_inf, a_inf, nPerDeg=10, nIter=1000)
-
+        
     # =========================================================================
     # Compute Zero-Lift Angle of Attack
     # =========================================================================
@@ -154,9 +94,34 @@ def airfoilAnalysis(plotting=True):
     # =========================================================================
     if plotting:
         plot(airfoilSecs)
+    
+    datadir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json'
+    writeJSON(airfoilSecs, datadir)
 
     return airfoilSecs
 
+def writeJSON(data, fileName):
+    """
+    This function generates and writes a JSON version of the rotor parameters
+    data dictionary to a .json file.
+    Parameters
+    ----------
+    data : dictionary
+        Dictionary of rotor sectional and spanwise data
+    fileName : string
+        Name of file to be output as JSON geometry file
+    """
+    for iSec in range(0, np.size(data)):
+        data[iSec]["alpha"] = data[iSec]["alpha"].tolist()
+        data[iSec]["cl"] = data[iSec]["cl"].tolist()
+        data[iSec]["cd"] = data[iSec]["cd"].tolist()
+        data[iSec]["cm"] = data[iSec]["cm"].tolist()
+        if not data[iSec]["alpha_L0"] is None:
+            data[iSec]["alpha_L0"] = data[iSec]["alpha_L0"].tolist()
+        data[iSec]["Cl_alpha"] = data[iSec]["Cl_alpha"].tolist()
+    
+    with open(fileName, "w") as file:
+        js.dump(data, file, indent=4)
 
 def solveAirfoil(sec, omega, rho_inf, mu_inf, a_inf, nPerDeg=1, nIter=10):
     """
@@ -222,6 +187,7 @@ def solveAirfoil(sec, omega, rho_inf, mu_inf, a_inf, nPerDeg=1, nIter=10):
             cm = np.append(cm, cm_loc)
 
             alpha = np.append(alpha, alphaVec[iAlpha])
+            print(f'alpha: {iAlpha}')
 
     # Store in Dictionary
     sec["cl"] = cl
@@ -323,9 +289,10 @@ def plot(airfoilSecs):
 
     ax.set_xlabel(r"$\alpha$ [$^\circ$]")
     ax.set_ylabel(r"$C_l$")
-    ax.set_xlim(-6, 16)
-    ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.275))
+    ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
+    # ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.275))
     niceplots.adjust_spines(ax, outward=True)
+    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_alpha.png')
 
     # Coefficient of Drag (Cd) vs. Angle of Attack (alpha)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -338,9 +305,10 @@ def plot(airfoilSecs):
 
     ax.set_xlabel(r"$\alpha$ [$^\circ$]")
     ax.set_ylabel(r"$C_d$")
-    ax.set_xlim(-4.5, 16)
-    ax.legend()
+    ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
+    # ax.legend()
     niceplots.adjust_spines(ax, outward=True)
+    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cd_alpha.png')
 
     # Coefficient of Moment (Cm) vs. Angle of Attack (alpha)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -356,6 +324,7 @@ def plot(airfoilSecs):
     ax.set_xlim(-4.5, 16)
     ax.legend()
     niceplots.adjust_spines(ax, outward=True)
+    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cm_alpha.png')
 
     # Coefficient of Lift (Cl) vs Coefficient of Drag (Cd)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -368,11 +337,12 @@ def plot(airfoilSecs):
 
     ax.set_xlabel(r"$C_d$")
     ax.set_ylabel(r"$C_l$")
-    ax.legend()
+    # ax.legend()
     niceplots.adjust_spines(ax, outward=True)
 
     # Show Plots
     plt.show()
+    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_cd.png')
 
 
 if __name__ == "__main__":

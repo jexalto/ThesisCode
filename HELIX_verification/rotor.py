@@ -10,16 +10,18 @@ from airfoils import airfoilAnalysis
 import numpy as np
 import json
 
+from proplib import airfoilSecs, radius
 
 # =============================================================================
 # Define Data
 # =============================================================================
 # Radius
-radius = 1.8288  # [m]
 
 # Provided Radial Sections
-nSec = 10
-r_sec = np.linspace(0.2, 1.0, nSec)  # []
+nSec = 20
+r_sec = np.empty(0)
+for iSec in range(0, np.size(airfoilSecs)):
+    r_sec = np.append(r_sec, airfoilSecs[iSec]["r"])
 
 chord_r = np.array([0.2, 0.92, 1.0])  # []
 chord = np.array([0.08, 0.06, 0.05]) * radius  # [m]
@@ -58,39 +60,60 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     # Run Airfoil Analysis to get Data
     # =========================================================================
-    airfoilSecs = airfoilAnalysis(plotting=False)
+    # airfoilSecs = airfoilAnalysis(plotting=False)
 
+    f = open('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json')
+    airfoilSecs = json.load(f)
+    f.close()
     # =========================================================================
     # Compute Data
     # =========================================================================
     data = {}
-    data["ref_point"] = np.array([0.0, r_sec[0] * radius, 0.0]).tolist()
+    # data["ref_point"] = np.array([0.0, r_sec[0] * radius, 0.0]).tolist()
 
     # Compute Chord
-    data["chord"] = interpVal(r_sec, chord_r, chord).tolist()
+    chord = np.empty(0)
+    for iSec in range(0, np.size(airfoilSecs)):
+        chord = np.append(chord, airfoilSecs[iSec]["chord"])
 
-    # Compute Twist
-    data["twist"] = interpVal(r_sec, twist_r, twist).tolist()
+    data["chord"] = chord.tolist()
 
-    # Compute Thick
-    data["thick"] = interpVal(r_sec, thick_r, thick).tolist()
+    # # Compute Twist
+    theta = np.empty(0)
+    for iSec in range(0, np.size(airfoilSecs)):
+        theta = np.append(theta, airfoilSecs[iSec]["theta"])
 
-    # Compute Alpha_0
-    data["alpha_0"] = interpVal(r_sec, alpha_0_r, alpha_0).tolist()
+    data["theta"] = theta.tolist()
+
+    # # Compute Thick
+    thick = np.empty(0)
+    thick_ = 0.
+    for iSec in range(0, np.size(airfoilSecs)):
+        thick = np.append(thick, thick_)
+
+    data["thick"] = chord.tolist()
+
+    # # Compute Alpha_0
+    alpha_0 = np.empty(0)
+    alpha_0_ = 8.
+    for iSec in range(0, np.size(airfoilSecs)):
+        alpha_0 = np.append(alpha_0, alpha_0_)
+
+    data["alpha_L0"] = alpha_0.tolist()
 
     # Compute Alpha_L0
     alpha_L0 = np.empty(0)
     for iSec in range(0, np.size(airfoilSecs)):
         alpha_L0 = np.append(alpha_L0, airfoilSecs[iSec]["alpha_L0"])
 
-    data["alpha_L0"] = interpVal(r_sec, alpha_L0_r, alpha_L0).tolist()
+    data["alpha_L0"] = alpha_L0.tolist()
 
     # Compute Cl_alpha
     Cl_alpha = np.empty(0)
     for iSec in range(0, np.size(airfoilSecs)):
         Cl_alpha = np.append(Cl_alpha, airfoilSecs[iSec]["Cl_alpha"])
 
-    data["Cl_alpha"] = interpVal(r_sec, Cl_alpha_r, Cl_alpha).tolist()
+    data["Cl_alpha"] = Cl_alpha.tolist()
 
     # Compute M
     data["M"] = interpVal(r_sec, M_r, M).tolist()
@@ -101,7 +124,8 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     # Write Data
     # =========================================================================
-    writeJSON(data, fileName)
+    datadir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/'
+    writeJSON(data, datadir+fileName)
 
 
 def interpVal(r, val_r, val):
