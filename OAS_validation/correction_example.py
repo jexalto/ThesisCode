@@ -105,6 +105,8 @@ prob = om.Problem()
 indep_var_comp = om.IndepVarComp()
 indep_var_comp.add_output("v", val=V0, units="m/s")
 indep_var_comp.add_output("vjet", val=Vj, units="m/s")
+indep_var_comp.add_output("correction", val=G, units="m/s")
+indep_var_comp.add_output("correction_loc", val=correction_loc, units="m/s")
 indep_var_comp.add_output("rjet", val=r0, units="m/s")
 indep_var_comp.add_output("alpha", val=1.0, units="deg")
 indep_var_comp.add_output("Mach_number", val=0.84)
@@ -148,7 +150,9 @@ prob.model.add_subsystem(
         "speed_of_sound",
         "empty_cg",
         "load_factor",
-    ],
+        'correction',
+        'correction_loc'
+    ]
 )
 
 com_name = point_name + "." + name + "_perf"

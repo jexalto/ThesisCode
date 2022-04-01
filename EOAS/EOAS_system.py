@@ -22,12 +22,12 @@ import openmdao.api as om
 
 from correction_matrix import correction_, correction_location
 
-def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
+def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_input, prop_discr):
     # Create a dictionary to store options about the surface
     mesh_dict = {
             # Wing definition
-            "num_x": 2,  # number of chordwise points --> interesting, 5 points equates to two panels
-            "num_y": 71,  # number of spanwise points --> NEEDS to be more than 11
+            "num_x": nx_input,  # number of chordwise points --> interesting, 5 points equates to two panels
+            "num_y": 401,  # number of spanwise points --> NEEDS to be more than 11
             "wing_type": "rect",  # initial shape of the wing
             # either 'CRM' or 'rect'
             # 'CRM' can have different options
@@ -45,26 +45,36 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
             "taper": 1.0,  # taper ratio; 1. is uniform chord
             "num_twist_cp": 5
         }
-    # how to make it work: use span=10 and num_y=71/61/51/..., radius=1.0
+    
+    panels_overset_wing = 2501
+    panels_jet = 101
 
-    mesh = generate_mesh(mesh_dict) # twist_cp
-    nx = 2
+    steps = 100
+    step = np.arange(0, steps, 1)
 
-    correction, mesh_ = correction_(mesh_dict["num_y"]-1, nx, mesh_dict["span"], jet_loc, jet_radius, Vinf, Vjet, span_max, r_min)
-    y = mesh_[:, 0, 0]
+    def x2(steps):
+        return 150-(0.1*steps-3)**2
+
+    vel_distr_input = np.array(x2(step), order='F')
+    radii_input = np.array(np.linspace(0.01, jet_radius, steps), order='F')
+
+    correction, y_VLM, vel_vec = correction_(   mesh_dict["num_y"]-1, mesh_dict["num_x"]-1,  panels_overset_wing, panels_jet,
+                                                mesh_dict["span"], mesh_dict["root_chord"], span_max, r_min, Vinf,
+                                                vel_distr_input, radii_input, prop_discr, jet_loc)
+    print(vel_vec)
+    y = y_VLM
     
     y_ = np.zeros((len(y)-1))
     for i in range(len(y)-1):
         y_[i] = (y[i+1]+y[i])/2
 
-    correction_loc = correction_location(mesh_dict["num_y"]-1, mesh_dict["span"], jet_radius, jet_loc, y)
-
-    np.savetxt('/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/data/correction_EOAS.txt', correction, delimiter=",\t", fmt='%.6f')
-
     mesh = np.zeros((2, mesh_dict["num_y"], 3))
     mesh[0, :, 1] = y
     mesh[1, :, 1] = y
     mesh[1, :, 0] = np.ones((len(y)))
+    mesh = generate_mesh(mesh_dict) # !¡
+
+# you have to change the mesh file in fortran!
 
     surface = {
         # Wing definition
@@ -77,6 +87,8 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         "thickness_cp": np.array([0.1, 0.2, 0.3]),
         # "twist_cp": twist_cp,
         "mesh": mesh,
+        # "span": 10.,
+        "propeller": 1,
         # Aerodynamic performance of the lifting surface at
         # an angle of attack of 0 (alpha=0).
         # These CL0 and CD0 values are added to the CL and CD
@@ -100,8 +112,6 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         "mrho": 3.0e3,  # [kg/m^3] material density
         "fem_origin": 0.35,  # normalized chordwise location of the spar
         "wing_weight_ratio": 2.0,
-        "correction": correction,
-        "correction_loc": correction_loc,
         "struct_weight_relief": False,  # True to add the weight of the structure to the loads on the structure
         "distributed_fuel_weight": False,
         # Constraints
@@ -114,8 +124,10 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     # Add problem information as an independent variables component
     indep_var_comp = om.IndepVarComp()
     indep_var_comp.add_output("v", val=Vinf, units="m/s")
-    indep_var_comp.add_output("vjet", val=Vjet, units="m/s")
-    indep_var_comp.add_output("rjet", val=jet_radius, units="m/s")
+    indep_var_comp.add_output("correction", val=correction)
+    indep_var_comp.add_output("jet_loc", val=jet_loc, units='m')
+    indep_var_comp.add_output("jet_radius", val=jet_radius, units='m')
+    indep_var_comp.add_output('velocity_distr', val=vel_vec, units='m/s')
     indep_var_comp.add_output("alpha", val=1.0, units="deg")
     indep_var_comp.add_output("Mach_number", val=0.84)
     indep_var_comp.add_output("re", val=1.0e6, units="1/m")
@@ -126,19 +138,21 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     indep_var_comp.add_output("speed_of_sound", val=295.4, units="m/s")
     indep_var_comp.add_output("load_factor", val=1.0)
     indep_var_comp.add_output("empty_cg", val=np.zeros((3)), units="m")
+    indep_var_comp.add_output("span", val=10., units="m")
 
     prob.model.add_subsystem("prob_vars", indep_var_comp, promotes=["*"])
 
     aerostruct_group = AerostructGeometry(surface=surface)
+
+    # prob.model.connect('mesh_input', 'wing.geometry.mesh.rotate.in_mesh')
 
     name = "wing"
 
     # Add tmp_group to the problem with the name of the surface.
     prob.model.add_subsystem(name, aerostruct_group)
 
-    point_name = "AS_point_0"
+    point_name = "AS_point_0"        # Create the aero point group and add it to the model
 
-    # Create the aero point group and add it to the model
     AS_point = AerostructPoint(surfaces=[surface])
 
     prob.model.add_subsystem(
@@ -146,8 +160,7 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
         AS_point,
         promotes_inputs=[
             "v",
-            "vjet",
-            "r0",
+            "velocity_distr",
             "alpha",
             "Mach_number",
             "re",
@@ -158,10 +171,15 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
             "speed_of_sound",
             "empty_cg",
             "load_factor",
+            'correction',
         ],
     )
 
-    com_name = point_name + "." + name + "_perf"
+    # prob.model.connect('span', 'wing.geometry.mesh.stretch.span')
+    prob.model.connect('wing.mesh', 'AS_point_0.coupled.mesh')
+    prob.model.connect('jet_loc', 'wing.geometry.mesh.jet_loc') #                               you need to reintroduce these!
+    prob.model.connect('jet_radius', 'wing.geometry.mesh.jet_radius')
+
     prob.model.connect(name + ".local_stiff_transformed", point_name + ".coupled." + name + ".local_stiff_transformed")
     prob.model.connect(name + ".nodes", point_name + ".coupled." + name + ".nodes")
 
@@ -169,6 +187,7 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     prob.model.connect(name + ".mesh", point_name + ".coupled." + name + ".mesh")
 
     # Connect performance calculation variables
+    com_name = point_name + "." + name + "_perf"
     prob.model.connect(name + ".radius", com_name + ".radius")
     prob.model.connect(name + ".thickness", com_name + ".thickness")
     prob.model.connect(name + ".nodes", com_name + ".nodes")
@@ -203,11 +222,14 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     beta_cfd = y_cfd/jet_radius
     cl_cfd = data_cfd[' Cl'].to_numpy()
 
-    print(prob.get_val('AS_point_0.wing_perf.CL'))
+    # print(prob.get_val('AS_point_0.wing_perf.CL'))
     cl_dist = prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl')
-    print(prob.get_val('AS_point_0.wing_perf.aero_funcs.Cl'))
+    mesh_error = sum(y_VLM-prob['wing.mesh'][0, :, 1])
+    print(f'mesh error: {mesh_error}')
 
     y_jet = jet_loc
+
+    plt.clf()
 
     plt.plot(y_, cl_dist*1.06, label="Correction applied")
     plt.plot(y_cfd, cl_cfd, label='CFD data')
@@ -220,8 +242,11 @@ def EOAS_movie_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename):
     plt.grid()
     plt.xlabel("Wingspan [m]")
     plt.ylabel("Lift coefficient [Cl]")
-    plt.title(f'OAS - Panels={mesh_dict["num_y"]-1}, Jet Radius{jet_radius}')
+    plt.title(f'VLM Panels={mesh_dict["num_y"]-1}-{nx_input-1}, Radius{jet_radius}')
     
-    plt.savefig(filename+f"liftdistirbution_r{jet_radius}_d{jet_loc}.png")
+    name_ = f'liftdistribution_r{jet_radius}_d{jet_loc}_prop_discr{prop_discr}.png'
+    plt.savefig(filename+name_)       # this one is for the movie file
+    # plt.savefig(filename+f"panels/liftdistribution_r{jet_radius}_d{jet_loc}_p{panels_overset_wing}.png")
     plt.clf()
-    return filename+f"liftdistirbution_r{jet_radius}_d{jet_loc}.png"
+    print(name_)
+    return filename+name_
