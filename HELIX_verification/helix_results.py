@@ -9,6 +9,8 @@ import helix.geometry.geometry_def_parametric as geo_def_parametric
 
 import helix.references.references_def as ref_def
 
+import helix_pyf90.mod_post_output_vtk as output_vtk
+
 # External
 from mpi4py import MPI
 import numpy as np
@@ -40,9 +42,13 @@ def main():
     model.references_def = references_def
     model.comm = MPI.COMM_WORLD
     model.initialize_run()
+
     model.run()
+    # output_vtk.write_vtk(model.f_geometry,1,True,False,"test")
 
     thrust_vec = model.f_simparam.t_vec
+
+    print(model.f_geometry.rotor[0].ct)
 
     plt.plot(np.linspace(0, len(thrust_vec), len(thrust_vec)), thrust_vec)
     plt.grid()
@@ -59,13 +65,13 @@ def set_simparam():
     simparam = simparam_def.t_simparam_def()
     simparam.basename = "MR8x45 Rotor"
 
-    simparam.dt = 0.0001
+    simparam.dt = 0.01
     simparam.t_start = 0.0
-    simparam.t_end = 0.0376
+    simparam.t_end = 0.02
 
     simparam.nt_rev = 30
 
-    simparam.v_inf = np.array([11.4906666468, 0.0, -9.6418141453])
+    simparam.v_inf = np.array([0., 0.0, -40.])
     simparam.rho_inf = 1.25
 
     return simparam
@@ -106,7 +112,7 @@ def set_references():
 # rst geodef
 def geometry_definition():
     # Load rotor data
-    f = open('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/datarotor.json')
+    f = open('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/rotor.json')
     airfoilSecs = json.load(f)
     f.close()
     
@@ -139,20 +145,24 @@ def geometry_definition():
 
     # Initialize Rotor and Allocate Arrays
     rotor.initialize_parametric_geometry_definition(N_span)
+    J = 0.9
+    V = 40
+    diameter = 0.237
 
+    n = -(V/(J*diameter))*2*np.pi
     rotor.multiple = True
     rotor.multiplicity = {
         "mult_type": "rotor",
         "n_blades": 4,
         "rot_axis": np.array([0.0, 0.0, 1.0]),
-        "rot_rate": -835.412317488,
+        "rot_rate": n,
         "psi_0": 0.0,
         "hub_offset": 0.0,
         "n_dofs": 0,
     }
 
     # ------------------------ Blade Section Definition ---------------------- #
-    for iSec in range(len(airfoilSecs['chord'])-1):
+    for iSec in range(len(airfoilSecs['chord'])):
         # Chord ------------------
         rotor.sec[iSec].chord = airfoilSecs['chord'][iSec]
         rotor.sec[iSec].twist = airfoilSecs['theta'][iSec]
@@ -162,12 +172,13 @@ def geometry_definition():
         rotor.sec[iSec].Cl_alpha = airfoilSecs['Cl_alpha'][iSec]
         rotor.sec[iSec].M = 50.0
 
-        # Span  ------------------        
-        rotor.span[iSec].span = airfoilSecs["span"][iSec]
-        rotor.span[iSec].sweep = 0.0
-        rotor.span[iSec].dihed = 0.0
-        rotor.span[iSec].N_elem_span = 1
-        rotor.span[iSec].span_type = 1
+    for iSpan in range(len(airfoilSecs["span"])):
+        # input(airfoilSecs["span"][iSpan])
+        rotor.span[iSpan].span = airfoilSecs["span"][iSpan]
+        rotor.span[iSpan].sweep = 0.0
+        rotor.span[iSpan].dihed = 0.0
+        rotor.span[iSpan].N_elem_span = 4
+        rotor.span[iSpan].span_type = 1
 
     # Append To Vehicle
     geometry_def.append_component(rotor)

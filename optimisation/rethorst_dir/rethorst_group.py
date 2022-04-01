@@ -41,12 +41,11 @@ class Rethorst(om.ExplicitComponent):
         span_max = self.options['span_max']
         r_min = self.options['r_min']
         
-        prop_discr = 20
+        prop_discr = 15
         panels_jet = 101
         panels_overset_wing = 1001
 
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
-        y_VLM = np.zeros((panels_span_VLM+1), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
 
         prop_veldistr = np.flip(np.array(prop_veldistr, order='F').reshape((len(prop_veldistr))))
@@ -56,15 +55,8 @@ class Rethorst(om.ExplicitComponent):
         print(radii_input)
         print(prop_veldistr)
 
-        velocity_distribution_nosym(    span,
-                                        jet_loc, prop_veldistr, radii_input,
-                                        prop_discr,
-                                        Vinf,
-                                        panels_jet, panels_overset_wing,
-                                        panels_chord_VLM, panels_span_VLM,
-                                        span_max, r_min,
-                                        y_VLM, vel_vec,
-                                        total_correction)
+        velocity_distribution_nosym(    span, jet_loc, prop_veldistr, radii_input, prop_discr, Vinf, panels_jet,
+                                        panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
 
         outputs['correction_matrix'] = total_correction
         outputs['wing_veldistr'] = vel_vec

@@ -114,8 +114,11 @@ if True:
         # model.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
         # model.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
 
-model.add_design_var('rethorst.span', lower=10, upper=30) # couple this to EOAS.span
-model.add_design_var('rethorst.jet_loc', lower=0.5, upper=4.)
+span = 0.748
+jet_loc = span*(0.5-0.444)
+
+model.add_design_var('rethorst.span', lower=0.1, upper=30) # couple this to EOAS.span
+model.add_design_var('rethorst.jet_loc', lower=0., upper=1.)
 # model.add_design_var('EOAS.wing.geometry.span', lower=10, upper=30)
 # model.add_design_var('EOAS.wing.geometry.mesh.jet_loc', lower=-5., upper=5.)
 # model.add_design_var('EOAS.wing.geometry.twist_cp', lower=0.5, upper=4.)
@@ -125,14 +128,14 @@ model.approx_totals()
 
 prob.setup()
 
-prob.set_val(name + "span", val=span)
-prob.set_val(name + "chord",val=chord)
-prob.set_val(name + "twist",val=twist)
-prob.set_val(name + "alpha_0",val=alpha_0)
-prob.set_val(name + "alpha_L0",val=alpha_L0)
-prob.set_val(name + "Cl_alpha",val=Cl_alpha)
-prob.set_val('rethorst.span',val=10.)
-prob.set_val('rethorst.jet_loc',val=0.)
+# prob.set_val(name + "span", val=span)
+# prob.set_val(name + "chord",val=chord)
+# prob.set_val(name + "twist",val=twist)
+# prob.set_val(name + "alpha_0",val=alpha_0)
+# prob.set_val(name + "alpha_L0",val=alpha_L0)
+# prob.set_val(name + "Cl_alpha",val=Cl_alpha)
+prob.set_val('rethorst.span',val=span)
+prob.set_val('rethorst.jet_loc',val=jet_loc)
 
 prob.driver = om.ScipyOptimizeDriver()
 prob.driver.options['optimizer'] = 'SLSQP'

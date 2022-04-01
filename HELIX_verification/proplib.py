@@ -8,7 +8,7 @@ mu_inf = 1.48e-5  # [Pa s]
 a_inf = 343  # [m/s]
 J = 0.8
 v_inf = 40.
-n = J*v_inf/diameter
+n = (J*v_inf/diameter)**(-1)
 
 path = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/TUD_data/prowim/geometry/PROWIM.txt'
 
