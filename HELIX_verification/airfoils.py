@@ -9,6 +9,7 @@ import numpy as np
 from scipy.interpolate import Akima1DInterpolator
 from scipy.optimize import root
 import matplotlib.pyplot as plt
+from airfoil_data_table import airfoilSecs_table
 
 from proplib import airfoilSecs
 
@@ -41,8 +42,7 @@ a_inf = 346.204  # [m/s]
 
 # Define Airfoil Sections
 
-
-def airfoilAnalysis(plotting=True):
+def airfoilAnalysis(plotting=True, screwXFOIL=True):
     """
     This function handles solving the provided airfoil sections for the rotor
     blade using XFoil, and then computes required parameters such as Cl_alpha
@@ -62,10 +62,13 @@ def airfoilAnalysis(plotting=True):
     # =========================================================================
     # Solve Airfoils
     # =========================================================================
-    for iSec in range(0, np.size(airfoilSecs)):
-        print(airfoilSecs[iSec]['Name'])
-        solveAirfoil(airfoilSecs[iSec], omega, rho_inf, mu_inf, a_inf, nPerDeg=10, nIter=1000)
-        
+    if not screwXFOIL:
+        from proplib import airfoilSecs
+        for iSec in range(0, np.size(airfoilSecs)):
+            print(airfoilSecs[iSec]['Name'])
+            solveAirfoil(airfoilSecs[iSec], omega, rho_inf, mu_inf, a_inf, nPerDeg=10, nIter=1000)
+    else:
+        airfoilSecs = airfoilSecs_table
     # =========================================================================
     # Compute Zero-Lift Angle of Attack
     # =========================================================================
@@ -92,7 +95,7 @@ def airfoilAnalysis(plotting=True):
     # =========================================================================
     # Plot
     # =========================================================================
-    if plotting:
+    if False:
         plot(airfoilSecs)
     
     datadir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json'
@@ -112,10 +115,11 @@ def writeJSON(data, fileName):
         Name of file to be output as JSON geometry file
     """
     for iSec in range(0, np.size(data)):
-        data[iSec]["alpha"] = data[iSec]["alpha"].tolist()
-        data[iSec]["cl"] = data[iSec]["cl"].tolist()
-        data[iSec]["cd"] = data[iSec]["cd"].tolist()
-        data[iSec]["cm"] = data[iSec]["cm"].tolist()
+        # if 
+        data[iSec]["alpha"] = data[iSec]["alpha"]#.tolist()
+        data[iSec]["cl"] = data[iSec]["cl"]#.tolist()
+        data[iSec]["cd"] = data[iSec]["cd"]#.tolist()
+        data[iSec]["cm"] = data[iSec]["cm"]#.tolist()
         if not data[iSec]["alpha_L0"] is None:
             data[iSec]["alpha_L0"] = data[iSec]["alpha_L0"].tolist()
         data[iSec]["Cl_alpha"] = data[iSec]["Cl_alpha"].tolist()
@@ -276,6 +280,26 @@ def plot(airfoilSecs):
         Dictionary containing airfoil data including Name, alpha, cl, cd, cm
     """
     # Coefficient of Lift (Cl) vs. Angle of Attack (alpha)
+    for iSec in range(0, np.size(airfoilSecs)):
+        fig, ax = plt.subplots(figsize=(10, 8))
+        print(iSec)
+        ax.plot(
+            airfoilSecs[iSec]["alpha"],
+            airfoilSecs[iSec]["cl"],
+            label=f'airfoil{iSec}',
+        )
+
+    # Plot Line at Cl=0
+        ax.plot([-10, 20], [0, 0], "--", c=niceColors["Grey"])
+
+        ax.set_xlabel(r"$\alpha$ [$^\circ$]")
+        ax.set_ylabel(r"$C_l$")
+        ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
+        ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.275))
+        ax.grid()
+        niceplots.adjust_spines(ax, outward=True)
+        plt.savefig(f'/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/airfoils/cl_alpha_airfoil{iSec}.png')
+
     fig, ax = plt.subplots(figsize=(10, 8))
     for iSec in range(0, np.size(airfoilSecs)):
         ax.plot(
@@ -346,4 +370,4 @@ def plot(airfoilSecs):
 
 
 if __name__ == "__main__":
-    airfoilAnalysis()
+    airfoilAnalysis(screwXFOIL=True)

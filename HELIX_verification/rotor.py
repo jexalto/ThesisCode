@@ -10,8 +10,8 @@ from airfoils import airfoilAnalysis
 import numpy as np
 import json
 
-from proplib import airfoilSecs, radius
-
+from proplib import radius # this one is forn xfoil generated data
+from airfoil_data_table import airfoilSecs_table as airfoilSecs # this one is for quinty's data
 # =============================================================================
 # Define Data
 # =============================================================================
@@ -22,24 +22,6 @@ nSec = 20
 r_sec = np.empty(0)
 for iSec in range(0, np.size(airfoilSecs)):
     r_sec = np.append(r_sec, airfoilSecs[iSec]["r"])
-
-chord_r = np.array([0.2, 0.92, 1.0])  # []
-chord = np.array([0.08, 0.06, 0.05]) * radius  # [m]
-
-twist_r = np.array([0.2, 0.75, 1.0])  # []
-twist = np.array([11.0, 0.0, -2.0])  # [deg]
-
-thick_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-thick = np.array([0.12, 0.12, 0.05, 0.03]) * np.interp(thick_r, chord_r, chord)  # [m]
-
-alpha_0_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-alpha_0 = np.deg2rad(np.array([9.45, 9.45, 6.91, 5.88]))  # [deg] Approximated from XFoil Results
-
-alpha_L0_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-# alpha_L0 = np.array([])  # [rad] Computed above with XFoil Data
-
-Cl_alpha_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-# Cl_alpha = np.array([])  # [1/rad] Computed above with XFoil Data
 
 M_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
 M = np.array([50.0, 50.0, 50.0, 50.0])  # []
@@ -60,7 +42,7 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     # Run Airfoil Analysis to get Data
     # =========================================================================
-    # airfoilSecs = airfoilAnalysis(plotting=False)
+    _ = airfoilAnalysis(plotting=False, screwXFOIL=True)
 
     f = open('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json')
     airfoilSecs = json.load(f)
@@ -95,11 +77,11 @@ def generateRotor(fileName="rotor.json"):
 
     # # Compute Alpha_0
     alpha_0 = np.empty(0)
-    alpha_0_ = 8.
+    alpha_0_ = 8.*(2*np.pi)/360
     for iSec in range(0, np.size(airfoilSecs)):
         alpha_0 = np.append(alpha_0, alpha_0_)
 
-    data["alpha_L0"] = alpha_0.tolist()
+    data["alpha_0"] =  ((np.array([6., 7.5, 9., 9., 9., 9., 8., 8., 8., 9.5, 6., 7.5, 9., 9., 9., 9., 8., 8., 8., 9.5]))/360*(2*np.pi)).tolist()
 
     # Compute Alpha_L0
     alpha_L0 = np.empty(0)

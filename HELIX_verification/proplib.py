@@ -379,5 +379,3 @@ for index, iAirfoilSec in enumerate(airfoilSecs):
     iAirfoilSec['mach']         = Mach
     iAirfoilSec['alphaMin']     = -8.
     iAirfoilSec['alphaMax']     = 4.
-
-None
