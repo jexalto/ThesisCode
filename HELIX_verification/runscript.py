@@ -17,11 +17,11 @@ import json
 
 import niceplots
 
-from rotor import generateRotor
+# from rotor import generateRotor
 
 niceplots.setRCParams()
 
-generateRotor()
+# generateRotor()
 
 def main():
     """

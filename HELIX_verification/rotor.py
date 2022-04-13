@@ -81,7 +81,7 @@ def generateRotor(fileName="rotor.json"):
     for iSec in range(0, np.size(airfoilSecs)):
         alpha_0 = np.append(alpha_0, alpha_0_)
 
-    data["alpha_0"] =  ((np.array([6., 7.5, 9., 9., 9., 9., 8., 8., 8., 9.5, 6., 7.5, 9., 9., 9., 9., 8., 8., 8., 9.5]))/360*(2*np.pi)).tolist()
+    data["alpha_0"] =  ((np.array([70.5, 70.5, 70.5, 70.5, 70.5, 8., 8., 8., 8., 8., 8.5, 8.5, 8.5, 7., 7., 7., 7., 7., 7.5, 7.5, 7.5]))/360*(2*np.pi)).tolist()
 
     # Compute Alpha_L0
     alpha_L0 = np.empty(0)

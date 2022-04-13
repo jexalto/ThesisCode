@@ -36,7 +36,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
             "symmetry": False,  # if true, model one half of wing
             # reflected across the plane y = 0
             # Simple Geometric Variables
-            "span": 10.,  # full wingspan, even for symmetric cases
+            "span": 10.,  # full wingspan, even for symmetric cases,
             "root_chord": 1.0,  # root chord
             "dihedral": 0.0,  # wing dihedral angle in degrees
             # positive is upward
@@ -53,7 +53,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
     step = np.arange(0, steps, 1)
 
     def x2(steps):
-        return 150-(0.1*steps-3)**2
+        return 150-(0.01*steps-3)**2
 
     vel_distr_input = np.array(x2(step), order='F')
     radii_input = np.array(np.linspace(0.01, jet_radius, steps), order='F')
@@ -63,10 +63,6 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
                                                 vel_distr_input, radii_input, prop_discr, jet_loc)
     print(vel_vec)
     y = y_VLM
-    
-    y_ = np.zeros((len(y)-1))
-    for i in range(len(y)-1):
-        y_[i] = (y[i+1]+y[i])/2
 
     mesh = np.zeros((2, mesh_dict["num_y"], 3))
     mesh[0, :, 1] = y
@@ -230,7 +226,10 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
     y_jet = jet_loc
 
     plt.clf()
-
+    y = mesh[1, :, 1]
+    y_ = np.zeros((len(y)-1))
+    for i in range(len(y)-1):
+        y_[i] = (y[i+1]+y[i])/2
     plt.plot(y_, cl_dist*1.06, label="Correction applied")
     plt.plot(y_cfd, cl_cfd, label='CFD data')
 

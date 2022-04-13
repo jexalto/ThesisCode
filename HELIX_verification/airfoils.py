@@ -62,9 +62,10 @@ def airfoilAnalysis(plotting=True, screwXFOIL=True):
     # =========================================================================
     # Solve Airfoils
     # =========================================================================
+    start = 6
     if not screwXFOIL:
         from proplib import airfoilSecs
-        for iSec in range(0, np.size(airfoilSecs)):
+        for iSec in range(start, np.size(airfoilSecs)):
             print(airfoilSecs[iSec]['Name'])
             solveAirfoil(airfoilSecs[iSec], omega, rho_inf, mu_inf, a_inf, nPerDeg=10, nIter=1000)
     else:
@@ -72,7 +73,7 @@ def airfoilAnalysis(plotting=True, screwXFOIL=True):
     # =========================================================================
     # Compute Zero-Lift Angle of Attack
     # =========================================================================
-    for iSec in range(0, np.size(airfoilSecs)):
+    for iSec in range(start, np.size(airfoilSecs)):
         alpha_L0, success = compute_alpha_L0(airfoilSecs[iSec]["alpha"], airfoilSecs[iSec]["cl"])
 
         if not success:
@@ -87,7 +88,7 @@ def airfoilAnalysis(plotting=True, screwXFOIL=True):
     # Compute Coefficient of Lift vs. Alpha (Cl_alpha)
     # =========================================================================
     alpha_bnds = np.array([0.0, 3.0])
-    for iSec in range(0, np.size(airfoilSecs)):
+    for iSec in range(start, np.size(airfoilSecs)):
         airfoilSecs[iSec]["Cl_alpha"] = compute_cl_alpha(
             airfoilSecs[iSec]["alpha"], airfoilSecs[iSec]["cl"], alpha_bnds
         )
@@ -122,7 +123,7 @@ def writeJSON(data, fileName):
         data[iSec]["cm"] = data[iSec]["cm"]#.tolist()
         if not data[iSec]["alpha_L0"] is None:
             data[iSec]["alpha_L0"] = data[iSec]["alpha_L0"].tolist()
-        data[iSec]["Cl_alpha"] = data[iSec]["Cl_alpha"].tolist()
+        data[iSec]["Cl_alpha"] = data[iSec]["Cl_alpha"]#.tolist()
     
     with open(fileName, "w") as file:
         js.dump(data, file, indent=4)
@@ -223,9 +224,10 @@ def compute_alpha_L0(alpha, cl):
     success : boolean
         Success flag (0 = fail, 1 = success)
     """
+    index_max = np.argmax(cl)
     iZero = min(range(len(cl)), key=lambda i: np.abs(cl[i]))
 
-    cl_alpha_interp = Akima1DInterpolator(alpha, cl)
+    cl_alpha_interp = Akima1DInterpolator(alpha[:index_max], cl[:index_max])
     res = root(cl_alpha_interp, alpha[iZero])
 
     alpha_L0 = np.deg2rad(res.x)

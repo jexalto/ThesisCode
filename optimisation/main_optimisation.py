@@ -117,8 +117,8 @@ if True:
 span = 0.748
 jet_loc = span*(0.5-0.444)
 
-model.add_design_var('rethorst.span', lower=0.1, upper=30) # couple this to EOAS.span
-model.add_design_var('rethorst.jet_loc', lower=0., upper=1.)
+model.add_design_var('rethorst.span', lower=20., upper=30) # couple this to EOAS.span
+# model.add_design_var('rethorst.jet_loc', lower=0., upper=1.)
 # model.add_design_var('EOAS.wing.geometry.span', lower=10, upper=30)
 # model.add_design_var('EOAS.wing.geometry.mesh.jet_loc', lower=-5., upper=5.)
 # model.add_design_var('EOAS.wing.geometry.twist_cp', lower=0.5, upper=4.)
