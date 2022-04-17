@@ -9,7 +9,7 @@ class parameters(om.IndepVarComp):
         pass
 
     def setup(self):
-        self.add_output("vinf", val=100., units="m/s")
+        self.add_output("vinf", val=40., units="m/s")
         self.add_output("alpha", val=2., units="deg")
         self.add_output("Mach_number", val=0.84)
         self.add_output("re", val=1.0e6, units="1/m")
@@ -20,3 +20,6 @@ class parameters(om.IndepVarComp):
         self.add_output("speed_of_sound", val=295.4, units="m/s")
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
+
+        self.add_output("span", val=10., units="m")
+        self.add_output("jet_loc", val=1., units="m")

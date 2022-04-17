@@ -10,7 +10,6 @@ from helix.openmdao.om_helix import HELIX_Group
 from helix_dir.helix_config import simparam_definition, geometry_definition, references_definition
 from rethorst_dir.rethorst_group import Rethorst
 from constraints.cons_proploc import proploc
-# from obj_function import obj_func
 
 class master(om.Group):
 
@@ -38,19 +37,24 @@ class master(om.Group):
             for iSpan in range(0, N_span):
                 N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
         
-        self.add_subsystem('rethorst', subsys=Rethorst(vel_distr_shape=N_elem_span, panels_span_VLM=200))
+        self.add_subsystem('rethorst', subsys=Rethorst(vel_distr_shape=N_elem_span, panels_span_VLM=300))
         
-        self.add_subsystem('EOAS', subsys=EOAS(panels_span_VLM=200))
+        self.add_subsystem('EOAS', subsys=EOAS(panels_span_VLM=300, span_0=10.))
 
-        # self.add_subsystem('obj_fun', subsys=obj_func())
-        
-        # self.add_subsystem('cons_proploc', subsys=proploc())
+        self.add_design_var('parameters.span', lower=9., upper=20.)
+        self.add_design_var('parameters.jet_loc', lower=0.01, upper=10.)
 
         self.connect('helix.rotorcomp_0_velocity_distribution', 'rethorst.velocity_vector')
         self.connect('helix.rotorcomp_0_radii', 'rethorst.radii')
 
+        self.connect('helix.geodef_parametric_0_span', 'EOAS.wing.geometry.mesh.jet_radius')
+
         self.connect('rethorst.correction_matrix', 'EOAS.correction')
         self.connect('rethorst.wing_veldistr', 'EOAS.velocity_distr')
+        self.connect('parameters.jet_loc', 'EOAS.wing.geometry.mesh.jet_loc')
+        self.connect('parameters.span', 'EOAS.wing.geometry.span')
+        self.connect('parameters.jet_loc', 'rethorst.jet_loc')
+        self.connect('parameters.span', 'rethorst.span')
 
         # --- Connecting parameters ----
         self.connect('parameters.vinf', 'EOAS.v')
@@ -65,9 +69,14 @@ class master(om.Group):
         self.connect('parameters.load_factor', 'EOAS.load_factor')
         self.connect('parameters.empty_cg', 'EOAS.empty_cg')
 
-        self.connect('parameters.vinf', 'rethorst.Vinf')
+        self.connect('parameters.vinf', 'rethorst.vinf')
+
+        # self.add_design_var('EOAS.velocity_distr', lower=20., upper=200.)
+        # self.add_design_var('EOAS.wing.geometry.span', lower=5., upper=30.)
+        # self.add_design_var('EOAS.wing.geometry.mesh.jet_loc', lower=0., upper=1.)
         
-        self.add_objective('EOAS.AS_point_0.fuelburn')
+        # self.add_constraint("AS_point_0.L_equals_W", equals=0.0)
+        self.add_objective("EOAS.AS_point_0.fuelburn", scaler=1e-5)
 
 prob = om.Problem()
 model = prob.model
@@ -107,45 +116,43 @@ if True:
             dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
         # Section Variables (hard-coding shape for now)
-        # model.add_design_var(name + "span",lower=0.1, upper=1)
+        model.add_design_var(name + "span",lower=0.1, upper=1)
         # model.add_design_var(name + "chord",lower=0.01, upper=0.1)
         # model.add_design_var(name + "twist",lower=-50, upper=50)
         # model.add_design_var(name + "alpha_0",lower=0.1, upper=1)
         # model.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
         # model.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
 
-span = 0.748
-jet_loc = span*(0.5-0.444)
+radius = 0.0174195+sum(span)
 
-model.add_design_var('rethorst.span', lower=20., upper=30) # couple this to EOAS.span
-# model.add_design_var('rethorst.jet_loc', lower=0., upper=1.)
 # model.add_design_var('EOAS.wing.geometry.span', lower=10, upper=30)
 # model.add_design_var('EOAS.wing.geometry.mesh.jet_loc', lower=-5., upper=5.)
 # model.add_design_var('EOAS.wing.geometry.twist_cp', lower=0.5, upper=4.)
 # model.add_design_var('EOAS.wing.geometry.chord', lower=0.5, upper=4.)
 
-model.approx_totals()
+prob.setup(mode='fwd')
 
-prob.setup()
+prob.set_val(name + "span", val=span)
+prob.set_val(name + "chord",val=chord)
+prob.set_val(name + "twist",val=twist)
+prob.set_val(name + "alpha_0",val=alpha_0)
+prob.set_val(name + "alpha_L0",val=alpha_L0)
+prob.set_val(name + "Cl_alpha",val=Cl_alpha)
+# prob.set_val('EOAS.wing.geometry.mesh.jet_radius',val=radius)
 
-# prob.set_val(name + "span", val=span)
-# prob.set_val(name + "chord",val=chord)
-# prob.set_val(name + "twist",val=twist)
-# prob.set_val(name + "alpha_0",val=alpha_0)
-# prob.set_val(name + "alpha_L0",val=alpha_L0)
-# prob.set_val(name + "Cl_alpha",val=Cl_alpha)
-prob.set_val('rethorst.span',val=span)
-prob.set_val('rethorst.jet_loc',val=jet_loc)
-
-prob.driver = om.ScipyOptimizeDriver()
-prob.driver.options['optimizer'] = 'SLSQP'
+prob.driver = om.pyOptSparseDriver()
+prob.driver.options['optimizer'] = 'SNOPT'
 # prob.driver.options['maxiter'] = 100
-prob.driver.options['tol'] = 1e-9
+# prob.driver.options['tol'] = 1e-9
 
-# prob.run_driver()
-prob.run_model()
+prob.run_driver()
+# prob.run_model()
+# prob.check_partials(compact_print=True, show_only_incorrect=False, includes=['*EOAS*'], form='central') # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+# prob.check_totals(compact_print=True,  form='central')
 
 # --- Plotting of results ---
+print(prob.get_val('rethorst.span'))
+print(prob.get_val('rethorst.jet_loc'))
 print("The fuel burn value is", prob["EOAS.AS_point_0.fuelburn"][0], "[kg]")
 
 cl_dist = prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl')

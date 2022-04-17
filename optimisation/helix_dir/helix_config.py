@@ -22,7 +22,7 @@ def simparam_definition():
 
     simparam.nt_rev = 30
 
-    simparam.v_inf = np.array([100.0, 0.0, 0.0])
+    simparam.v_inf = np.array([0.0, 0.0, -40.0])
     simparam.rho_inf = 1.25
 
     return simparam
@@ -70,7 +70,7 @@ def geometry_definition():
 
     # Reference Parameters
     N_span = len(airfoilSecs["span"])
-    rotor.ref_point = np.array([0.0, 0.02023364, 0.0])
+    rotor.ref_point = np.array([0.0, 0.0174195, 0.0])
     rotor.ref_chord_frac = 0.5
 
     # Symmetry Parameters
@@ -91,7 +91,7 @@ def geometry_definition():
         "mult_type": "rotor",
         "n_blades": 4,
         "rot_axis": np.array([0.0, 0.0, 1.0]),
-        "rot_rate": -100,
+        "rot_rate": -1320,
         "psi_0": 0.0,
         "hub_offset": 0.0,
         "n_dofs": 0,
@@ -106,16 +106,36 @@ def geometry_definition():
         rotor.sec[iSec].alpha_0 = 8. # airfoilSecs['chord'][iSec]
         rotor.sec[iSec].alpha_L0 = airfoilSecs['alpha_L0'][iSec]
         rotor.sec[iSec].Cl_alpha = airfoilSecs['Cl_alpha'][iSec]
-        rotor.sec[iSec].M = 50.0
+        rotor.sec[iSec].M = airfoilSecs['M'][iSec]
 
     for iSpan in range(len(airfoilSecs["span"])):
         rotor.span[iSpan].span = airfoilSecs["span"][iSpan]
         rotor.span[iSpan].sweep = 0.0
         rotor.span[iSpan].dihed = 0.0
-        rotor.span[iSpan].N_elem_span = 4
+        rotor.span[iSpan].N_elem_span = 1
         rotor.span[iSpan].span_type = 1
 
     # Append To Vehicle
     geometry_def.append_component(rotor)
 
     return geometry_def
+
+# 0.005315011557610248,
+# 0.005315011557610234,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610237,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.00531501155761023,
+# 0.005315011557610244,
+# 0.00531501155761023,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610244,
+# 0.005315011557610244

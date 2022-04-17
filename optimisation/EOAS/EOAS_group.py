@@ -12,9 +12,10 @@ class EOAS(om.Group):
     def initialize(self):
         self.options.declare('panels_span_VLM', default=300)
         self.options.declare('panels_chord_VLM', default=1)
+        self.options.declare('span_0', default=10.)
 
     def setup(self):
-        
+        span_0 = self.options['span_0']
         mesh_dict = {
             # Wing definition
             "num_x": self.options['panels_chord_VLM']+1,  # number of chordwise points
@@ -27,7 +28,7 @@ class EOAS(om.Group):
             "symmetry": False,  # if true, model one half of wing
             # reflected across the plane y = 0
             # Simple Geometric Variables
-            "span": 10.,  # full wingspan, even for symmetric cases
+            "span": span_0,  # full wingspan, even for symmetric cases
             "root_chord": 1.0,  # root chord
             # "dihedral": 0.0,  # wing dihedral angle in degrees
             # positive is upward
@@ -51,7 +52,7 @@ class EOAS(om.Group):
             "thickness_cp": np.array([0.1, 0.2, 0.3]),
             # "twist_cp": twist_cp,
             "mesh": mesh,
-            "span": 10.,
+            "span": span_0,
             "chord_cp": chord_cp,
             "propeller": 1,
             # Aerodynamic performance of the lifting surface at

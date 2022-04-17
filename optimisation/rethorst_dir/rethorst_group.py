@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import numpy as np
 from RethorstCorrection_pyf90.mod_velocity_distribution_nonsymmetry import velocity_distribution_nosym
 from RethorstCorrection_pyf90.mod_velocity_distribution_nonsymmetry_d import velocity_distribution_nosym_d
@@ -12,9 +13,9 @@ class Rethorst(om.ExplicitComponent):
         self.options.declare('span_max', default=20., desc='maximum span')
         self.options.declare('r_min', default=0.1, desc='minimum radius')
         self.options.declare('vel_distr_shape', default=100, desc='number of vel discretisation point given by helix')
-        self.options.declare('prop_discr', default=5, desc='prop vel distribution discretisation')
+        self.options.declare('prop_discr', default=3, desc='prop vel distribution discretisation')
         self.options.declare('panels_jet', default=81, desc='panels in jet in overset mesh')
-        self.options.declare('panels_overset_wing', default=1001, desc='panels on wing in overset mesh')
+        self.options.declare('panels_overset_wing', default=1501, desc='panels on wing in overset mesh')
 
     def setup(self):
         panels_span_VLM = self.options['panels_span_VLM']
@@ -23,9 +24,9 @@ class Rethorst(om.ExplicitComponent):
 
         self.add_input('span', val=1.0, units='m')
         self.add_input('jet_loc', val=1.0, units='m')
-        self.add_input('Vinf', val=1.0, units='m/s')        
-        self.add_input('radii', shape=(vel_distr_shape), units='m')
-        self.add_input('velocity_vector', shape=(vel_distr_shape), units='m/s')
+        self.add_input('vinf', val=1.0, units='m/s')        
+        self.add_input('radii', shape_by_conn=True, units='m')
+        self.add_input('velocity_vector', shape_by_conn=True, units='m/s')
 
         self.add_output('correction_matrix',    shape   =   (panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), 
                                                 val     =   np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM)))
@@ -33,17 +34,17 @@ class Rethorst(om.ExplicitComponent):
                                                 val     =   np.zeros((panels_span_VLM)), units='m/s')
 
     def compute(self, inputs, outputs):
-        span                    = inputs['span']
-        jet_loc                 = inputs['jet_loc']
-        Vinf                    = inputs['Vinf']
-        radii_input             = inputs['radii']
-        prop_veldistr           = inputs['velocity_vector']
+        span                    = np.copy(inputs['span'])
+        jet_loc                 = np.copy(inputs['jet_loc'])
+        Vinf                    = np.copy(inputs['vinf'][0])
+        radii_input             = np.copy(inputs['radii'])
+        prop_veldistr           = np.copy(inputs['velocity_vector'])
 
         panels_span_VLM         = self.options['panels_span_VLM']
         panels_chord_VLM        = self.options['panels_chord_VLM']
         span_max                = self.options['span_max']
         r_min                   = self.options['r_min']
-        prop_discr              = self.options['prop_discr']
+        prop_discr              = self.options['prop_discr']            # make sure the propeller isn't too small for this discretisation
         panels_jet              = self.options['panels_jet']
         panels_overset_wing     = self.options['panels_overset_wing']
 
@@ -55,7 +56,17 @@ class Rethorst(om.ExplicitComponent):
 
         velocity_distribution_nosym(    span, jet_loc, prop_veldistr, radii_input, prop_discr, Vinf, panels_jet,
                                         panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
+        if np.isnan(any(sum(total_correction))):
+            raise ValueError('total correction contains nan!')
+        if np.isnan(any(vel_vec)):
+            raise ValueError('total correction contains nan!')
 
+        print('\n============')
+        print('==Rethorst==')
+        print('============')
+        print(f'span {span}')
+        print(f'jet_loc {jet_loc}')
+        
         outputs['correction_matrix'] = total_correction
         outputs['wing_veldistr'] = vel_vec
 
@@ -65,9 +76,9 @@ class Rethorst(om.ExplicitComponent):
 
         span                    = inputs['span']
         jet_loc                 = inputs['jet_loc']
-        radii_input             = inputs['radii']
-        Vinf                    = inputs['Vinf']
-        prop_veldistr           = inputs['velocity_vector']
+        Vinf                    = np.array(inputs['vinf'], order='F')
+        radii_input             = np.array(inputs['radii'], order='F')
+        prop_veldistr           = np.array(inputs['velocity_vector'], order='F')
 
         panels_span_VLM         = self.options['panels_span_VLM']
         panels_chord_VLM        = self.options['panels_chord_VLM']
@@ -83,9 +94,6 @@ class Rethorst(om.ExplicitComponent):
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
 
-        # prop_veldistr = np.array(np.flip(np.array(prop_veldistr).reshape((len(prop_veldistr)))), order='F')
-        # radii_input = np.array(radii_input.reshape((len(radii_input))), order='F')
-
         if mode=='fwd':
             self._set_seeds_fwd(d_inputs)
 
@@ -99,14 +107,14 @@ class Rethorst(om.ExplicitComponent):
         # Reverse Mode
         # ================================================
 
-        elif mode=='rev':
-            self._set_seeds_rev(d_outputs)
+        # elif mode=='rev':
+        #     self._set_seeds_rev(d_outputs)
             
-            velocity_distribution_nosym_b(  span, self.spanb, jet_loc, self.jet_loc_inputb, prop_veldistr, self.vel_distr_inputb,
-                                            radii_input, self.radii_inputb, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM,
-                                            panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
+        #     velocity_distribution_nosym_b(  span, self.spanb, jet_loc, self.jet_loc_inputb, prop_veldistr, self.vel_distr_inputb,
+        #                                     radii_input, self.radii_inputb, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM,
+        #                                     panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
 
-            self._get_seeds_rev(d_inputs)
+        #     self._get_seeds_rev(d_inputs)
 
 
     def _zero_seeds(self, inputs):
@@ -137,7 +145,7 @@ class Rethorst(om.ExplicitComponent):
     def _set_seeds_fwd(self, d_inputs):
         self.spand                      = d_inputs['span']
         self.jet_loc_inputd             = d_inputs['jet_loc']
-        self.vinfd                      = d_inputs['Vinf']
+        self.vinfd                      = d_inputs['vinf']
         self.vel_distr_inputd           = np.array(d_inputs['velocity_vector'], order='F')
         self.radii_inputd               = np.array(d_inputs['radii'], order='F')
 
@@ -154,7 +162,7 @@ class Rethorst(om.ExplicitComponent):
     def _get_seeds_rev(self, d_inputs):
         d_inputs['span']                += self.spand
         d_inputs['jet_loc']             += self.jet_loc_inputd
-        d_inputs['Vinf']                += self.vinfd
+        d_inputs['vinf']                += self.vinfd
         d_inputs['velocity_vector']     += self.vel_distr_inputd
         d_inputs['radii']               += self.radii_inputd
 
