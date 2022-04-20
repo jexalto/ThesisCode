@@ -13,7 +13,7 @@
 
 %%% End Preamble Requirements %%%
 
-\input{"/home/jexalto/.local/lib/python3.8/site-packages/pyxdsm/diagram_styles"}
+\input{"/home/jexalto/code/MDO_lab_env/.venv/lib/python3.8/site-packages/pyxdsm/diagram_styles"}
 \begin{tikzpicture}
 
 \matrix[MatrixSetup]{
@@ -32,9 +32,9 @@
 \node [DataIO] (left_output_opt) {$\begin{array}{c}l^*, \mathbf{\phi}^*, c_r^*, c_t^* \\ B^*, R^*, \mathbf{\theta}^* \\ \mathbf{c}^*, J^*, c^*\end{array}$};&
 \node [Optimization] (opt) {$\text{Optimizer (SNOPT)}$};&
 &
-\node [DataInter] (opt-helix) {$\begin{array}{c}B, R, \mathbf{\theta} \\ \mathbf{c}, J, c\end{array}$};&
+\node [DataInter] (opt-helix) {$\begin{array}{c}B, R, \mathbf{\theta} \\ C_{L,\alpha}, J, c_{prop}\end{array}$};&
 &
-\node [DataInter] (opt-OAS) {$l, \mathbf{\phi}, c_r, c_t$};&
+\node [DataInter] (opt-OAS) {$b, \mathbf{\phi}, \vec{c}_{wing}$};&
 &
 &
 &
@@ -67,7 +67,7 @@
 &
 &
 \node [Function] (slipstream) {$\text{Slipstream model}$};&
-\node [DataInter] (slipstream-OAS) {$\mathbf{G}, mesh$};&
+\node [DataInter] (slipstream-OAS) {$\mathbf{G}$};&
 &
 &
 &
@@ -81,7 +81,7 @@
 \node [Function] (OAS) {$\text{EnhancedOpenAeroStruct}$};&
 &
 \node [DataInter] (OAS-G) {$C_D$};&
-\node [DataInter] (OAS-G2) {$C_L, W_{str}$};&
+\node [DataInter] (OAS-G2) {$C_L, W_{str}, W_f$};&
 \\
 %Row 6
 \node [DataIO] (left_output_F) {$f^*$};&
@@ -155,6 +155,11 @@
  \begin{pgfonlayer}{process} 
 \chainin (OAS);
 \chainin (G2) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (G2);
+\chainin (opt) [join=by ProcessHVA];
 \end{pgfonlayer}
 }{ [start chain=process]
  \begin{pgfonlayer}{process} 

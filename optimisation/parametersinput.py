@@ -21,5 +21,11 @@ class parameters(om.IndepVarComp):
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
 
-        self.add_output("span", val=10., units="m")
-        self.add_output("jet_loc", val=1., units="m")
+        self.add_output("span", val=0.748, units="m")
+        self.add_output("jet_loc", val=0.0, units="m")
+
+        twist_cp = np.zeros((5))
+        chord_cp = np.ones((5))*0.48
+
+        self.add_output("twist", shape=(5), val=twist_cp, units="deg")
+        self.add_output("chord", shape=(5), val=chord_cp, units="m")

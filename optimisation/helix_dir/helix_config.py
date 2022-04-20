@@ -112,7 +112,7 @@ def geometry_definition():
         rotor.span[iSpan].span = airfoilSecs["span"][iSpan]
         rotor.span[iSpan].sweep = 0.0
         rotor.span[iSpan].dihed = 0.0
-        rotor.span[iSpan].N_elem_span = 1
+        rotor.span[iSpan].N_elem_span = 5
         rotor.span[iSpan].span_type = 1
 
     # Append To Vehicle

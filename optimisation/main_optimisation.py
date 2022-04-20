@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 import matplotlib.pyplot as plt
+from openmdao.devtools import iprofile
 
 from openaerostruct.utils.constants import grav_constant
 
@@ -8,8 +9,12 @@ from parametersinput import parameters
 from EOAS.EOAS_group import EOAS
 from helix.openmdao.om_helix import HELIX_Group
 from helix_dir.helix_config import simparam_definition, geometry_definition, references_definition
+from helix_dir.propweight import propweight
 from rethorst_dir.rethorst_group import Rethorst
-from constraints.cons_proploc import proploc
+from obj_function import obj_function
+from constraints import constraints
+
+import niceplots
 
 class master(om.Group):
 
@@ -37,46 +42,91 @@ class master(om.Group):
             for iSpan in range(0, N_span):
                 N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
         
-        self.add_subsystem('rethorst', subsys=Rethorst(vel_distr_shape=N_elem_span, panels_span_VLM=300))
+        span_max = 0.748*2
+        self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=60))
+
+        self.add_subsystem('prop_weight', subsys=propweight())
+
+        self.add_subsystem('EOAS', subsys=EOAS(panels_span_VLM=60, span_0=0.748, radii_shape=N_elem_span+1))
+
+        self.add_subsystem('obj_function', subsys=obj_function())
+
+        self.add_subsystem('constraints', subsys=constraints())
         
-        self.add_subsystem('EOAS', subsys=EOAS(panels_span_VLM=300, span_0=10.))
+        # =================================
+        # ===== Connecting Subsystems =====
+        # =================================
+        self.connect('helix.rotorcomp_0_velocity_distribution',         'rethorst.velocity_vector')
+        self.connect('helix.rotorcomp_0_radii',                         'rethorst.radii')
+        # self.connect('helix.power',                                     'prop_weight.power')
 
-        self.add_design_var('parameters.span', lower=9., upper=20.)
-        self.add_design_var('parameters.jet_loc', lower=0.01, upper=10.)
+        # self.connect('prop_weight.prop_weight',                         'EOAS.AS_point_0.coupled.wing.point_masses')
+        self.connect('helix.rotorcomp_0_radii',                         'EOAS.wing.geometry.mesh.jet_radius')
+        self.connect('rethorst.correction_matrix',                      'EOAS.correction')
+        self.connect('rethorst.wing_veldistr',                          'EOAS.velocity_distr')
 
-        self.connect('helix.rotorcomp_0_velocity_distribution', 'rethorst.velocity_vector')
-        self.connect('helix.rotorcomp_0_radii', 'rethorst.radii')
+        self.connect('parameters.twist',                                'EOAS.wing.twist_cp')
+        self.connect('parameters.chord',                                'EOAS.wing.geometry.chord_cp')
+        self.connect('parameters.jet_loc',                              'EOAS.wing.geometry.mesh.jet_loc')
+        # self.connect('parameters.jet_loc',                              'EOAS.AS_point_0.coupled.wing.point_mass_locations')
+        self.connect('parameters.span',                                 'EOAS.wing.geometry.span')
+        self.connect('parameters.vinf',                                 'EOAS.v')
+        self.connect('parameters.alpha',                                'EOAS.alpha')
+        self.connect('parameters.Mach_number',                          'EOAS.Mach_number')
+        self.connect('parameters.re',                                   'EOAS.re')
+        self.connect('parameters.rho',                                  'EOAS.rho')
+        self.connect('parameters.CT',                                   'EOAS.CT')
+        self.connect('parameters.R',                                    'EOAS.R')
+        self.connect('parameters.W0',                                   'EOAS.W0')
+        self.connect('parameters.speed_of_sound',                       'EOAS.speed_of_sound')
+        self.connect('parameters.load_factor',                          'EOAS.load_factor')
+        self.connect('parameters.empty_cg',                             'EOAS.empty_cg')
 
-        self.connect('helix.geodef_parametric_0_span', 'EOAS.wing.geometry.mesh.jet_radius')
+        self.connect('parameters.jet_loc',                              'rethorst.jet_loc')
+        self.connect('parameters.span',                                 'rethorst.span')
+        self.connect('parameters.vinf',                                 'rethorst.vinf')
 
-        self.connect('rethorst.correction_matrix', 'EOAS.correction')
-        self.connect('rethorst.wing_veldistr', 'EOAS.velocity_distr')
-        self.connect('parameters.jet_loc', 'EOAS.wing.geometry.mesh.jet_loc')
-        self.connect('parameters.span', 'EOAS.wing.geometry.span')
-        self.connect('parameters.jet_loc', 'rethorst.jet_loc')
-        self.connect('parameters.span', 'rethorst.span')
+        # ================================      
+        # ===== Connecting Objective =====      
+        # ================================      
+        self.connect('EOAS.AS_point_0.wing_perf.L',                     'obj_function.lift')
+        self.connect('EOAS.AS_point_0.wing_perf.D',                     'obj_function.drag')
 
-        # --- Connecting parameters ----
-        self.connect('parameters.vinf', 'EOAS.v')
-        self.connect('parameters.alpha', 'EOAS.alpha')
-        self.connect('parameters.Mach_number', 'EOAS.Mach_number')
-        self.connect('parameters.re', 'EOAS.re')
-        self.connect('parameters.rho', 'EOAS.rho')
-        self.connect('parameters.CT', 'EOAS.CT')
-        self.connect('parameters.R', 'EOAS.R')
-        self.connect('parameters.W0', 'EOAS.W0')
-        self.connect('parameters.speed_of_sound', 'EOAS.speed_of_sound')
-        self.connect('parameters.load_factor', 'EOAS.load_factor')
-        self.connect('parameters.empty_cg', 'EOAS.empty_cg')
-
-        self.connect('parameters.vinf', 'rethorst.vinf')
-
-        # self.add_design_var('EOAS.velocity_distr', lower=20., upper=200.)
-        # self.add_design_var('EOAS.wing.geometry.span', lower=5., upper=30.)
-        # self.add_design_var('EOAS.wing.geometry.mesh.jet_loc', lower=0., upper=1.)
+        # ==================================
+        # ===== Connecting Constraints =====
+        # ==================================
+        # self.connect('EOAS.AS_point_0.wing_perf.L',                     'constraints.lift')
+        # self.connect('EOAS.AS_point_0.total_perf.fuelburn',             'constraints.fuel_weight')
+        # self.connect('EOAS.AS_point_0.total_perf.wing_structural_mass', 'constraints.struc_weight')
+        # self.connect('helix.rotorcomp_0_thrust',                        'constraints.thrust')
+        # self.connect('EOAS.AS_point_0.wing_perf.L',                     'constraints.drag')
+        self.connect('parameters.jet_loc',                              'constraints.jet_loc')
+        self.connect('parameters.span',                                 'constraints.span')
         
-        # self.add_constraint("AS_point_0.L_equals_W", equals=0.0)
-        self.add_objective("EOAS.AS_point_0.fuelburn", scaler=1e-5)
+        parametric = geometry_def
+
+        if True:
+            for iParametric in range(0, np.size(parametric)):
+                name = "helix.geodef_parametric_{:d}_".format(iParametric)
+                # self.add_design_var(name + "span",lower=0.001, upper=.05)
+                # self.add_design_var(name + "chord",lower=0.01, upper=0.1)
+                # self.add_design_var(name + "twist",lower=-50, upper=50)
+                # self.add_design_var(name + "alpha_0",lower=0.1, upper=1)
+                # self.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
+                # self.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
+        
+        self.add_design_var('parameters.span', lower=1.*0.5, upper=span_max, scaler=1/0.748)
+        self.add_design_var('parameters.jet_loc', lower=-0.5*0.748, upper=0.5*0.748, scaler=1/0.374)
+        self.add_design_var('parameters.chord', lower=0.2*0.48, upper=4.*0.48, scaler=1/0.48)
+        # self.add_design_var('parameters.twist', lower=-3, upper=3, scaler=1.)
+        
+        self.add_objective("obj_function.objective", scaler=1./0.02931652)
+        
+        self.add_constraint('EOAS.AS_point_0.wing_perf.L', equals=4.05033303)
+        # self.add_constraint('constraints.constraint_thrust_drag', equals=0.)
+        # self.add_constraint('constraints.constraint_lift_weight', equals=0.)
+        self.add_constraint('constraints.constraint_jetloc', upper=0.)
+
 
 prob = om.Problem()
 model = prob.model
@@ -106,7 +156,7 @@ if True:
             alpha_L0[iChord] = parametric.parametric_def[iParametric].sec[iChord].alpha_L0
             Cl_alpha[iChord] = parametric.parametric_def[iParametric].sec[iChord].Cl_alpha
             M[iChord] = parametric.parametric_def[iParametric].sec[iChord].M
-        
+
         span = np.zeros(N_span)
         sweep = np.zeros(N_span)
         dihed = np.zeros(N_span)
@@ -115,45 +165,55 @@ if True:
             sweep[iSpan] = parametric.parametric_def[iParametric].span[iSpan].sweep
             dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
-        # Section Variables (hard-coding shape for now)
-        model.add_design_var(name + "span",lower=0.1, upper=1)
-        # model.add_design_var(name + "chord",lower=0.01, upper=0.1)
-        # model.add_design_var(name + "twist",lower=-50, upper=50)
-        # model.add_design_var(name + "alpha_0",lower=0.1, upper=1)
-        # model.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
-        # model.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
-
-radius = 0.0174195+sum(span)
-
-# model.add_design_var('EOAS.wing.geometry.span', lower=10, upper=30)
-# model.add_design_var('EOAS.wing.geometry.mesh.jet_loc', lower=-5., upper=5.)
-# model.add_design_var('EOAS.wing.geometry.twist_cp', lower=0.5, upper=4.)
-# model.add_design_var('EOAS.wing.geometry.chord', lower=0.5, upper=4.)
-
 prob.setup(mode='fwd')
-
+print(span)
 prob.set_val(name + "span", val=span)
 prob.set_val(name + "chord",val=chord)
 prob.set_val(name + "twist",val=twist)
 prob.set_val(name + "alpha_0",val=alpha_0)
 prob.set_val(name + "alpha_L0",val=alpha_L0)
 prob.set_val(name + "Cl_alpha",val=Cl_alpha)
-# prob.set_val('EOAS.wing.geometry.mesh.jet_radius',val=radius)
+prob.set_val('prop_weight.power', val=10000000)
 
 prob.driver = om.pyOptSparseDriver()
 prob.driver.options['optimizer'] = 'SNOPT'
-# prob.driver.options['maxiter'] = 100
-# prob.driver.options['tol'] = 1e-9
+prob.driver.opt_settings = {
+    "Major feasibility tolerance": 1.0e-5,
+    "Major optimality tolerance": 1.0e-4,
+    "Minor feasibility tolerance": 1.0e-5,
+    "Verify level": -1,
+    "Function precision": 1.0e-8,
+    "Major iterations limit": 50,
+    "Nonderivative linesearch": None,
+    "Print file": "/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/snopt_output/opt_SNOPT_print.txt",
+    "Summary file": "/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/snopt_output/opt_SNOPT_summary.txt",
+}
 
 prob.run_driver()
 # prob.run_model()
+
 # prob.check_partials(compact_print=True, show_only_incorrect=False, includes=['*EOAS*'], form='central') # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True,  form='central')
 
-# --- Plotting of results ---
-print(prob.get_val('rethorst.span'))
-print(prob.get_val('rethorst.jet_loc'))
+# ===========================
+# === Printing of results ===
+# ===========================
+
+print('wing span: \t\t', prob.get_val('rethorst.span'))
+print('propeller location:\t', prob.get_val('rethorst.jet_loc'))
+print('chord: \t\t', prob.get_val('parameters.chord'))
+print('twist: \t\t', prob.get_val('parameters.twist'))
+print('L/D:\t\t', prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.L')/prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.D'))
+print('CL: \t\t', prob.get_val('EOAS.AS_point_0.wing_perf.CL'))
+print('CD: \t\t', prob.get_val('EOAS.AS_point_0.wing_perf.CD'))
+print('Propeller radius: \t', prob.get_val('helix.geodef_parametric_0_span'))
+
 print("The fuel burn value is", prob["EOAS.AS_point_0.fuelburn"][0], "[kg]")
+print("The lift generated is:\t", prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.L'), " N")
+
+# ===========================
+# === Plotting of results ===
+# ===========================
 
 cl_dist = prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl')
 y = prob['EOAS.wing.mesh'][0, :, 1]
@@ -162,7 +222,61 @@ y_ = np.zeros((len(y)-1))
 for index in range(len(y)-1):
     y_[index] = (y[index+1]+y[index])/2
 
-plt.plot(y_, cl_dist, label='Cl distribution')
-plt.grid()
-plt.legend()
+_, ax = plt.subplots(figsize=(10, 7))
+
+# Plot Helix Data
+ax.plot(y_, cl_dist, label='Cl distribution')
+
+# ax.set_xlim([0.6, 1.05])
+ax.set_xlabel(r'Spanwise location $y$')
+# ax.set_ylim([0.0, 0.16])
+ax.set_ylabel(r'$C_L$')
+
+ax.grid()
+
+# plt.tight_layout()
+niceplots.adjust_spines(ax, outward=True)
+
 plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/cl_distr.png')
+
+_, ax = plt.subplots(figsize=(10, 7))
+
+# Plot Helix Data
+ax.plot(prob.get_val('helix.rotorcomp_0_radii'), prob.get_val('helix.rotorcomp_0_velocity_distribution'))
+
+# ax.set_xlim([0.6, 1.05])
+ax.set_xlabel(r'Propeller radius $R$')
+# ax.set_ylim([0.0, 0.16])
+ax.set_ylabel(r'Slipstream velocity $V$')
+
+ax.grid()
+
+# plt.tight_layout()
+niceplots.adjust_spines(ax, outward=True)
+
+plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/velocitydistribution.png')
+
+_, ax = plt.subplots(figsize=(10, 7))
+
+# Plot Helix Data
+veldistr = prob.get_val('rethorst.wing_veldistr')
+ax.plot(np.linspace(-0.748/2, 0.748/2, len(veldistr)), veldistr, label='Prop on')
+freestream = np.ones(len(veldistr)+2)*40
+freestream[0] = 0
+freestream[-1] = 0
+x = np.concatenate(([-0.748/2], np.linspace(-0.748/2, 0.748/2, len(veldistr)), [0.748/2]))
+ax.plot(x, freestream, label='Prop off')
+
+# ax.set_xlim([0.6, 1.05])
+ax.set_xlabel(r'Wing span')
+ax.set_ylim([0.0, 45])
+ax.set_ylabel(r'Velocity distribution $V$')
+
+ax.grid()
+ax.legend()
+
+# plt.tight_layout()
+niceplots.adjust_spines(ax, outward=True)
+
+plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/wingveldistr.png')
+# openmdao iprof_totals <iprof.0>

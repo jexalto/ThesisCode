@@ -22,12 +22,12 @@ import openmdao.api as om
 
 from correction_matrix import correction_, correction_location
 
-def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_input, prop_discr):
+def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_input, prop_discr, span):
     # Create a dictionary to store options about the surface
     mesh_dict = {
             # Wing definition
             "num_x": nx_input,  # number of chordwise points --> interesting, 5 points equates to two panels
-            "num_y": 401,  # number of spanwise points --> NEEDS to be more than 11
+            "num_y": 301,  # number of spanwise points --> NEEDS to be more than 11
             "wing_type": "rect",  # initial shape of the wing
             # either 'CRM' or 'rect'
             # 'CRM' can have different options
@@ -36,7 +36,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
             "symmetry": False,  # if true, model one half of wing
             # reflected across the plane y = 0
             # Simple Geometric Variables
-            "span": 10.,  # full wingspan, even for symmetric cases,
+            "span": span,  # full wingspan, even for symmetric cases,
             "root_chord": 1.0,  # root chord
             "dihedral": 0.0,  # wing dihedral angle in degrees
             # positive is upward
@@ -46,16 +46,17 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
             "num_twist_cp": 5
         }
     
-    panels_overset_wing = 2501
-    panels_jet = 101
+    panels_overset_wing = 1001
+    panels_jet = 51
 
     steps = 100
     step = np.arange(0, steps, 1)
 
     def x2(steps):
-        return 150-(0.01*steps-3)**2
-
+        return 130-(0.05*steps-5)**2
+    
     vel_distr_input = np.array(x2(step), order='F')
+    print(vel_distr_input)
     radii_input = np.array(np.linspace(0.01, jet_radius, steps), order='F')
 
     correction, y_VLM, vel_vec = correction_(   mesh_dict["num_y"]-1, mesh_dict["num_x"]-1,  panels_overset_wing, panels_jet,
@@ -85,6 +86,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
         "mesh": mesh,
         # "span": 10.,
         "propeller": 1,
+        "radii_shape": steps,
         # Aerodynamic performance of the lifting surface at
         # an angle of attack of 0 (alpha=0).
         # These CL0 and CD0 values are added to the CL and CD
@@ -122,7 +124,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
     indep_var_comp.add_output("v", val=Vinf, units="m/s")
     indep_var_comp.add_output("correction", val=correction)
     indep_var_comp.add_output("jet_loc", val=jet_loc, units='m')
-    indep_var_comp.add_output("jet_radius", val=jet_radius, units='m')
+    indep_var_comp.add_output("jet_radius", val=radii_input, units='m')
     indep_var_comp.add_output('velocity_distr', val=vel_vec, units='m/s')
     indep_var_comp.add_output("alpha", val=1.0, units="deg")
     indep_var_comp.add_output("Mach_number", val=0.84)
@@ -139,8 +141,6 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
     prob.model.add_subsystem("prob_vars", indep_var_comp, promotes=["*"])
 
     aerostruct_group = AerostructGeometry(surface=surface)
-
-    # prob.model.connect('mesh_input', 'wing.geometry.mesh.rotate.in_mesh')
 
     name = "wing"
 
@@ -171,7 +171,6 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
         ],
     )
 
-    # prob.model.connect('span', 'wing.geometry.mesh.stretch.span')
     prob.model.connect('wing.mesh', 'AS_point_0.coupled.mesh')
     prob.model.connect('jet_loc', 'wing.geometry.mesh.jet_loc') #                               you need to reintroduce these!
     prob.model.connect('jet_radius', 'wing.geometry.mesh.jet_radius')
@@ -231,7 +230,7 @@ def EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx_
     for i in range(len(y)-1):
         y_[i] = (y[i+1]+y[i])/2
     plt.plot(y_, cl_dist*1.06, label="Correction applied")
-    plt.plot(y_cfd, cl_cfd, label='CFD data')
+    # plt.plot(y_cfd, cl_cfd, label='CFD data')
 
     plt.scatter(y_jet, 0.125, marker='x', color='b', label='Propeller')
     plt.scatter(y_jet-jet_radius, 0.125, marker='|', color='b')

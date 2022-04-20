@@ -13,9 +13,12 @@ class EOAS(om.Group):
         self.options.declare('panels_span_VLM', default=300)
         self.options.declare('panels_chord_VLM', default=1)
         self.options.declare('span_0', default=10.)
+        self.options.declare('radii_shape', default=20)
 
     def setup(self):
         span_0 = self.options['span_0']
+        radii_shape = self.options['radii_shape']
+
         mesh_dict = {
             # Wing definition
             "num_x": self.options['panels_chord_VLM']+1,  # number of chordwise points
@@ -39,7 +42,8 @@ class EOAS(om.Group):
         }
 
         mesh = generate_mesh(mesh_dict) # twist_cp
-        chord_cp = np.ones((10))
+        chord_cp = np.ones((5))
+        twist_cp = np.ones((5))
 
         surface = {
             # Wing definition
@@ -55,6 +59,9 @@ class EOAS(om.Group):
             "span": span_0,
             "chord_cp": chord_cp,
             "propeller": 1,
+            # "n_point_masses": 1,
+            "radii_shape": radii_shape,
+            "twist_cp": twist_cp,
             # Aerodynamic performance of the lifting surface at
             # an angle of attack of 0 (alpha=0).
             # These CL0 and CD0 values are added to the CL and CD
@@ -69,7 +76,7 @@ class EOAS(om.Group):
             "t_over_c_cp": np.array([0.15]),  # thickness over chord ratio (NACA0015)
             "c_max_t": 0.303,  # chordwise location of maximum (NACA0015)
             # thickness
-            "with_viscous": False,
+            "with_viscous": True,
             "with_wave": False,  # if true, compute wave drag
             # Structural values are based on aluminum 7075
             "E": 70.0e9,  # [Pa] Young's modulus of the spar
@@ -78,7 +85,7 @@ class EOAS(om.Group):
             "mrho": 3.0e3,  # [kg/m^3] material density
             "fem_origin": 0.35,  # normalized chordwise location of the spar
             "wing_weight_ratio": 2.0,
-            "struct_weight_relief": False,  # True to add the weight of the structure to the loads on the structure
+            "struct_weight_relief": True,  # True to add the weight of the structure to the loads on the structure
             "distributed_fuel_weight": False,
             # Constraints
             "exact_failure_constraint": False,  # if false, use KS function
