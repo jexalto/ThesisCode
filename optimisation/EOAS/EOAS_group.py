@@ -10,7 +10,7 @@ from openaerostruct.integration.aerostruct_groups import AerostructGeometry, Aer
 class EOAS(om.Group):
 
     def initialize(self):
-        self.options.declare('panels_span_VLM', default=300)
+        self.options.declare('panels_span_VLM', default=100)
         self.options.declare('panels_chord_VLM', default=1)
         self.options.declare('span_0', default=10.)
         self.options.declare('radii_shape', default=20)
@@ -42,8 +42,14 @@ class EOAS(om.Group):
         }
 
         mesh = generate_mesh(mesh_dict) # twist_cp
-        chord_cp = np.ones((5))
-        twist_cp = np.ones((5))
+        chord_cp = np.ones((1))
+        twist_cp = np.zeros((5))
+
+        data_x_upper = np.array([0.000000,  0.005000, 0.007500, 0.012500, 0.025000, 0.050000, 0.075000, 0.100000, 0.150000, 0.200000, 0.250000, 0.300000, 0.350000, 0.400000, 0.450000, 0.500000, 0.550000, 0.600000, 0.650000, 0.700000, 0.750000, 0.800000, 0.850000, 0.900000, 0.950000, 1.000000])
+
+        data_y_upper = np.array([0.000000, 0.011930, 0.014360, 0.018150, 0.025080, 0.034770, 0.042020, 0.047990, 0.057320, 0.064230, 0.069260, 0.072700, 0.074630, 0.074870, 0.073130, 0.069780, 0.065170, 0.059560, 0.053110, 0.046000, 0.038470, 0.030840, 0.023210, 0.015580, 0.007950, 0.000320])
+
+        data_y_lower = np.array([0.000000, -0.011930, -0.014360, -0.018150, -0.025080, -0.034770, -0.042020, -0.047990, -0.057320, -0.064230, -0.069260, -0.072700, -0.074630, -0.074870, -0.073130, -0.069780, -0.065170, -0.059560, -0.053110, -0.046000, -0.038470, -0.030840, -0.023210, -0.015580, -0.007950, -0.000320])
 
         surface = {
             # Wing definition
@@ -52,8 +58,15 @@ class EOAS(om.Group):
             # reflected across the plane y = 0
             "S_ref_type": "wetted",  # how we compute the wing area,
             # can be 'wetted' or 'projected'
-            "fem_model_type": "tube",
-            "thickness_cp": np.array([0.1, 0.2, 0.3]),
+            "fem_model_type": "wingbox",
+            "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
+            "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
+            "original_wingbox_airfoil_t_over_c": 0.12,
+            "data_x_upper":data_x_upper,
+            "data_x_lower":data_x_upper,
+            "data_y_upper":data_y_upper,
+            "data_y_lower":data_y_lower,
+            "strength_factor_for_upper_skin": 1.0,
             # "twist_cp": twist_cp,
             "mesh": mesh,
             "span": span_0,
@@ -132,10 +145,24 @@ class EOAS(om.Group):
         self.connect(name + ".mesh", point_name + ".coupled." + name + ".mesh")
 
         # Connect performance calculation variables
+        point_name = 'AS_point_0'
         com_name = point_name + "." + name + "_perf"
-        self.connect(name + ".radius", com_name + ".radius")
-        self.connect(name + ".thickness", com_name + ".thickness")
+        # self.connect(name + ".radius", com_name + ".radius")
+        # self.connect(name + ".nodes", com_name + ".nodes")
+        self.connect(name + ".t_over_c", com_name + ".t_over_c")
+
         self.connect(name + ".nodes", com_name + ".nodes")
         self.connect(name + ".cg_location", point_name + "." + "total_perf." + name + "_cg_location")
         self.connect(name + ".structural_mass", point_name + "." + "total_perf." + name + "_structural_mass")
-        self.connect(name + ".t_over_c", com_name + ".t_over_c")
+
+        # Connect wingbox properties to von Mises stress calcs
+        self.connect(name + ".Qz", com_name + ".Qz")
+        self.connect(name + ".J", com_name + ".J")
+        self.connect(name + ".A_enc", com_name + ".A_enc")
+        self.connect(name + ".htop", com_name + ".htop")
+        self.connect(name + ".hbottom", com_name + ".hbottom")
+        self.connect(name + ".hfront", com_name + ".hfront")
+        self.connect(name + ".hrear", com_name + ".hrear")
+
+        self.connect(name + ".spar_thickness", com_name + ".spar_thickness")
+        # self.connect(name + ".t_over_c", com_name + ".t_over_c")

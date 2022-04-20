@@ -31,12 +31,11 @@ class Rethorst(om.ExplicitComponent):
 
         self.add_output('correction_matrix',    shape   =   (panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), 
                                                 val     =   np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM)))
-        self.add_output('wing_veldistr',        shape   =   (panels_span_VLM*panels_chord_VLM), 
+        self.add_output('wing_veldistr',        shape   =   (panels_span_VLM), 
                                                 val     =   np.zeros((panels_span_VLM)), units='m/s')
         self.add_output('jet_radius', val=1., units='m')
 
     def compute(self, inputs, outputs):
-        start = time.time()
         span                    = np.copy(inputs['span'])
         jet_loc                 = np.copy(inputs['jet_loc'])
         Vinf                    = np.copy(inputs['vinf'][0])
@@ -63,7 +62,7 @@ class Rethorst(om.ExplicitComponent):
         if np.isnan(any(sum(total_correction))):
             raise ValueError('total correction contains nan!')
         if np.isnan(any(vel_vec)):
-            raise ValueError('total correction contains nan!')
+            raise ValueError('velocity vector contains nan!')
 
         print('\n============')
         print('==Rethorst==')
@@ -75,12 +74,8 @@ class Rethorst(om.ExplicitComponent):
         outputs['correction_matrix'] = total_correction
         outputs['wing_veldistr'] = vel_vec
 
-        timediff = time.time() - start
-        # print(f'total time computing Rethorst: {timediff}')
-
     def compute_jacvec_product(self, inputs, d_inputs, d_outputs, mode):
          # Clear all Seeds in Memory
-        start = time.time()
         self._zero_seeds(inputs)
 
         span                    = inputs['span']
@@ -127,8 +122,7 @@ class Rethorst(om.ExplicitComponent):
             self._get_seeds_rev(d_inputs)
             # print('Rethorst derivatives:\tReverse')
         
-        timediff = time.time() - start
-        print(f'total time computing Rethorst derivatives: {timediff}')
+        # timediff = time.time() - start
 
     def _zero_seeds(self, inputs):
         # ===== Clear Seeds =====
@@ -143,7 +137,7 @@ class Rethorst(om.ExplicitComponent):
         self.vinfd                      = np.array([0.], order='F')
         self.vel_distr_inputd           = np.zeros((len(vel_distr_input)), order='F')
         self.radii_inputd               = np.zeros((len(radii_input)), order='F')
-        self.vel_vecd                   = np.zeros((panels_span_vlm*panels_chord_vlm), order='F')
+        self.vel_vecd                   = np.zeros((panels_span_vlm), order='F')
         self.total_correctiond          = np.zeros((panels_span_vlm*panels_chord_vlm, panels_span_vlm*panels_chord_vlm), order='F')
 
         # ===== Reverse Seeds ===== 
@@ -152,7 +146,7 @@ class Rethorst(om.ExplicitComponent):
         self.vinfb                      = np.array([0.], order='F')
         self.vel_distr_inputb           = np.zeros((len(vel_distr_input)), order='F')
         self.radii_inputb               = np.zeros((len(radii_input)), order='F')
-        self.vel_vecb                   = np.zeros((panels_span_vlm*panels_chord_vlm), order='F')
+        self.vel_vecb                   = np.zeros((panels_span_vlm), order='F')
         self.total_correctionb          = np.zeros((panels_span_vlm*panels_chord_vlm, panels_span_vlm*panels_chord_vlm), order='F')
 
     def _set_seeds_fwd(self, d_inputs):

@@ -43,11 +43,11 @@ class master(om.Group):
                 N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
         
         span_max = 0.748*2
-        self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=60))
+        self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=50, panels_chord_VLM=2))
 
         self.add_subsystem('prop_weight', subsys=propweight())
 
-        self.add_subsystem('EOAS', subsys=EOAS(panels_span_VLM=60, span_0=0.748, radii_shape=N_elem_span+1))
+        self.add_subsystem('EOAS', subsys=EOAS(panels_span_VLM=50, panels_chord_VLM=2, span_0=0.748, radii_shape=N_elem_span+1))
 
         self.add_subsystem('obj_function', subsys=obj_function())
 
@@ -91,12 +91,13 @@ class master(om.Group):
         # ================================      
         self.connect('EOAS.AS_point_0.wing_perf.L',                     'obj_function.lift')
         self.connect('EOAS.AS_point_0.wing_perf.D',                     'obj_function.drag')
+        self.connect('EOAS.wing.structural_mass',                       'obj_function.weight_struc')
 
         # ==================================
         # ===== Connecting Constraints =====
         # ==================================
         # self.connect('EOAS.AS_point_0.wing_perf.L',                     'constraints.lift')
-        # self.connect('EOAS.AS_point_0.total_perf.fuelburn',             'constraints.fuel_weight')
+        self.connect('EOAS.AS_point_0.fuelburn',                        'obj_function.fuelburn')
         # self.connect('EOAS.AS_point_0.total_perf.wing_structural_mass', 'constraints.struc_weight')
         # self.connect('helix.rotorcomp_0_thrust',                        'constraints.thrust')
         # self.connect('EOAS.AS_point_0.wing_perf.L',                     'constraints.drag')
@@ -115,14 +116,14 @@ class master(om.Group):
                 # self.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
                 # self.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
         
-        self.add_design_var('parameters.span', lower=1.*0.5, upper=span_max, scaler=1/0.748)
-        self.add_design_var('parameters.jet_loc', lower=-0.5*0.748, upper=0.5*0.748, scaler=1/0.374)
+        # self.add_design_var('parameters.span', lower=1.*0.5, upper=span_max, scaler=1/0.748)
+        self.add_design_var('parameters.jet_loc', lower=-0.5*0.748, upper=0.5*0.748, scaler=1.)
         self.add_design_var('parameters.chord', lower=0.2*0.48, upper=4.*0.48, scaler=1/0.48)
         # self.add_design_var('parameters.twist', lower=-3, upper=3, scaler=1.)
         
-        self.add_objective("obj_function.objective", scaler=1./0.02931652)
+        self.add_objective("obj_function.objective", scaler=1.)
         
-        self.add_constraint('EOAS.AS_point_0.wing_perf.L', equals=4.05033303)
+        self.add_constraint('EOAS.AS_point_0.wing_perf.L', equals=10.20319207)#9.02647648)
         # self.add_constraint('constraints.constraint_thrust_drag', equals=0.)
         # self.add_constraint('constraints.constraint_lift_weight', equals=0.)
         self.add_constraint('constraints.constraint_jetloc', upper=0.)
@@ -166,7 +167,7 @@ if True:
             dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
 prob.setup(mode='fwd')
-print(span)
+
 prob.set_val(name + "span", val=span)
 prob.set_val(name + "chord",val=chord)
 prob.set_val(name + "twist",val=twist)
@@ -203,10 +204,11 @@ print('wing span: \t\t', prob.get_val('rethorst.span'))
 print('propeller location:\t', prob.get_val('rethorst.jet_loc'))
 print('chord: \t\t', prob.get_val('parameters.chord'))
 print('twist: \t\t', prob.get_val('parameters.twist'))
-print('L/D:\t\t', prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.L')/prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.D'))
-print('CL: \t\t', prob.get_val('EOAS.AS_point_0.wing_perf.CL'))
-print('CD: \t\t', prob.get_val('EOAS.AS_point_0.wing_perf.CD'))
+# print('L/D:\t\t', prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.L')/prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.D'))
+print('Lift: \t\t', prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.L'))
+print('Drag: \t\t', prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.D'))
 print('Propeller radius: \t', prob.get_val('helix.geodef_parametric_0_span'))
+print('Structural weight: \t', prob.get_val('EOAS.wing.structural_mass'))
 
 print("The fuel burn value is", prob["EOAS.AS_point_0.fuelburn"][0], "[kg]")
 print("The lift generated is:\t", prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.L'), " N")
@@ -215,7 +217,7 @@ print("The lift generated is:\t", prob.get_val('EOAS.AS_point_0.wing_perf.aero_f
 # === Plotting of results ===
 # ===========================
 
-cl_dist = prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl')
+cl_dist = prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl') * 0.5*1.225*40**2
 y = prob['EOAS.wing.mesh'][0, :, 1]
 y_ = np.zeros((len(y)-1))
 
