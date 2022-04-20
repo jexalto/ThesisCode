@@ -115,9 +115,9 @@ class master(om.Group):
                 # self.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
                 # self.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
         
-        self.add_design_var('parameters.span', lower=1.*0.5, upper=span_max, scaler=1/0.748)
+        # self.add_design_var('parameters.span', lower=1.*0.5, upper=span_max, scaler=1/0.748)
         self.add_design_var('parameters.jet_loc', lower=-0.5*0.748, upper=0.5*0.748, scaler=1/0.374)
-        self.add_design_var('parameters.chord', lower=0.2*0.48, upper=4.*0.48, scaler=1/0.48)
+        # self.add_design_var('parameters.chord', lower=0.2*0.48, upper=4.*0.48, scaler=1/0.48)
         # self.add_design_var('parameters.twist', lower=-3, upper=3, scaler=1.)
         
         self.add_objective("obj_function.objective", scaler=1./0.02931652)

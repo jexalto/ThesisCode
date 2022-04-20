@@ -72,7 +72,7 @@ class Rethorst(om.ExplicitComponent):
         print(f'jet_loc {jet_loc}')
         print(f'radius {radii_input[-1]}')
         
-        outputs['correction_matrix'] = total_correction
+        outputs['correction_matrix'] = np.zeros( np.shape(total_correction) )
         outputs['wing_veldistr'] = vel_vec
 
         timediff = time.time() - start

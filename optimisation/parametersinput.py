@@ -22,7 +22,7 @@ class parameters(om.IndepVarComp):
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
 
         self.add_output("span", val=0.748, units="m")
-        self.add_output("jet_loc", val=0.0, units="m")
+        self.add_output("jet_loc", val=np.array([0.1]), units="m")
 
         twist_cp = np.zeros((5))
         chord_cp = np.ones((5))*0.48
