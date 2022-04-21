@@ -41,9 +41,232 @@ class EOAS(om.Group):
             "num_twist_cp": 5
         }
 
+        upper_x = np.array([0.1,
+                0.11,
+                0.12,
+                0.13,
+                0.14,
+                0.15,
+                0.16,
+                0.17,
+                0.18,
+                0.19,
+                0.2,
+                0.21,
+                0.22,
+                0.23,
+                0.24,
+                0.25,
+                0.26,
+                0.27,
+                0.28,
+                0.29,
+                0.3,
+                0.31,
+                0.32,
+                0.33,
+                0.34,
+                0.35,
+                0.36,
+                0.37,
+                0.38,
+                0.39,
+                0.4,
+                0.41,
+                0.42,
+                0.43,
+                0.44,
+                0.45,
+                0.46,
+                0.47,
+                0.48,
+                0.49,
+                0.5,
+                0.51,
+                0.52,
+                0.53,
+                0.54,
+                0.55,
+                0.56,
+                0.57,
+                0.58,
+                0.59,
+                0.6,
+            ],
+            dtype="complex128",
+        )
+        lower_x = np.array(
+            [
+                0.1,
+                0.11,
+                0.12,
+                0.13,
+                0.14,
+                0.15,
+                0.16,
+                0.17,
+                0.18,
+                0.19,
+                0.2,
+                0.21,
+                0.22,
+                0.23,
+                0.24,
+                0.25,
+                0.26,
+                0.27,
+                0.28,
+                0.29,
+                0.3,
+                0.31,
+                0.32,
+                0.33,
+                0.34,
+                0.35,
+                0.36,
+                0.37,
+                0.38,
+                0.39,
+                0.4,
+                0.41,
+                0.42,
+                0.43,
+                0.44,
+                0.45,
+                0.46,
+                0.47,
+                0.48,
+                0.49,
+                0.5,
+                0.51,
+                0.52,
+                0.53,
+                0.54,
+                0.55,
+                0.56,
+                0.57,
+                0.58,
+                0.59,
+                0.6,
+            ],
+            dtype="complex128",
+        )
+        upper_y = np.array(
+            [
+                0.0447,
+                0.046,
+                0.0472,
+                0.0484,
+                0.0495,
+                0.0505,
+                0.0514,
+                0.0523,
+                0.0531,
+                0.0538,
+                0.0545,
+                0.0551,
+                0.0557,
+                0.0563,
+                0.0568,
+                0.0573,
+                0.0577,
+                0.0581,
+                0.0585,
+                0.0588,
+                0.0591,
+                0.0593,
+                0.0595,
+                0.0597,
+                0.0599,
+                0.06,
+                0.0601,
+                0.0602,
+                0.0602,
+                0.0602,
+                0.0602,
+                0.0602,
+                0.0601,
+                0.06,
+                0.0599,
+                0.0598,
+                0.0596,
+                0.0594,
+                0.0592,
+                0.0589,
+                0.0586,
+                0.0583,
+                0.058,
+                0.0576,
+                0.0572,
+                0.0568,
+                0.0563,
+                0.0558,
+                0.0553,
+                0.0547,
+                0.0541,
+            ],
+            dtype="complex128",
+        )
+        lower_y = np.array(
+            [
+                -0.0447,
+                -0.046,
+                -0.0473,
+                -0.0485,
+                -0.0496,
+                -0.0506,
+                -0.0515,
+                -0.0524,
+                -0.0532,
+                -0.054,
+                -0.0547,
+                -0.0554,
+                -0.056,
+                -0.0565,
+                -0.057,
+                -0.0575,
+                -0.0579,
+                -0.0583,
+                -0.0586,
+                -0.0589,
+                -0.0592,
+                -0.0594,
+                -0.0595,
+                -0.0596,
+                -0.0597,
+                -0.0598,
+                -0.0598,
+                -0.0598,
+                -0.0598,
+                -0.0597,
+                -0.0596,
+                -0.0594,
+                -0.0592,
+                -0.0589,
+                -0.0586,
+                -0.0582,
+                -0.0578,
+                -0.0573,
+                -0.0567,
+                -0.0561,
+                -0.0554,
+                -0.0546,
+                -0.0538,
+                -0.0529,
+                -0.0519,
+                -0.0509,
+                -0.0497,
+                -0.0485,
+                -0.0472,
+                -0.0458,
+                -0.0444,
+            ],
+            dtype="complex128",
+        )   
+
         mesh = generate_mesh(mesh_dict) # twist_cp
-        chord_cp = np.ones((5))
-        twist_cp = np.ones((5))
+        chord_cp = np.ones((18))
+        twist_cp = np.zeros((15))
 
         surface = {
             # Wing definition
@@ -52,8 +275,16 @@ class EOAS(om.Group):
             # reflected across the plane y = 0
             "S_ref_type": "wetted",  # how we compute the wing area,
             # can be 'wetted' or 'projected'
-            "fem_model_type": "tube",
+            "fem_model_type": "wingbox",
             "thickness_cp": np.array([0.1, 0.2, 0.3]),
+            "data_x_upper": upper_x,
+            "data_x_lower": lower_x,
+            "data_y_upper": upper_y,
+            "data_y_lower": lower_y,
+            "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
+            "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
+            "original_wingbox_airfoil_t_over_c": 0.12,
+            "strength_factor_for_upper_skin": 1.0, 
             # "twist_cp": twist_cp,
             "mesh": mesh,
             "span": span_0,
@@ -76,7 +307,7 @@ class EOAS(om.Group):
             "t_over_c_cp": np.array([0.15]),  # thickness over chord ratio (NACA0015)
             "c_max_t": 0.303,  # chordwise location of maximum (NACA0015)
             # thickness
-            "with_viscous": True,
+            "with_viscous": False,
             "with_wave": False,  # if true, compute wave drag
             # Structural values are based on aluminum 7075
             "E": 70.0e9,  # [Pa] Young's modulus of the spar
@@ -133,9 +364,20 @@ class EOAS(om.Group):
 
         # Connect performance calculation variables
         com_name = point_name + "." + name + "_perf"
-        self.connect(name + ".radius", com_name + ".radius")
-        self.connect(name + ".thickness", com_name + ".thickness")
+        # self.connect(name + ".radius", com_name + ".radius")
+        # self.connect(name + ".thickness", com_name + ".thickness")
         self.connect(name + ".nodes", com_name + ".nodes")
         self.connect(name + ".cg_location", point_name + "." + "total_perf." + name + "_cg_location")
         self.connect(name + ".structural_mass", point_name + "." + "total_perf." + name + "_structural_mass")
         self.connect(name + ".t_over_c", com_name + ".t_over_c")
+        com_name = "AS_point_0" + "." + name + "_perf."
+
+        self.connect(name + ".Qz", com_name + "Qz")
+        self.connect(name + ".J", com_name + "J")
+        self.connect(name + ".A_enc", com_name + "A_enc")
+        self.connect(name + ".htop", com_name + "htop")
+        self.connect(name + ".hbottom", com_name + "hbottom")
+        self.connect(name + ".hfront", com_name + "hfront")
+        self.connect(name + ".hrear", com_name + "hrear")
+
+        self.connect(name + ".spar_thickness", com_name + "spar_thickness")

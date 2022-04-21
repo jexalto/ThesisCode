@@ -52,7 +52,7 @@ def references_definition():
 # rst geodef
 def geometry_definition():
     # Load rotor data
-    f = open('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/rotor.json')
+    f = open('/home/jexalto/code/MDO_lab_env/GitSucks/ThesisCode/HELIX_verification/data/rotor.json')
     airfoilSecs = json.load(f)
     f.close()
     
@@ -91,7 +91,7 @@ def geometry_definition():
         "mult_type": "rotor",
         "n_blades": 4,
         "rot_axis": np.array([0.0, 0.0, 1.0]),
-        "rot_rate": -1320,
+        "rot_rate": -1320., #1320.
         "psi_0": 0.0,
         "hub_offset": 0.0,
         "n_dofs": 0,

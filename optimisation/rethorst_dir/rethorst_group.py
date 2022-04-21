@@ -15,8 +15,8 @@ class Rethorst(om.ExplicitComponent):
         self.options.declare('r_min', default=0.1, desc='minimum radius')
         self.options.declare('vel_distr_shape', default=100, desc='number of vel discretisation point given by helix')
         self.options.declare('prop_discr', default=5, desc='prop vel distribution discretisation')
-        self.options.declare('panels_jet', default=41, desc='panels in jet in overset mesh')
-        self.options.declare('panels_overset_wing', default=801, desc='panels on wing in overset mesh')
+        self.options.declare('panels_jet', default=61, desc='panels in jet in overset mesh')
+        self.options.declare('panels_overset_wing', default=601, desc='panels on wing in overset mesh')
 
     def setup(self):
         panels_span_VLM = self.options['panels_span_VLM']
@@ -31,7 +31,7 @@ class Rethorst(om.ExplicitComponent):
 
         self.add_output('correction_matrix',    shape   =   (panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), 
                                                 val     =   np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM)))
-        self.add_output('wing_veldistr',        shape   =   (panels_span_VLM*panels_chord_VLM), 
+        self.add_output('wing_veldistr',        shape   =   (panels_span_VLM), 
                                                 val     =   np.zeros((panels_span_VLM)), units='m/s')
         self.add_output('jet_radius', val=1., units='m')
 
@@ -72,7 +72,7 @@ class Rethorst(om.ExplicitComponent):
         print(f'jet_loc {jet_loc}')
         print(f'radius {radii_input[-1]}')
         
-        outputs['correction_matrix'] = np.zeros( np.shape(total_correction) )
+        outputs['correction_matrix'] = total_correction
         outputs['wing_veldistr'] = vel_vec
 
         timediff = time.time() - start
@@ -128,7 +128,7 @@ class Rethorst(om.ExplicitComponent):
             # print('Rethorst derivatives:\tReverse')
         
         timediff = time.time() - start
-        print(f'total time computing Rethorst derivatives: {timediff}')
+        print(f'total time computing {mode} Rethorst derivatives: {timediff}')
 
     def _zero_seeds(self, inputs):
         # ===== Clear Seeds =====
