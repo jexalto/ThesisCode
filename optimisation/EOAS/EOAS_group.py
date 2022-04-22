@@ -265,8 +265,8 @@ class EOAS(om.Group):
         )   
 
         mesh = generate_mesh(mesh_dict) # twist_cp
-        chord_cp = np.ones((18))
-        twist_cp = np.zeros((15))
+        chord_cp = np.ones((3))
+        twist_cp = np.zeros((10))
 
         surface = {
             # Wing definition

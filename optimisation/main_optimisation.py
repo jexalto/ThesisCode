@@ -46,7 +46,7 @@ class master(om.Group):
                 N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
         
         span_max = 0.748*2
-        # self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=60, panels_chord_VLM=1))
+        self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=60, panels_chord_VLM=1))
 
         # self.add_subsystem('prop_weight', subsys=propweight())
 
@@ -59,14 +59,14 @@ class master(om.Group):
         # =================================
         # ===== Connecting Subsystems =====
         # =================================
-        # self.connect('helix.rotorcomp_0_velocity_distribution',         'rethorst.velocity_vector')
-        # self.connect('helix.rotorcomp_0_radii',                         'rethorst.radii')
+        self.connect('helix.rotorcomp_0_velocity_distribution',         'rethorst.velocity_vector')
+        self.connect('helix.rotorcomp_0_radii',                         'rethorst.radii')
         # self.connect('helix.power',                                     'prop_weight.power')
 
         # self.connect('prop_weight.prop_weight',                         'EOAS.AS_point_0.coupled.wing.point_masses')
         self.connect('helix.rotorcomp_0_radii',                         'EOAS.wing.geometry.mesh.jet_radius')
-        # self.connect('rethorst.correction_matrix',                      'EOAS.correction')
-        # self.connect('rethorst.wing_veldistr',                          'EOAS.velocity_distr')
+        self.connect('rethorst.correction_matrix',                      'EOAS.correction')
+        self.connect('rethorst.wing_veldistr',                          'EOAS.velocity_distr')
 
         self.connect('parameters.twist',                                'EOAS.wing.twist_cp')
         self.connect('parameters.chord',                                'EOAS.wing.geometry.chord_cp')
@@ -85,9 +85,9 @@ class master(om.Group):
         self.connect('parameters.load_factor',                          'EOAS.load_factor')
         self.connect('parameters.empty_cg',                             'EOAS.empty_cg')
 
-        # self.connect('parameters.jet_loc',                              'rethorst.jet_loc')
-        # self.connect('parameters.span',                                 'rethorst.span')
-        # self.connect('parameters.vinf',                                 'rethorst.vinf')
+        self.connect('parameters.jet_loc',                              'rethorst.jet_loc')
+        self.connect('parameters.span',                                 'rethorst.span')
+        self.connect('parameters.vinf',                                 'rethorst.vinf')
 
         # ================================      
         # ===== Connecting Objective =====      
@@ -120,13 +120,13 @@ class master(om.Group):
         
     def configure(self):
         # self.add_design_var('parameters.span', lower=1.*0.5, upper=3., scaler=1/0.748)
-        # self.add_design_var('parameters.jet_loc', lower=-0.374, upper=0.374, scaler=1.)
-        self.add_design_var('parameters.chord', lower=0.1, upper=2.0, scaler=1.)
+        self.add_design_var('parameters.jet_loc', lower=-0.374, upper=0.374, scaler=1.)
+        # self.add_design_var('parameters.chord', lower=0.1, upper=2.0, scaler=1.)
         self.add_design_var('parameters.twist', lower=-3, upper=3, scaler=1.)
         
         self.add_objective("EOAS.AS_point_0.wing_perf.D", scaler=1.)
         
-        self.add_constraint('EOAS.AS_point_0.wing_perf.L', equals=7.72883306)#5.17254561
+        self.add_constraint('EOAS.AS_point_0.wing_perf.L', equals=8.4)
         # self.add_constraint('constraints.constraint_thrust_drag', equals=0.)
         # self.add_constraint('constraints.constraint_lift_weight', equals=0.)
         # self.add_constraint('constraints.constraint_jetloc', upper=0.)
@@ -169,6 +169,15 @@ if True:
             sweep[iSpan] = parametric.parametric_def[iParametric].span[iSpan].sweep
             dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
+case_file = '/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/data/cases.sql'
+
+recorder = om.SqliteRecorder(case_file)
+prob.driver.add_recorder(recorder)
+prob.driver.recording_options['record_desvars'] = True
+prob.driver.recording_options['record_outputs'] = True
+prob.driver.recording_options['includes'] = []
+prob.driver.recording_options['excludes'] = []
+
 prob.setup(mode='fwd')
 
 prob.set_val(name + "span", val=span)
@@ -178,14 +187,14 @@ prob.set_val(name + "alpha_0",val=alpha_0)
 prob.set_val(name + "alpha_L0",val=alpha_L0)
 prob.set_val(name + "Cl_alpha",val=Cl_alpha)
 # prob.set_val('prop_weight.power', val=10000000)
-prob.set_val('EOAS.correction', val=0)
-prob.set_val('EOAS.velocity_distr', val=40.)
+# prob.set_val('EOAS.correction', val=0)
+# prob.set_val('EOAS.velocity_distr', val=40.)
 
 prob.driver = om.pyOptSparseDriver()
 prob.driver.options['optimizer'] = 'SNOPT'
 prob.driver.opt_settings = {
     "Major feasibility tolerance": 1.0e-5,
-    "Major optimality tolerance": 1.0e-5,
+    "Major optimality tolerance": 1.0e-7,
     "Minor feasibility tolerance": 1.0e-5,
     "Verify level": 3,
     "Function precision": 1.0e-12,
@@ -197,6 +206,8 @@ prob.driver.opt_settings = {
 
 # prob.model.approx_totals()
 prob.run_driver()
+cr = om.CaseReader(case_file)
+case = cr.get_case(0)
 # CL = []
 # for i in range(-1, 0):
 #     prob.set_val('EOAS.alpha', val=i)
@@ -277,7 +288,7 @@ ax.grid()
 # plt.tight_layout()
 niceplots.adjust_spines(ax, outward=True)
 
-plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/clc_distr.png')
+plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/clc_distr_twistjetloc.png')
 
 _, ax = plt.subplots(figsize=(10, 7))
 
@@ -292,6 +303,6 @@ ax.grid()
 # plt.tight_layout()
 niceplots.adjust_spines(ax, outward=True)
 
-plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/cl_distr.png')
+plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/cl_distr_twistjetloc.png')
 
 # openmdao iprof_totals <iprof.0>

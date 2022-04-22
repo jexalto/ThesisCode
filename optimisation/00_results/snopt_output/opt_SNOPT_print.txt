@@ -11,10 +11,10 @@
       Minor iterations limit           10000
       Proximal iterations limit           10000
       Total character workspace             500
-      Total integer workspace            3900
-      Total real workspace            7300
+      Total integer workspace            1700
+      Total real workspace            2900
       Major feasibility tolerance  1.00000000E-05
-      Major optimality tolerance  1.00000000E-05
+      Major optimality tolerance  1.00000000E-07
       Minor feasibility tolerance  1.00000000E-05
       Verify level               3
       Function precision  1.00000000E-12
@@ -37,10 +37,10 @@
       Minor iterations limit           10000
       Proximal iterations limit           10000
       Total character workspace             500
-      Total integer workspace           22963
-      Total real workspace           14029
+      Total integer workspace           21335
+      Total real workspace           11455
       Major feasibility tolerance  1.00000000E-05
-      Major optimality tolerance  1.00000000E-05
+      Major optimality tolerance  1.00000000E-07
       Minor feasibility tolerance  1.00000000E-05
       Verify level               3
       Function precision  1.00000000E-12
@@ -67,21 +67,21 @@
  --------------
  QPsolver Cholesky......
  Scale tolerance........     0.900       Minor feasibility tol..  1.00E-05       Iteration limit........  10000000
- Scale option...........         0       Minor optimality  tol..  1.00E-06       Minor print level......         0
+ Scale option...........         0       Minor optimality  tol..  5.00E-08       Minor print level......         0
  Crash tolerance........     0.100       Pivot tolerance........  3.25E-11       New superbasics........        99
  Crash option...........         3       Elastic weight.........  1.00E+05
 
  Partial pricing
  ---------------
- LP Partial price.......         1       Prtl price section ( A)        33       Prtl price section (-I)         1
- QP Partial price.......         1       Prtl price section ( A)        33       Prtl price section (-I)         1
+ LP Partial price.......         1       Prtl price section ( A)        11       Prtl price section (-I)         1
+ QP Partial price.......         1       Prtl price section ( A)        11       Prtl price section (-I)         1
 
  The SQP Method
  --------------
  Minimize...............                 Cold start.............                 Proximal Point method..         1
- Nonlinear objectiv vars        33       Major optimality tol...  1.00E-05       Function precision.....  1.00E-12
- Unbounded step size....  1.00E+20       Superbasics limit......        33       Difference interval....  1.00E-06
- Unbounded objective....  1.00E+10       Reduced Hessian dim....        33       Central difference int.  1.00E-04
+ Nonlinear objectiv vars        11       Major optimality tol...  1.00E-07       Function precision.....  1.00E-12
+ Unbounded step size....  1.00E+20       Superbasics limit......        11       Difference interval....  1.00E-06
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....        11       Central difference int.  1.00E-04
  Major step limit.......  2.00E+00       Nonderiv.  linesearch..                 Derivative level.......         3
  Major iterations limit.        50       Linesearch tolerance...   0.90000       Verify level...........         3
  Minor iterations limit.     10000       Penalty parameter......  0.00E+00       Major Print Level......         1
@@ -95,7 +95,7 @@
  Nonlinear constraints
  ---------------------
  Nonlinear constraints..         1       Major feasibility tol..  1.00E-05       Violation limit........  1.00E+06
- Nonlinear Jacobian vars        33
+ Nonlinear Jacobian vars        11
 
  Miscellaneous
  -------------
@@ -112,155 +112,96 @@
  -----------------
                Total      Normal        Free       Fixed     Bounded
  Rows              1           0           0           1           0
- Columns          33           0           0           0          33
+ Columns          11           0           0           0          11
 
- No. of matrix elements                   33     Density     100.000
+ No. of matrix elements                   11     Density     100.000
  Biggest  constant element        0.0000E+00  (excluding fixed columns,
  Smallest constant element        0.0000E+00   free rows, and RHS)
 
  No. of objective coefficients             0
 
  Nonlinear constraints       1     Linear constraints       0
- Nonlinear variables        33     Linear variables         0
- Jacobian  variables        33     Objective variables     33
- Total constraints           1     Total variables         33
+ Nonlinear variables        11     Linear variables         0
+ Jacobian  variables        11     Objective variables     11
+ Total constraints           1     Total variables         11
 1
 
 
 
- The user has defined      33   out of      33   constraint gradients.
- The user has defined      33   out of      33   objective  gradients.
+ The user has defined      11   out of      11   constraint gradients.
+ The user has defined      11   out of      11   objective  gradients.
 
  Verification of user-supplied problem derivatives.
 
  The constraint gradients seem to be OK.
 
- -->  The largest discrepancy was    4.65E-08  in constraint    34
+ -->  The largest discrepancy was    5.72E-07  in constraint    12
 
 
  The objective  gradients seem to be OK.
 
- Gradient projected in one direction   7.93558823725E-04
- Difference approximation              7.93557775433E-04
+ Gradient projected in one direction   9.41475647923E-07
+ Difference approximation              9.50328704619E-07
 
 
  Column       x(j)        dx(j)    Element no.    Row        Derivative    Difference approxn
 
-      1  1.00000000E-01  1.10E-06         1         1    1.65858652E-01    1.65857956E-01  ok
-      1  1.00000000E-01  1.10E-06           Objective    3.90421234E-03    3.90419757E-03  ok
+      1 -2.50000000E-01  1.25E-06         1         1   -5.07014083E-02   -5.06399559E-02  ok
+      1 -2.50000000E-01  1.25E-06           Objective   -8.15815625E-05   -8.07771738E-05  ok
 
-      2  1.00000000E-01  1.10E-06         2         1    3.87842639E-01    3.87841491E-01  ok
-      2  1.00000000E-01  1.10E-06           Objective    9.37835004E-03    9.37832592E-03  ok
+      2  0.00000000E+00  1.00E-06         2         1    5.99414985E-02    5.99415451E-02  ok
+      2  0.00000000E+00  1.00E-06           Objective    1.78612732E-03    1.78612866E-03  ok
 
-      3  2.00000000E-01  1.20E-06         3         1    6.14615949E-01    6.14614354E-01  ok
-      3  2.00000000E-01  1.20E-06           Objective    1.53757508E-02    1.53757164E-02  ok
+      3  0.00000000E+00  1.00E-06         3         1    2.02572602E-01    2.02572577E-01  ok
+      3  0.00000000E+00  1.00E-06           Objective    6.01833342E-03    6.01833321E-03  ok
 
-      4  2.00000000E-01  1.20E-06         4         1    6.47464512E-01    6.47463025E-01  ok
-      4  2.00000000E-01  1.20E-06           Objective    1.68315986E-02    1.68315642E-02  ok
+      4  0.00000000E+00  1.00E-06         4         1    4.06803008E-01    4.06803043E-01  ok
+      4  0.00000000E+00  1.00E-06           Objective    1.20039860E-02    1.20039872E-02  ok
 
-      5  5.00000000E-01  1.50E-06         5         1    3.54697292E-01    3.54696698E-01  ok
-      5  5.00000000E-01  1.50E-06           Objective    9.67337634E-03    9.67336118E-03  ok
+      5  0.00000000E+00  1.00E-06         5         1    6.43007747E-01    6.43007770E-01  ok
+      5  0.00000000E+00  1.00E-06           Objective    1.88031539E-02    1.88031565E-02  ok
 
-      6  5.00000000E-01  1.50E-06         6         1    2.76810761E-01    2.76810334E-01  ok
-      6  5.00000000E-01  1.50E-06           Objective    7.78857602E-03    7.78856430E-03  ok
+      6  0.00000000E+00  1.00E-06         6         1    6.98486217E-01    6.98486248E-01  ok
+      6  0.00000000E+00  1.00E-06           Objective    2.02979668E-02    2.02979685E-02  ok
 
-      7  5.00000000E-01  1.50E-06         7         1    3.07744953E-01    3.07744476E-01  ok
-      7  5.00000000E-01  1.50E-06           Objective    8.68451952E-03    8.68450641E-03  ok
+      7  0.00000000E+00  1.00E-06         7         1    6.95117663E-01    6.95117684E-01  ok
+      7  0.00000000E+00  1.00E-06           Objective    2.02002651E-02    2.02002663E-02  ok
 
-      8  5.00000000E-01  1.50E-06         8         1    3.45662209E-01    3.45661647E-01  ok
-      8  5.00000000E-01  1.50E-06           Objective    9.77987519E-03    9.77986005E-03  ok
+      8  0.00000000E+00  1.00E-06         8         1    6.33339384E-01    6.33339438E-01  ok
+      8  0.00000000E+00  1.00E-06           Objective    1.85057018E-02    1.85057056E-02  ok
 
-      9  5.00000000E-01  1.50E-06         9         1    3.51945485E-01    3.51944927E-01  ok
-      9  5.00000000E-01  1.50E-06           Objective    1.00088682E-02    1.00088527E-02  ok
+      9  0.00000000E+00  1.00E-06         9         1    3.96417377E-01    3.96417429E-01  ok
+      9  0.00000000E+00  1.00E-06           Objective    1.16745776E-02    1.16745806E-02  ok
 
-     10  5.00000000E-01  1.50E-06        10         1    3.51945719E-01    3.51945141E-01  ok
-     10  5.00000000E-01  1.50E-06           Objective    1.00088770E-02    1.00088613E-02  ok
+     10  0.00000000E+00  1.00E-06        10         1    1.95850210E-01    1.95850218E-01  ok
+     10  0.00000000E+00  1.00E-06           Objective    5.81244037E-03    5.81244070E-03  ok
 
-     11  5.00000000E-01  1.50E-06        11         1    3.45662957E-01    3.45662395E-01  ok
-     11  5.00000000E-01  1.50E-06           Objective    9.77990323E-03    9.77988774E-03  ok
+     11  0.00000000E+00  1.00E-06        11         1    6.03654455E-02    6.03654602E-02  ok
+     11  0.00000000E+00  1.00E-06           Objective    1.80181738E-03    1.80181761E-03  ok
 
-     12  5.00000000E-01  1.50E-06        12         1    3.07746101E-01    3.07745625E-01  ok
-     12  5.00000000E-01  1.50E-06           Objective    8.68456336E-03    8.68455061E-03  ok
+     11  Jacobian elements in cols      1  thru    11  seem to be OK.
 
-     13  5.00000000E-01  1.50E-06        13         1    2.76812306E-01    2.76811881E-01  ok
-     13  5.00000000E-01  1.50E-06           Objective    7.78863802E-03    7.78862699E-03  ok
-
-     14  5.00000000E-01  1.50E-06        14         1    3.54491441E-01    3.54490849E-01  ok
-     14  5.00000000E-01  1.50E-06           Objective    9.66840470E-03    9.66838972E-03  ok
-
-     15  2.00000000E-01  1.20E-06        15         1    6.40616654E-01    6.40616754E-01  ok
-     15  2.00000000E-01  1.20E-06           Objective    1.66644516E-02    1.66644562E-02  ok
-
-     16  2.00000000E-01  1.20E-06        16         1    6.05715181E-01    6.05716327E-01  ok
-     16  2.00000000E-01  1.20E-06           Objective    1.51585945E-02    1.51586269E-02  ok
-
-     17  1.00000000E-01  1.10E-06        17         1    3.86719917E-01    3.86718806E-01  ok
-     17  1.00000000E-01  1.10E-06           Objective    9.35127047E-03    9.35124709E-03  ok
-
-     18  1.00000000E-01  1.10E-06        18         1    1.65867352E-01    1.65866656E-01  ok
-     18  1.00000000E-01  1.10E-06           Objective    3.90460579E-03    3.90459099E-03  ok
-
-     19  0.00000000E+00  1.00E-06        19         1    2.72542140E-02    2.72542229E-02  ok
-     19  0.00000000E+00  1.00E-06           Objective    6.44356011E-04    6.44356388E-04  ok
-
-     20  0.00000000E+00  1.00E-06        20         1    8.20587268E-02    8.20587287E-02  ok
-     20  0.00000000E+00  1.00E-06           Objective    2.01278140E-03    2.01278161E-03  ok
-
-     21  0.00000000E+00  1.00E-06        21         1    1.71288172E-01    1.71288169E-01  ok
-     21  0.00000000E+00  1.00E-06           Objective    4.39591570E-03    4.39591603E-03  ok
-
-     22  0.00000000E+00  1.00E-06        22         1    2.88289387E-01    2.88289381E-01  ok
-     22  0.00000000E+00  1.00E-06           Objective    7.78446022E-03    7.78446066E-03  ok
-
-     23  0.00000000E+00  1.00E-06        23         1    3.36233913E-01    3.36233906E-01  ok
-     23  0.00000000E+00  1.00E-06           Objective    9.41432543E-03    9.41432561E-03  ok
-
-     24  0.00000000E+00  1.00E-06        24         1    3.68999729E-01    3.68999725E-01  ok
-     24  0.00000000E+00  1.00E-06           Objective    1.04148648E-02    1.04148647E-02  ok
-
-     25  0.00000000E+00  1.00E-06        25         1    3.93188477E-01    3.93188482E-01  ok
-     25  0.00000000E+00  1.00E-06           Objective    1.11419259E-02    1.11419269E-02  ok
-
-     26  0.00000000E+00  1.00E-06        26         1    3.92922028E-01    3.92922026E-01  ok
-     26  0.00000000E+00  1.00E-06           Objective    1.11734066E-02    1.11734076E-02  ok
-
-     27  0.00000000E+00  1.00E-06        27         1    3.93188772E-01    3.93188776E-01  ok
-     27  0.00000000E+00  1.00E-06           Objective    1.11419408E-02    1.11419420E-02  ok
-
-     28  0.00000000E+00  1.00E-06        28         1    3.69000346E-01    3.69000352E-01  ok
-     28  0.00000000E+00  1.00E-06           Objective    1.04148963E-02    1.04148980E-02  ok
-
-     29  0.00000000E+00  1.00E-06        29         1    3.36235003E-01    3.36235012E-01  ok
-     29  0.00000000E+00  1.00E-06           Objective    9.41438211E-03    9.41438320E-03  ok
-
-     30  0.00000000E+00  1.00E-06        30         1    2.88291488E-01    2.88291500E-01  ok
-     30  0.00000000E+00  1.00E-06           Objective    7.78457131E-03    7.78457251E-03  ok
-
-     31  0.00000000E+00  1.00E-06        31         1    1.71291002E-01    1.71291028E-01  ok
-     31  0.00000000E+00  1.00E-06           Objective    4.39606774E-03    4.39606880E-03  ok
-
-     32  0.00000000E+00  1.00E-06        32         1    8.20609899E-02    8.20609936E-02  ok
-     32  0.00000000E+00  1.00E-06           Objective    2.01290620E-03    2.01290637E-03  ok
-
-     33  0.00000000E+00  1.00E-06        33         1    2.72550756E-02    2.72550773E-02  ok
-     33  0.00000000E+00  1.00E-06           Objective    6.44406147E-04    6.44406292E-04  ok
-
-     33  Jacobian elements in cols      1  thru    33  seem to be OK.
-
- -->  The largest relative error was    9.88E-07   in row     1,  column     3
+ -->  The largest relative error was    5.85E-05   in row     1,  column     1
 
 
-     33  objective gradients out of     1  thru    33  seem to be OK.
+     11  objective gradients out of     1  thru    11  seem to be OK.
 
- -->  The largest relative error was    3.39E-08   in column     3
+ -->  The largest relative error was    8.04E-07   in column     1
 
 1
 
 
 
    Itns Major Minors    Step   nCon Feasible  Optimal  MeritFunction     L+U BSwap     nS condZHZ Penalty
-     32     0     32              1  2.7E-01  4.3E-02  1.0276312E-01       1           32 1.6E+01         _  r
-     33     1      1 1.0E+00      2  1.7E-02  7.9E-04  1.1140347E-01       1           32 1.6E+01 5.5E-01 _  r
-     34     2      1 1.0E+00      3  8.0E-03  5.1E-04  1.1011082E-01       1           32 2.2E+01 5.5E-01 _s
-     35     3      1 1.0E+00      4  1.2E-02  1.8E-04  1.1004041E-01       1           32 2.9E+01 5.5E-01 _
-     36     4      1 1.0E+00      5  2.2E-03  7.2E-05  1.0997742E-01       1     1     32 2.7E+00 5.5E-01 _
+     11     0     11              1  4.1E-01  1.3E-01  1.1699371E-01       1           10 2.0E+00         _  r
+     12     1      1 1.0E+00      2  4.4E-02  1.2E-02  1.2096790E-01       1           10 2.2E+02 8.3E-01 _  r
+     14     2      2 1.0E+00      3  1.8E-05  2.3E-02  1.2845968E-01       1            9 2.0E+00 9.0E+00 _s
+     15     3      1 1.0E+00      4  1.3E-02  1.3E-03  9.5855659E-02       1            9 1.9E+00 3.0E+00 _
+     16     4      1 1.0E+00      5 (2.0E-06) 1.0E-03  9.5143248E-02       1            9 3.3E+00 3.0E+00 _
+     17     5      1 1.0E+00      6  2.4E-05  6.7E-04  9.4739665E-02       1            9 4.7E+00 3.0E+00 _
+     18     6      1 1.0E+00      7  1.6E-05  7.3E-04  9.4613588E-02       1            9 6.1E+00 3.0E+00 _
+     19     7      1 1.0E+00      8  8.0E-05  4.1E-04  9.4362689E-02       1            9 6.0E+00 3.0E+00 _
+     20     8      1 1.0E+00      9 (4.0E-07) 3.4E-04  9.4282224E-02       1            9 6.1E+00 3.0E+00 _
+     21     9      1 1.0E+00     10 (3.7E-06) 2.8E-04  9.4197655E-02       1            9 6.3E+00 3.0E+00 _
+     22    10      1 1.0E+00     11 (3.3E-06) 4.9E-04  9.4104613E-02       1            9 9.4E+00 3.0E+00 _
+     23    11      1 1.0E+00     12 (4.8E-07) 4.4E-04  9.4009766E-02       1            9 1.7E+01 3.0E+00 _
