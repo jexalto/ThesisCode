@@ -2,25 +2,18 @@ import numpy as np
 import scipy.interpolate as sp
 import matplotlib.pyplot as plt
 
-from RethorstCorrection_pyf90.mod_velocity_distribution_nonsymmetry import velocity_distribution_nosym
+from RethorstCorrection_pyf90.mod_multiprop import multiprop
 
 
-def correction_(panels_span_VLM, panels_chord_VLM,  panels_overset_wing, panels_jet,
-                span, chord, span_max, r_min, Vinf,
-                vel_distr_input, radii_input, prop_discr, jet_loc):
+def correction_(panels_span_VLM, panels_chord_VLM,  panels_overset_wing, panels_jet, span, span_max, r_min, vinf,
+                vel_distr_input, radii_input, prop_discr, jet_loc_list, nr_props, nr_radii_input):
 
     total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
     y_VLM = np.zeros((panels_span_VLM+1), order='F')
     vel_vec = np.zeros((panels_span_VLM), order='F')
 
-    velocity_distribution_nosym(    span, jet_loc, vel_distr_input, radii_input,
-                                    prop_discr,
-                                    Vinf,
-                                    panels_jet, panels_overset_wing,
-                                    panels_chord_VLM, panels_span_VLM,
-                                    span_max, r_min,
-                                    vel_vec,
-                                    total_correction)
+    multiprop(span, nr_props, jet_loc_list, vel_distr_input, radii_input, nr_radii_input, prop_discr, vinf, panels_jet, \
+                panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
         
 
     return total_correction, y_VLM, vel_vec

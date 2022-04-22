@@ -8,12 +8,14 @@ span_max = 5
 r_min = 0.1
 Vjet = 150
 Vinf = 100
-jet_loc = 0.1
+jet_loc_list = np.array([-0.2, 0.2], order='F')
 jet_radius = 0.237/2
 span=0.748
 
 filename = '/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/figures/'
 
-nx = 2
+nx_input = 2
+prop_discr = 5
+nr_props = len(jet_loc_list)
 
-_ = EOAS_system_(jet_radius, jet_loc, Vinf, Vjet, r_min, span_max, filename, nx, 5, span)
+_ = EOAS_system_(jet_radius, jet_loc_list, Vinf, r_min, span_max, filename, nx_input, prop_discr, span, nr_props)
