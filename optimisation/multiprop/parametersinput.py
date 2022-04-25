@@ -22,7 +22,7 @@ class parameters(om.IndepVarComp):
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
 
         self.add_output("span", val=0.748, units="m")
-        self.add_output("jet_loc", val=np.array([-0.25]), units="m")
+        self.add_output("jet_loc", val=np.array([-0.3, 0.3]), units="m") # 0.3 crashes
 
         twist_cp = np.zeros((10))
         chord_cp = np.array([0.5, 0.5, 0.5])

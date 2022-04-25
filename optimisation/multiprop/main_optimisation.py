@@ -120,13 +120,13 @@ class master(om.Group):
         
     def configure(self):
         # self.add_design_var('parameters.span', lower=1.*0.5, upper=3., scaler=1/0.748)
-        self.add_design_var('parameters.jet_loc', lower=-0.256, upper=0.256, scaler=1.)
+        self.add_design_var('parameters.jet_loc', lower=[-0.374, 0.01], upper=[-0.01, 0.374])
         # self.add_design_var('parameters.chord', lower=0.1, upper=2.0, scaler=1.)
-        self.add_design_var('parameters.twist', lower=-3, upper=3, scaler=1.)
+        # self.add_design_var('parameters.twist', lower=-3, upper=3, scaler=1.)
         
         self.add_objective("EOAS.AS_point_0.wing_perf.D", scaler=1.)
         
-        self.add_constraint('EOAS.AS_point_0.wing_perf.L', equals=8.4)
+        self.add_constraint('EOAS.AS_point_0.wing_perf.L', equals=14.)
         # self.add_constraint('constraints.constraint_thrust_drag', equals=0.)
         # self.add_constraint('constraints.constraint_lift_weight', equals=0.)
         # self.add_constraint('constraints.constraint_jetloc', upper=0.)
@@ -190,23 +190,25 @@ prob.driver.opt_settings = {
     "Major optimality tolerance": 1.0e-5,
     "Minor feasibility tolerance": 1.0e-5,
     "Verify level": 3,
-    "Function precision": 1.0e-8,
+    "Function precision": 1.0e-6,
     "Major iterations limit": 50,
     "Nonderivative linesearch": None,
-    "Print file": "/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/snopt_output/opt_SNOPT_print.txt",
-    "Summary file": "/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/snopt_output/opt_SNOPT_summary.txt",
+    "Print file": "/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/snopt_output/opt_SNOPT_print.txt",
+    "Summary file": "/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/snopt_output/opt_SNOPT_summary.txt",
 }
 
-recorder = om.SqliteRecorder(case_file)
-prob.driver.add_recorder(recorder)
-prob.driver.recording_options['record_desvars'] = True
-prob.driver.recording_options['record_outputs'] = True
-prob.driver.recording_options['includes'] = []
-prob.driver.recording_options['excludes'] = []
+# recorder = om.SqliteRecorder(case_file)
+# prob.driver.add_recorder(recorder)
+# prob.driver.recording_options['record_desvars'] = True
+# prob.driver.recording_options['record_outputs'] = True
+# prob.driver.recording_options['includes'] = []
+# prob.driver.recording_options['excludes'] = []
+# prob.model.approx_totals()
+# prob.run_model()
 # prob.model.approx_totals()
 prob.run_driver()
-cr = om.CaseReader(case_file)
-case = cr.get_case(0)
+# cr = om.CaseReader(case_file)
+# case = cr.get_case(0)
 # CL = []
 # for i in range(-1, 0):
 #     prob.set_val('EOAS.alpha', val=i)
@@ -219,7 +221,7 @@ case = cr.get_case(0)
 # dict = {"CL", CL}
 # with open('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/data/json_data.json', 'w') as outfile:
 #     outfile.write(dict)
-# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['*rethorst*'], form='central') # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['*rethorst*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True,  form='central')
 
 # ===========================
@@ -287,7 +289,7 @@ ax.grid()
 # plt.tight_layout()
 niceplots.adjust_spines(ax, outward=True)
 
-plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/clc_distr_twistjetloc.png')
+plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/figures/clc_distr_twistjetloc.png')
 
 _, ax = plt.subplots(figsize=(10, 7))
 
@@ -302,6 +304,6 @@ ax.grid()
 # plt.tight_layout()
 niceplots.adjust_spines(ax, outward=True)
 
-plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/00_results/figures/cl_distr_twistjetloc.png')
+plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/figures/cl_distr_twistjetloc.png')
 
 # openmdao iprof_totals <iprof.0>
