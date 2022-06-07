@@ -23,7 +23,7 @@ def simparam_definition():
     simparam.nt_rev = 30
 
     simparam.v_inf = np.array([0.0, 0.0, -40.0])
-    simparam.rho_inf = 1.25
+    simparam.rho_inf = 1.2087
 
     return simparam
 
@@ -44,6 +44,18 @@ def references_definition():
     # Append to References
     references_def.append_frame(Hub)
 
+    # # Hub Frame
+    # Hub1 = py_ref_def.t_frame_def()
+    # Hub1.Name = "Hub1"
+    # Hub1.Parent = "Root"
+    # Hub1.origin = np.array([0.0, 0.0, 0.0])
+    # Hub1.orientation = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+
+    # Hub1.moving = False
+
+    # # Append to References
+    # references_def.append_frame(Hub1)
+
     return references_def
 
 
@@ -52,7 +64,7 @@ def references_definition():
 # rst geodef
 def geometry_definition():
     # Load rotor data
-    f = open('/home/jexalto/code/MDO_lab_env/GitSucks/ThesisCode/HELIX_verification/data/rotor.json')
+    f = open('/home/jexalto99/code/MDO_lab_env/GitSucks/ThesisCode/HELIX_verification/data/rotor.json')
     airfoilSecs = json.load(f)
     f.close()
     
@@ -91,7 +103,7 @@ def geometry_definition():
         "mult_type": "rotor",
         "n_blades": 4,
         "rot_axis": np.array([0.0, 0.0, 1.0]),
-        "rot_rate": -1320., #1320.
+        "rot_rate": -1320.,
         "psi_0": 0.0,
         "hub_offset": 0.0,
         "n_dofs": 0,
@@ -103,7 +115,7 @@ def geometry_definition():
         rotor.sec[iSec].chord = airfoilSecs['chord'][iSec]
         rotor.sec[iSec].twist = airfoilSecs['theta'][iSec]
         rotor.sec[iSec].thick = airfoilSecs['thick'][iSec]
-        rotor.sec[iSec].alpha_0 = 8. # airfoilSecs['chord'][iSec]
+        rotor.sec[iSec].alpha_0 = airfoilSecs['alpha_0'][iSec]
         rotor.sec[iSec].alpha_L0 = airfoilSecs['alpha_L0'][iSec]
         rotor.sec[iSec].Cl_alpha = airfoilSecs['Cl_alpha'][iSec]
         rotor.sec[iSec].M = airfoilSecs['M'][iSec]
@@ -119,23 +131,3 @@ def geometry_definition():
     geometry_def.append_component(rotor)
 
     return geometry_def
-
-# 0.005315011557610248,
-# 0.005315011557610234,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610237,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.00531501155761023,
-# 0.005315011557610244,
-# 0.00531501155761023,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610244,
-# 0.005315011557610244

@@ -56,7 +56,7 @@ def EOAS_system_(jet_radius, jet_loc_list, Vinf, r_min, span_max, filename, nx_i
         return 130-(0.05*steps-5)**2
     
     vel_distr_input = np.array([x2(step), x2(step)], order='F')
-    radii_input = np.array([np.linspace(0.01, jet_radius, steps), np.linspace(0.01, jet_radius, steps)], order='F')
+    radii_input = np.array(np.linspace(0.01, jet_radius, steps), order='F') # np.linspace(0.01, jet_radius, steps), 
     
     panels_span_VLM = mesh_dict['num_y']-1
     panels_chord_VLM = mesh_dict['num_x']-1
@@ -87,7 +87,7 @@ def EOAS_system_(jet_radius, jet_loc_list, Vinf, r_min, span_max, filename, nx_i
         # "twist_cp": twist_cp,
         "mesh": mesh,
         # "span": 10.,
-        "propeller": 2,
+        "propeller": 1,
         "radii_shape": steps,
         # Aerodynamic performance of the lifting surface at
         # an angle of attack of 0 (alpha=0).
@@ -242,9 +242,9 @@ def EOAS_system_(jet_radius, jet_loc_list, Vinf, r_min, span_max, filename, nx_i
     plt.grid()
     plt.xlabel("Wingspan [m]")
     plt.ylabel("Lift coefficient [Cl]")
-    plt.title(f'VLM Panels={mesh_dict["num_y"]-1}-{nx_input-1}, Radius{jet_radius}')
+    # plt.title(f'VLM Panels={mesh_dict["num_y"]-1}-{nx_input-1}, Radius{jet_radius}')
     
-    name_ = f'liftdistribution_r{jet_radius}_d{jet_loc_list[0]}_prop_discr{prop_discr}.png'
+    name_ = f'liftdistribution_r{jet_radius}_d{jet_loc_list[0]}.png'
     plt.savefig(filename+name_)       # this one is for the movie file
     # plt.savefig(filename+f"panels/liftdistribution_r{jet_radius}_d{jet_loc}_p{panels_overset_wing}.png")
     plt.clf()

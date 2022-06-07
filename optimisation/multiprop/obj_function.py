@@ -7,24 +7,23 @@ class obj_function(om.ExplicitComponent):
 
     def setup(self):
         # self.add_input('fuelburn', val=1.)
-        self.add_input('lift', val=1., units='N')
-        self.add_input('drag', val=1., units='N')
+        # self.add_input('lift', val=1., units='N')
+        # self.add_input('drag', val=1., units='N')
+        self.add_input('power', shape_by_conn=True)
 
         self.add_output('objective', val=1.)
 
         # self.declare_partials('objective', 'fuelburn')
-        self.declare_partials('objective', 'lift')
-        self.declare_partials('objective', 'drag')
+        # self.declare_partials('objective', 'lift')
+        # self.declare_partials('objective', 'drag')
+        self.declare_partials('objective', 'power')
 
     def compute(self, inputs, outputs):
-        lift = inputs['lift']
-        drag = inputs['drag']
-        
-        outputs['objective'] = drag
+        power = inputs['power']
+
+        outputs['objective'] = power[0]
 
     def compute_partials(self, inputs, partials):
-        lift = inputs['lift']
-        # drag = inputs['drag']
 
-        partials['objective', 'lift'] = 0.
-        partials['objective', 'drag'] = 1.
+        # partials['objective', 'lift'] = 0.6
+        partials['objective', 'power'] = 1.

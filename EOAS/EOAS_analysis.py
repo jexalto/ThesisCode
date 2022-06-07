@@ -8,7 +8,7 @@ span_max = 5
 r_min = 0.1
 Vjet = 150
 Vinf = 100
-jet_loc_list = np.array([-0.2, 0.2], order='F')
+jet_loc_list = np.array([0.], order='F')
 jet_radius = 0.237/2
 span=0.748
 

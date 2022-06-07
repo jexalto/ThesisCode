@@ -4,6 +4,7 @@ __date__ = "May 14th, 2021 Fri"
 __status__ = "Production"
 
 # Local Imports
+# from asyncio.windows_events import NULL
 from airfoils import airfoilAnalysis
 
 # External Imports
@@ -44,7 +45,7 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     _ = airfoilAnalysis(plotting=False, screwXFOIL=True)
 
-    f = open('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json')
+    f = open('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json')
     airfoilSecs = json.load(f)
     f.close()
     # =========================================================================
@@ -80,20 +81,27 @@ def generateRotor(fileName="rotor.json"):
     alpha_0_ = 8.*(2*np.pi)/360
     for iSec in range(0, np.size(airfoilSecs)):
         alpha_0 = np.append(alpha_0, alpha_0_)
-
-    data["alpha_0"] =  ((np.array([70.5, 70.5, 70.5, 70.5, 70.5, 8., 8., 8., 8., 8., 8.5, 8.5, 8.5, 7., 7., 7., 7., 7., 7.5, 7.5, 7.5]))/360*(2*np.pi)).tolist()
+    # Re=41000
+    alpha0_data = np.array([5., 5., 5., 5., 11, 7., 7., 5., 5., 7., 8., 8., 9., 8.5, 7.5, 7.5, 7.5, 7.5, 7.5, 6., 7.])+2.
+    data["alpha_0"] =  ((alpha0_data)/360*(2*np.pi)).tolist()
 
     # Compute Alpha_L0
     alpha_L0 = np.empty(0)
     for iSec in range(0, np.size(airfoilSecs)):
-        alpha_L0 = np.append(alpha_L0, airfoilSecs[iSec]["alpha_L0"])
-
+        alpha_L0_section=airfoilSecs[iSec]["alpha_L0"]
+        if not alpha_L0_section: # catch empty entries
+            alpha_L0_section = -0.06363470452771325
+        alpha_L0 = np.append(alpha_L0, alpha_L0_section)
+    alpha_L0 = alpha_L0*0.85
     data["alpha_L0"] = alpha_L0.tolist()
 
     # Compute Cl_alpha
     Cl_alpha = np.empty(0)
     for iSec in range(0, np.size(airfoilSecs)):
-        Cl_alpha = np.append(Cl_alpha, airfoilSecs[iSec]["Cl_alpha"])
+        Cl_alpha_section=airfoilSecs[iSec]["Cl_alpha"]
+        if not Cl_alpha_section: # catch empty entries
+            Cl_alpha_section = 4.
+        Cl_alpha = np.append(Cl_alpha, Cl_alpha_section)
 
     data["Cl_alpha"] = Cl_alpha.tolist()
 
@@ -106,7 +114,7 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     # Write Data
     # =========================================================================
-    datadir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/'
+    datadir = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/'
     writeJSON(data, datadir+fileName)
 
 

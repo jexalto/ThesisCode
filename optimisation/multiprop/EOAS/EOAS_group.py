@@ -32,13 +32,13 @@ class EOAS(om.Group):
             # reflected across the plane y = 0
             # Simple Geometric Variables
             "span": span_0,  # full wingspan, even for symmetric cases
-            "root_chord": 1.0,  # root chord
+            "chord": 0.15,
             # "dihedral": 0.0,  # wing dihedral angle in degrees
             # positive is upward
             # "sweep": 0.0,  # wing sweep angle in degrees
             # positive sweeps back
-            "taper": 1.0,  # taper ratio; 1. is uniform chord
-            "num_twist_cp": 5
+            # "taper": 1.0,  # taper ratio; 1. is uniform chord
+            "num_twist_cp": 10
         }
 
         upper_x = np.array([    0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.4,
@@ -62,34 +62,35 @@ class EOAS(om.Group):
         )   
 
         mesh = generate_mesh(mesh_dict) # twist_cp
-        chord_cp = np.ones((3))
-        twist_cp = np.zeros((10))
+        # chord_cp = np.ones((10))
+        twist_cp = np.zeros((5))
 
         surface = {
             # Wing definition
             "name": "wing",  # name of the surface
             "symmetry": False,  # if true, model one half of wing
+            # "type": "aero",
             # reflected across the plane y = 0
-            "S_ref_type": "wetted",  # how we compute the wing area,
+            "S_ref_type": "projected",  # how we compute the wing area,
             # can be 'wetted' or 'projected'
-            "fem_model_type": "wingbox",
-            "thickness_cp": np.array([0.1, 0.2, 0.3]),
-            "data_x_upper": upper_x,
-            "data_x_lower": lower_x,
-            "data_y_upper": upper_y,
-            "data_y_lower": lower_y,
-            "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
-            "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
-            "original_wingbox_airfoil_t_over_c": 0.12,
-            "strength_factor_for_upper_skin": 1.0, 
-            # "twist_cp": twist_cp,
+            "fem_model_type": "tube",
+            "thickness_cp": np.array([0.001, 0.002, 0.003, 0.002, 0.001])*10,
+            # "data_x_upper": upper_x,
+            # "data_x_lower": lower_x,
+            # "data_y_upper": upper_y,
+            # "data_y_lower": lower_y,
+            # "thickness_cp": np.array([0.1, 0.2, 0.3]),
+            # "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
+            # "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
+            # "original_wingbox_airfoil_t_over_c": 0.12,
+            # "strength_factor_for_upper_skin": 1.0, 
             "mesh": mesh,
             "span": span_0,
-            "chord_cp": chord_cp,
+            "chord_cp": np.ones(5)*0.15,  # Define chord using 3 B-spline cp's
+            "twist_cp": np.zeros(5),
             "propeller": 2,
-            # "n_point_masses": 1,
+            "n_point_masses": 2,
             "radii_shape": radii_shape,
-            "twist_cp": twist_cp,
             # Aerodynamic performance of the lifting surface at
             # an angle of attack of 0 (alpha=0).
             # These CL0 and CD0 values are added to the CL and CD
@@ -161,20 +162,20 @@ class EOAS(om.Group):
 
         # Connect performance calculation variables
         com_name = point_name + "." + name + "_perf"
-        # self.connect(name + ".radius", com_name + ".radius")
-        # self.connect(name + ".thickness", com_name + ".thickness")
+        self.connect(name + ".radius", com_name + ".radius")
+        self.connect(name + ".thickness", com_name + ".thickness")
         self.connect(name + ".nodes", com_name + ".nodes")
         self.connect(name + ".cg_location", point_name + "." + "total_perf." + name + "_cg_location")
         self.connect(name + ".structural_mass", point_name + "." + "total_perf." + name + "_structural_mass")
         self.connect(name + ".t_over_c", com_name + ".t_over_c")
         com_name = "AS_point_0" + "." + name + "_perf."
 
-        self.connect(name + ".Qz", com_name + "Qz")
-        self.connect(name + ".J", com_name + "J")
-        self.connect(name + ".A_enc", com_name + "A_enc")
-        self.connect(name + ".htop", com_name + "htop")
-        self.connect(name + ".hbottom", com_name + "hbottom")
-        self.connect(name + ".hfront", com_name + "hfront")
-        self.connect(name + ".hrear", com_name + "hrear")
+        # self.connect(name + ".Qz", com_name + "Qz")
+        # self.connect(name + ".J", com_name + "J")
+        # self.connect(name + ".A_enc", com_name + "A_enc")
+        # self.connect(name + ".htop", com_name + "htop")
+        # self.connect(name + ".hbottom", com_name + "hbottom")
+        # self.connect(name + ".hfront", com_name + "hfront")
+        # self.connect(name + ".hrear", com_name + "hrear")
 
-        self.connect(name + ".spar_thickness", com_name + "spar_thickness")
+        # self.connect(name + ".spar_thickness", com_name + "spar_thickness")

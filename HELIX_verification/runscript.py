@@ -17,11 +17,11 @@ import json
 
 import niceplots
 
-# from rotor import generateRotor
+from rotor import generateRotor
 
 niceplots.setRCParams()
 
-# generateRotor()
+generateRotor()
 
 def main():
     """
@@ -31,7 +31,7 @@ def main():
     # =========================================================================
     # Import Experimental Data
     # =========================================================================
-    with open("/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/prowim_data.json", "r") as file:
+    with open("/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/prowim_data.json", "r") as file:
         dataPROWIM = json.load(file)
         file.close()
 
@@ -56,7 +56,7 @@ def main():
     # =========================================================================
     for i in range(0, nJ):
         # Compute Rotational Velocity
-        omega = V_inf / (J[i] * diameter) * 2.0 * np.pi
+        omega =  V_inf / (J[i] * diameter) * 2.0 * np.pi
         # Call Helix
         CT[i] = runHelix(omega)
 
@@ -64,7 +64,6 @@ def main():
     # Plot Result
     # =========================================================================
     _, ax = plt.subplots(figsize=(10, 7))
-    print(CT)
 
     # Plot Helix Data
     ax.plot(J, CT)
@@ -81,7 +80,7 @@ def main():
     # plt.tight_layout()
     niceplots.adjust_spines(ax, outward=True)
 
-    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/CT_bs.png')
+    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/CT_bs.png')
 
 
 def runHelix(omega):
@@ -136,7 +135,7 @@ def set_simparam():
     simparam.nt_rev = 30
 
     simparam.v_inf = np.array([0.0, 0.0, -40.0])
-    simparam.rho_inf = 1.25
+    simparam.rho_inf = 1.2087
 
     return simparam
 
@@ -182,7 +181,7 @@ def geometry_definition(omega):
         running a HELIX case
     """
     # Load rotor data
-    fileName = "/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/rotor.json"
+    fileName = "/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/rotor.json"
     with open(fileName, "r") as file:
         airfoilData = json.load(file)
         file.close()

@@ -7,7 +7,7 @@ from scipy.optimize import root
 import matplotlib.pyplot as plt
 
 # dir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/airfoils/N250/airfoils/'
-dir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/xfoil/xfoil_runner/data_output/'
+dir = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/xfoil/xfoil_runner/data_output/Re96000/'
 
 import pandas as pd
 import numpy as np
@@ -21,7 +21,7 @@ J = 0.8
 v_inf = 40.
 n = (J*v_inf/diameter)**(-1)
 
-path = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/TUD_data/prowim/geometry/PROWIM.txt'
+path = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/TUD_data/prowim/geometry/PROWIM.txt'
 
 data = pd.read_csv(path, sep=',')
 rR = data.iloc[:,1]
@@ -355,13 +355,13 @@ for index, iAirfoilSec in enumerate(airfoilSecs_table):
     name = f'st{index+1}.txt'
     airfoildata = pd.read_csv(dir+name, skiprows=[11], header=5, delim_whitespace=True)
     alpha = airfoildata['alpha'][:]
-    alpha = np.where(np.isnan(alpha), 0, alpha)
+    # alpha = np.where(np.isnan(alpha), 0, alpha)
     cl = airfoildata['CL'][:]
-    cl = np.where(cl=='         nan', 0, cl)
+    # cl = np.where(cl=='         nan', 0, cl)
     cd = airfoildata['CD'][:]
-    cd = np.where(cd=='         nan', 0, cd)
+    # cd = np.where(cd=='         nan', 0, cd)
     cm = airfoildata['CM'][:]
-    cm = np.where(cm=='         nan', 0, cm)
+    # cm = np.where(cm=='         nan', 0, cm)
     rps = n
     v_rot = 2*np.pi*rR[index]*radius*rps
     v_tot = np.sqrt(v_inf**2+v_rot**2)

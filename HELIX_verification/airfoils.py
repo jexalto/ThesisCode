@@ -11,14 +11,12 @@ from scipy.optimize import root
 import matplotlib.pyplot as plt
 from airfoil_data_table import airfoilSecs_table
 
-from proplib import airfoilSecs
-
 import json as js
 
 import sys
 import os.path
 sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname('/home/jexalto/code/MDO_lab_env/packages/pyXLIGHT/pyxlight/'), os.path.pardir)))
+    os.path.abspath(os.path.join(os.path.dirname('/home/jexalto99/code/MDO_lab_env/packages/pyXLIGHT/pyxlight/'), os.path.pardir)))
 
 import pyxlight.pyXLIGHT as pyXLIGHT
 import niceplots
@@ -28,7 +26,7 @@ niceplots.setRCParams()
 niceColors = niceplots.get_niceColors()
 
 # Data Directory
-dataDir = "/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/airfoils/"
+dataDir = "/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/airfoils/"
 
 # =============================================================================
 # General Parameters
@@ -42,7 +40,7 @@ a_inf = 346.204  # [m/s]
 
 # Define Airfoil Sections
 
-def airfoilAnalysis(plotting=True, screwXFOIL=True):
+def airfoilAnalysis(plotting=False, screwXFOIL=True):
     """
     This function handles solving the provided airfoil sections for the rotor
     blade using XFoil, and then computes required parameters such as Cl_alpha
@@ -96,10 +94,10 @@ def airfoilAnalysis(plotting=True, screwXFOIL=True):
     # =========================================================================
     # Plot
     # =========================================================================
-    if False:
+    if plotting:
         plot(airfoilSecs)
     
-    datadir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json'
+    datadir = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json'
     writeJSON(airfoilSecs, datadir)
 
     return airfoilSecs
@@ -292,15 +290,15 @@ def plot(airfoilSecs):
         )
 
     # Plot Line at Cl=0
-        ax.plot([-10, 20], [0, 0], "--", c=niceColors["Grey"])
+        # ax.plot([-10, 20], [0, 0], "--", c=niceColors["Grey"])
 
         ax.set_xlabel(r"$\alpha$ [$^\circ$]")
         ax.set_ylabel(r"$C_l$")
-        ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
+        # ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
         ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.275))
         ax.grid()
         niceplots.adjust_spines(ax, outward=True)
-        plt.savefig(f'/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/airfoils/cl_alpha_airfoil{iSec}.png')
+        plt.savefig(f'/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/airfoils/cl_alpha_airfoil{iSec}.png')
 
     fig, ax = plt.subplots(figsize=(10, 8))
     for iSec in range(0, np.size(airfoilSecs)):
@@ -311,14 +309,14 @@ def plot(airfoilSecs):
         )
 
     # Plot Line at Cl=0
-    ax.plot([-10, 20], [0, 0], "--", c=niceColors["Grey"])
+    # ax.plot([-10, 20], [0, 0], "--", c=niceColors["Grey"])
 
     ax.set_xlabel(r"$\alpha$ [$^\circ$]")
     ax.set_ylabel(r"$C_l$")
     ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
     # ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.275))
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_alpha.png')
+    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_alpha.png')
 
     # Coefficient of Drag (Cd) vs. Angle of Attack (alpha)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -334,7 +332,7 @@ def plot(airfoilSecs):
     ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
     # ax.legend()
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cd_alpha.png')
+    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cd_alpha.png')
 
     # Coefficient of Moment (Cm) vs. Angle of Attack (alpha)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -350,7 +348,7 @@ def plot(airfoilSecs):
     ax.set_xlim(-4.5, 16)
     ax.legend()
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cm_alpha.png')
+    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cm_alpha.png')
 
     # Coefficient of Lift (Cl) vs Coefficient of Drag (Cd)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -368,7 +366,7 @@ def plot(airfoilSecs):
 
     # Show Plots
     plt.show()
-    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_cd.png')
+    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_cd.png')
 
 
 if __name__ == "__main__":
