@@ -48,9 +48,9 @@ def wingprop(J):
                 for iSpan in range(0, N_span):
                     N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
             
-            span_max = 0.748*2
-            nx = 2
-            ny = 41
+            span_max = 5
+            nx = 11
+            ny = 101
             self.add_subsystem('rethorst', subsys=Rethorst(nr_props=1, span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
 
             self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=0.748, radii_shape=N_elem_span+1))

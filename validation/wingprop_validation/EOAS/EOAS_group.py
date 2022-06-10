@@ -66,8 +66,8 @@ class EOAS(om.Group):
 
         num_x = self.options['panels_chord_VLM']+1
 
-        for ind_x in range(num_x):
-            mesh[ind_x, :, 2] = camber(mesh[ind_x, 0, 0])
+        # for ind_x in range(num_x):
+        #     mesh[ind_x, :, 2] = camber(mesh[ind_x, 0, 0])
 
         surface = {
             # Wing definition
@@ -101,7 +101,7 @@ class EOAS(om.Group):
             # obtained from aerodynamic analysis of the surface to get
             # the total CL and CD.
             # These CL0 and CD0 values do not vary wrt alpha.
-            "CL0": 0.,  # CL of the surface at alpha=0 # 0.283
+            "CL0": 0.283,  # CL of the surface at alpha=0 # 0.283
             "CD0": 0.0,  # CD of the surface at alpha=0
             # Airfoil properties for viscous drag calculation
             "k_lam": 0.05,  # percentage of chord with laminar

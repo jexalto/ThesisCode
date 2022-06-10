@@ -13,6 +13,7 @@ from helix_dir.propweight import propweight
 from rethorst_dir.rethorst_group import Rethorst
 from obj_function import obj_function
 from constraints import constraints
+from helix_dir.linear_radius import linear_radius
 from printsys import printsys
 
 import json
@@ -23,6 +24,8 @@ class master(om.Group):
 
     def setup(self):
         self.add_subsystem('parameters', subsys=parameters())
+
+        self.add_subsystem('linear_radius', subsys=linear_radius())
 
         simparam_def = simparam_definition()
         references_def = references_definition()
@@ -53,6 +56,8 @@ class master(om.Group):
         # =================================
         # ===== Connecting Subsystems =====
         # =================================
+        self.connect('parameters.radius',                               'linear_radius.radius')
+        self.connect('linear_radius.propspan_sectional',                'helix.geodef_parametric_0_span')
 
         # ================================      
         # ===== Connecting Objective =====      
@@ -71,16 +76,19 @@ class master(om.Group):
         if True:
             for iParametric in range(0, np.size(parametric)):
                 name = "helix.geodef_parametric_{:d}_".format(iParametric)
-                self.add_design_var(name + "span",lower=0.001, upper=.1)
-                self.add_design_var(name + "chord",lower=0.01, upper=0.2)
-                self.add_design_var(name + "twist",lower=10, upper=75)
+                # self.add_design_var(name + "span",lower=0.001, upper=.1)
+                # self.add_design_var(name + "chord",lower=0.01, upper=0.2)
+                self.add_design_var(name + "twist",lower=15, upper=75)
+                self.add_design_var(name + "rot_rate",lower=-1700, upper=-900)
                 # self.add_design_var(name + "alpha_0",lower=0.1, upper=1)
                 # self.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
                 # self.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
+        
+        self.add_design_var('parameters.radius', lower=0.08, upper=0.2)
 
-        self.add_objective("helix.geodef_parametric_0", scaler=0.1)
+        self.add_objective("obj_function.objective", scaler=0.1)
 
-        self.add_constraint("constraints.constraint_thrust_drag", equals=96.40174441631694)
+        self.add_constraint("constraints.constraint_thrust", equals=28)
 
 prob = om.Problem()
 model = prob.model
@@ -119,8 +127,6 @@ if True:
             sweep[iSpan] = parametric.parametric_def[iParametric].span[iSpan].sweep
             dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
-case_file = '/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/00_results/data/cases.sql'
-
 prob.setup(mode='fwd')
 
 prob.set_val(name + "span", val=span)
@@ -133,34 +139,38 @@ prob.set_val(name + "Cl_alpha",val=Cl_alpha)
 # prob.set_val('EOAS.correction', val=0)
 # prob.set_val('EOAS.velocity_distr', val=40.)
 
-prob.driver = om.ScipyOptimizeDriver()
-prob.driver.options['optimizer'] = 'SLSQP'
+prob.driver = om.pyOptSparseDriver()
+prob.driver.options['optimizer'] = 'SNOPT'
 prob.driver.opt_settings = {
     "Major feasibility tolerance": 1.0e-5,
-    "Major optimality tolerance": 1.0e-5,
-    "Minor feasibility tolerance": 1.0e-5,
+    "Major optimality tolerance": 1.0e-10,
+    "Minor feasibility tolerance": 1.0e-10,
     "Verify level": -1,
-    "Function precision": 1.0e-6,
+    "Function precision": 1.0e-10,
     # "Major iterations limit": 50,
     "Nonderivative linesearch": None,
-    "Print file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/snopt_output/opt_SNOPT_print.txt",
-    "Summary file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/snopt_output/opt_SNOPT_summary.txt",
+    "Print file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/snopt_output/opt_SNOPT_print.txt",
+    "Summary file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/snopt_output/opt_SNOPT_summary.txt",
 }
 
 span_orig = prob.get_val("helix.geodef_parametric_0_span")
 chord_orig  = prob.get_val("helix.geodef_parametric_0_chord")
 twist_orig  = prob.get_val("helix.geodef_parametric_0_twist")
-
 prob.run_model()
+vel_distr_orig = np.copy(prob.get_val("helix.rotorcomp_0_velocity_distribution"))
+
+# prob.run_model()
 # prob.model.approx_totals()
-# prob.run_driver()
+prob.run_driver()
 # prob.check_partials(compact_print=True, show_only_incorrect=False, includes=['*helix*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
-prob.check_totals(compact_print=True,  form='central')
+# prob.check_totals(compact_print=True,  form='central')
 
 # ===========================
 # === Printing of results ===
 # ===========================
-print('Power: ', np.round(prob.get_val("obj_function.objective"), 4))
+print('Prop Radius: ', np.round(prob.get_val('parameters.radius'), 2))
+print('Rotation Rate: ', np.round(prob.get_val('helix.geodef_parametric_0_rot_rate'), 2))
+print('Power: ', np.round(prob.get_val("helix.rotorcomp_0_power"), 4))
 print("Span: ", np.round(prob.get_val("helix.geodef_parametric_0_span"), 4))
 print("Chord: ", np.round(prob.get_val("helix.geodef_parametric_0_chord"), 4))
 print("Twist: ", np.round(prob.get_val("helix.geodef_parametric_0_twist"), 4))
@@ -172,6 +182,7 @@ print("Velocity distribution: ", prob.get_val("helix.rotorcomp_0_velocity_distri
 span = prob.get_val("helix.geodef_parametric_0_span")
 chord = prob.get_val("helix.geodef_parametric_0_chord")
 twist = prob.get_val("helix.geodef_parametric_0_twist")
+vel_distr = prob.get_val("helix.rotorcomp_0_velocity_distribution")
 
 span_           = np.zeros(len(span)+1)
 span_orig_      = np.zeros(len(span)+1)
@@ -188,7 +199,8 @@ ax.set_ylabel(r'$m$')
 ax.legend()
 ax.grid()
 niceplots.adjust_spines(ax, outward=True)
-plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/figures/prop_results/prop_chordopt.png')
+plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/figures/prop_results/prop_chordopt.png')
+plt.show()
 
 _, ax = plt.subplots(figsize=(10, 7))
 ax.plot(span_, twist, label='Optimised')
@@ -198,4 +210,16 @@ ax.set_ylabel(r'Twist $\deg$')
 ax.legend()
 ax.grid()
 niceplots.adjust_spines(ax, outward=True)
-plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/figures/prop_results/prop_twistopt.png')
+plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/figures/prop_results/prop_twistopt.png')
+plt.show()
+
+_, ax = plt.subplots(figsize=(10, 7))
+ax.plot(np.linspace(0, 1, len(vel_distr)), vel_distr, label='Optimised')
+ax.plot(np.linspace(0, 1, len(vel_distr)), vel_distr_orig, label='Original')
+ax.set_xlabel(r'Spanwise Location $y$')
+ax.set_ylabel(r'Exhaust Velocity $m/s$')
+ax.legend()
+ax.grid()
+niceplots.adjust_spines(ax, outward=True)
+plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/figures/prop_results/prop_veldistr.png')
+plt.show()
