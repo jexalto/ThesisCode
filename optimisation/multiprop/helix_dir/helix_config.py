@@ -22,7 +22,7 @@ def simparam_definition():
 
     simparam.nt_rev = 30
 
-    simparam.v_inf = np.array([0.0, 0.0, -40.0])
+    simparam.v_inf = np.array([0.0, 0.81051701, -40.0])
     simparam.rho_inf = 1.2087
 
     return simparam

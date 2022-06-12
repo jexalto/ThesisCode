@@ -53,12 +53,12 @@ class master(om.Group):
         
         span_max = 0.748*5
         nx = 3
-        ny = 91
+        ny = 81
         self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
 
         # self.add_subsystem('prop_weight', subsys=propweight())
 
-        self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=0.748*2, radii_shape=N_elem_span+1))
+        self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=0.748*2*0.96, radii_shape=N_elem_span+1))
 
         self.add_subsystem('propinflow', subsys=propinflow(ny=ny, nx=nx, propdist_chord=0.1))
 
@@ -101,19 +101,20 @@ class master(om.Group):
         self.connect('parameters.span',                                 'rethorst.span')
         self.connect('parameters.vinf',                                 'rethorst.vinf')
 
+        self.connect('parameters.vinf',                                             'propinflow.vinf')
         self.connect('EOAS.AS_point_0.coupled.aero_states.horseshoe_circulations',  'propinflow.circulation')
         self.connect('EOAS.wing.mesh',                                              'propinflow.mesh')
         self.connect('parameters.jet_loc',                                          'propinflow.jet_loc')
         self.connect('propinflow.propinflow',                                       'helix.simparamdef_v_inf')
 
-        self.nonlinear_solver = om.NonlinearBlockGS(rtol=1e-10, atol=1e-2)
-        self.linear_solver = om.LinearBlockGS()
-
-        self.nonlinear_solver.options['iprint'] = 2
-        # self.nonlinear_solver.options['maxiter'] = 10
-        # self.nonlinear_solver.options['solve_subsystems'] = True
+        self.nonlinear_solver = om.NewtonSolver(solve_subsystems=True, atol=1e-6, rtol=1e-99)
+        self.linear_solver = om.ScipyKrylov()
+        # self.linear_solver.precon = om.LinearBlockJac()
+        # self.linear_solver.precon.options['maxiter'] = 10
+        self.linear_solver.options['maxiter'] = 15
+        self.nonlinear_solver.options['maxiter'] = 30
         self.nonlinear_solver.linesearch = om.ArmijoGoldsteinLS()
-        self.nonlinear_solver.linesearch.options['maxiter'] = 10
+        self.nonlinear_solver.linesearch.options['maxiter'] = 50
         self.nonlinear_solver.linesearch.options['iprint'] = 2
 
         # ================================      
@@ -142,9 +143,9 @@ class master(om.Group):
             for iParametric in range(0, np.size(parametric)):
                 name = "helix.geodef_parametric_{:d}_".format(iParametric)
                 self.add_design_var(name + "rot_rate",              lower=-1700, upper=-1200, scaler=1/1000)
+                self.add_design_var(name + "twist",                 lower=20, upper=70, scaler=1/10)
                 # self.add_design_var(name + "span",lower=0.003, upper=.05)
                 # self.add_design_var(name + "chord",lower=0.05, upper=0.1)
-                self.add_design_var(name + "twist",lower=20, upper=70, scaler=1/10)
                 # self.add_design_var(name + "alpha_0",lower=0.1, upper=1)
                 # self.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
                 # self.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
@@ -202,7 +203,8 @@ if True:
             dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
 prob.setup(mode='fwd')
-
+prob.set_solver_print(level=2)
+# om.n2(prob)
 prob.set_val(name + "span", val=span)
 prob.set_val(name + "chord",val=chord)
 prob.set_val(name + "twist",val=twist)
@@ -231,20 +233,21 @@ span_orig_prop = prob.get_val("helix.geodef_parametric_0_span")
 chord_orig_prop  = prob.get_val("helix.geodef_parametric_0_chord")
 twist_orig_prop  = prob.get_val("helix.geodef_parametric_0_twist")
 
-recorder = om.SqliteRecorder("/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/data/cases.sql")
-prob.driver.add_recorder(recorder)
-prob.driver.recording_options["record_objectives"] = True
-prob.driver.recording_options["record_constraints"] = True
-prob.driver.recording_options["record_desvars"] = True
-prob.driver.recording_options["record_inputs"] = True
+# recorder = om.SqliteRecorder("/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/data/cases.sql")
+# prob.driver.add_recorder(recorder)
+# prob.driver.recording_options["record_objectives"] = True
+# prob.driver.recording_options["record_constraints"] = True
+# prob.driver.recording_options["record_desvars"] = True
+# prob.driver.recording_options["record_inputs"] = True
 # prob.driver.recording_options['includes'] = ['helix.rotorcomp_0_thrust']
 
 prob.run_model()
 # prob.model.approx_totals()
 # prob.run_driver()
-# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['*constraints*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
-# prob.check_totals(compact_print=True,  form='central')
+# prob.check_partials(compact_print=True, show_only_incorrect=False, includes=['*propinflow*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+prob.check_totals(compact_print=True,  form='central')
 prob.cleanup()
+
 # ===========================
 # === Printing of results ===
 # ===========================
@@ -264,7 +267,7 @@ print("Span: ", prob.get_val("helix.geodef_parametric_0_span"))
 print("Chord: ", prob.get_val("helix.geodef_parametric_0_chord"))
 print("Velocity distribution: ", prob.get_val("helix.rotorcomp_0_velocity_distribution"))
 
-if False:
+if True:
     # ===========================
     # === Plotting of results ===
     # ===========================
