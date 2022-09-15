@@ -30,14 +30,14 @@ x.add_system("F", IFUNC, r"\text{Objective function}")
 x.add_system("G", IFUNC, con1lst)
 x.add_system("G2", IFUNC, con2lst)
 
-lst = [r"B, R, \mathbf{\theta}", r"\mathbf{c}, J, c"]
+lst = [r"B, R, \mathbf{\theta}", r"C_{L,\alpha}, J, c_{prop}"]
 x.connect("opt", "helix", lst)
-x.connect("opt", "OAS", r"l, \mathbf{\phi}, c_r, c_t")
+x.connect("opt", "OAS", r"b, \mathbf{\phi}, \vec{c}_{wing}")
 x.connect("MDA", "OAS", r'\hat{W}_f')
 x.connect("MDA", "helix", r'\hat{\alpha}')
 x.connect("helix", "slipstream", r"\mathbf{v_j}")
 # x.connect("helix", "performance", r"P_{in}")
-x.connect("slipstream", "OAS", r"\mathbf{G}, mesh")
+x.connect("slipstream", "OAS", r"\mathbf{G}")
 # x.connect("OAS", "performance", r"C_L, C_D, W_{str}")
 x.connect("OAS", "MDA", r"\alpha")
 # x.connect("performance", "MDA", r"W_f")
@@ -45,7 +45,7 @@ x.connect("OAS", "MDA", r"\alpha")
 x.connect("helix", "F", r"P_{in}")
 x.connect("helix", "G", r"T")
 x.connect("OAS", "G", r"C_D")
-x.connect("OAS", "G2", r"C_L, W_{str}")
+x.connect("OAS", "G2", r"C_L, W_{str}, W_f")
 # x.connect("performance", "G2", r"W_f")
 
 x.connect("F", "opt", "f")
@@ -66,8 +66,8 @@ x.add_process(["OAS", "G", "opt"],
     arrow=True,)
 x.add_process(["OAS", "G2"],
     arrow=True,)
-# x.add_process(["performance", "G2", "opt"],
-#     arrow=True,)
+x.add_process(["G2", "opt"],
+    arrow=True,)
 # x.add_process(["performance", "MDA"],
 #     arrow=True,)
 x.add_process(["MDA", "OAS"],

@@ -48,7 +48,7 @@ def main():
 
     thrust_vec = model.f_simparam.t_vec
 
-    print(model.f_geometry.rotor[0].ct)
+    print(f'CT: {model.f_geometry.rotor[0].ct}')
 
     plt.plot(np.linspace(0, len(thrust_vec), len(thrust_vec)), thrust_vec)
     plt.grid()
@@ -145,7 +145,7 @@ def geometry_definition():
 
     # Initialize Rotor and Allocate Arrays
     rotor.initialize_parametric_geometry_definition(N_span)
-    J = 0.9
+    J = 0.7
     V = 40
     diameter = 0.237
 
@@ -157,7 +157,7 @@ def geometry_definition():
         "rot_axis": np.array([0.0, 0.0, 1.0]),
         "rot_rate": n,
         "psi_0": 0.0,
-        "hub_offset": 0.0,
+        "hub_offset": 0.,
         "n_dofs": 0,
     }
 
@@ -167,7 +167,7 @@ def geometry_definition():
         rotor.sec[iSec].chord = airfoilSecs['chord'][iSec]
         rotor.sec[iSec].twist = airfoilSecs['theta'][iSec]
         rotor.sec[iSec].thick = airfoilSecs['thick'][iSec]
-        rotor.sec[iSec].alpha_0 = 8 # airfoilSecs['chord'][iSec]
+        rotor.sec[iSec].alpha_0 = airfoilSecs['alpha_0'][iSec]
         rotor.sec[iSec].alpha_L0 = airfoilSecs['alpha_L0'][iSec]
         rotor.sec[iSec].Cl_alpha = airfoilSecs['Cl_alpha'][iSec]
         rotor.sec[iSec].M = 50.0

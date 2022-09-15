@@ -4,14 +4,15 @@ __date__ = "May 14th, 2021 Fri"
 __status__ = "Production"
 
 # Local Imports
+# from asyncio.windows_events import NULL
 from airfoils import airfoilAnalysis
 
 # External Imports
 import numpy as np
 import json
 
-from proplib import airfoilSecs, radius
-
+from proplib import radius # this one is forn xfoil generated data
+from airfoil_data_table import airfoilSecs_table as airfoilSecs # this one is for quinty's data
 # =============================================================================
 # Define Data
 # =============================================================================
@@ -22,24 +23,6 @@ nSec = 20
 r_sec = np.empty(0)
 for iSec in range(0, np.size(airfoilSecs)):
     r_sec = np.append(r_sec, airfoilSecs[iSec]["r"])
-
-chord_r = np.array([0.2, 0.92, 1.0])  # []
-chord = np.array([0.08, 0.06, 0.05]) * radius  # [m]
-
-twist_r = np.array([0.2, 0.75, 1.0])  # []
-twist = np.array([11.0, 0.0, -2.0])  # [deg]
-
-thick_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-thick = np.array([0.12, 0.12, 0.05, 0.03]) * np.interp(thick_r, chord_r, chord)  # [m]
-
-alpha_0_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-alpha_0 = np.deg2rad(np.array([9.45, 9.45, 6.91, 5.88]))  # [deg] Approximated from XFoil Results
-
-alpha_L0_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-# alpha_L0 = np.array([])  # [rad] Computed above with XFoil Data
-
-Cl_alpha_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
-# Cl_alpha = np.array([])  # [1/rad] Computed above with XFoil Data
 
 M_r = np.array([0.2, 0.45, 0.7, 1.0])  # []
 M = np.array([50.0, 50.0, 50.0, 50.0])  # []
@@ -60,9 +43,9 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     # Run Airfoil Analysis to get Data
     # =========================================================================
-    # airfoilSecs = airfoilAnalysis(plotting=False)
+    _ = airfoilAnalysis(plotting=False, screwXFOIL=True)
 
-    f = open('/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json')
+    f = open('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json')
     airfoilSecs = json.load(f)
     f.close()
     # =========================================================================
@@ -95,23 +78,30 @@ def generateRotor(fileName="rotor.json"):
 
     # # Compute Alpha_0
     alpha_0 = np.empty(0)
-    alpha_0_ = 8.
+    alpha_0_ = 8.*(2*np.pi)/360
     for iSec in range(0, np.size(airfoilSecs)):
         alpha_0 = np.append(alpha_0, alpha_0_)
-
-    data["alpha_L0"] = alpha_0.tolist()
+    # Re=41000
+    alpha0_data = np.array([5., 5., 5., 5., 11, 7., 7., 5., 5., 7., 8., 8., 9., 8.5, 7.5, 7.5, 7.5, 7.5, 7.5, 6., 7.])+2.
+    data["alpha_0"] =  ((alpha0_data)/360*(2*np.pi)).tolist()
 
     # Compute Alpha_L0
     alpha_L0 = np.empty(0)
     for iSec in range(0, np.size(airfoilSecs)):
-        alpha_L0 = np.append(alpha_L0, airfoilSecs[iSec]["alpha_L0"])
-
+        alpha_L0_section=airfoilSecs[iSec]["alpha_L0"]
+        if not alpha_L0_section: # catch empty entries
+            alpha_L0_section = -0.06363470452771325
+        alpha_L0 = np.append(alpha_L0, alpha_L0_section)
+    alpha_L0 = alpha_L0*0.85
     data["alpha_L0"] = alpha_L0.tolist()
 
     # Compute Cl_alpha
     Cl_alpha = np.empty(0)
     for iSec in range(0, np.size(airfoilSecs)):
-        Cl_alpha = np.append(Cl_alpha, airfoilSecs[iSec]["Cl_alpha"])
+        Cl_alpha_section=airfoilSecs[iSec]["Cl_alpha"]
+        if not Cl_alpha_section: # catch empty entries
+            Cl_alpha_section = 4.
+        Cl_alpha = np.append(Cl_alpha, Cl_alpha_section)
 
     data["Cl_alpha"] = Cl_alpha.tolist()
 
@@ -124,7 +114,7 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     # Write Data
     # =========================================================================
-    datadir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/data/'
+    datadir = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/'
     writeJSON(data, datadir+fileName)
 
 

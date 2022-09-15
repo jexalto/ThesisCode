@@ -10,7 +10,7 @@ J = 0.8
 v_inf = 40.
 n = (J*v_inf/diameter)**(-1)
 
-path = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/TUD_data/prowim/geometry/PROWIM.txt'
+path = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/TUD_data/prowim/geometry/PROWIM.txt'
 
 data = pd.read_csv(path, sep=',')
 rR = data.iloc[:,1]
@@ -379,5 +379,3 @@ for index, iAirfoilSec in enumerate(airfoilSecs):
     iAirfoilSec['mach']         = Mach
     iAirfoilSec['alphaMin']     = -8.
     iAirfoilSec['alphaMax']     = 4.
-
-None
