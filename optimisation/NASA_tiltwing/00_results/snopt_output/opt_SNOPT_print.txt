@@ -11,8 +11,8 @@
       Minor iterations limit           10000
       Proximal iterations limit           10000
       Total character workspace             500
-      Total integer workspace            2100
-      Total real workspace            3700
+      Total integer workspace            3500
+      Total real workspace            6500
       Major feasibility tolerance  1.00000000E-05
       Major optimality tolerance  1.00000000E-07
       Minor feasibility tolerance  1.00000000E-05
@@ -36,8 +36,8 @@
       Minor iterations limit           10000
       Proximal iterations limit           10000
       Total character workspace             500
-      Total integer workspace           21466
-      Total real workspace           11785
+      Total integer workspace           22502
+      Total real workspace           13507
       Major feasibility tolerance  1.00000000E-05
       Major optimality tolerance  1.00000000E-07
       Minor feasibility tolerance  1.00000000E-05
@@ -71,15 +71,15 @@
 
  Partial pricing
  ---------------
- LP Partial price.......         1       Prtl price section ( A)        12       Prtl price section (-I)         4
- QP Partial price.......         1       Prtl price section ( A)        12       Prtl price section (-I)         4
+ LP Partial price.......         1       Prtl price section ( A)        26       Prtl price section (-I)         4
+ QP Partial price.......         1       Prtl price section ( A)        26       Prtl price section (-I)         4
 
  The SQP Method
  --------------
  Minimize...............                 Cold start.............                 Proximal Point method..         1
- Nonlinear objectiv vars        12       Major optimality tol...  1.00E-07       Function precision.....  1.00E-06
- Unbounded step size....  1.00E+20       Superbasics limit......        12       Difference interval....  1.00E-03
- Unbounded objective....  1.00E+10       Reduced Hessian dim....        12       Central difference int.  1.00E-02
+ Nonlinear objectiv vars        26       Major optimality tol...  1.00E-07       Function precision.....  1.00E-06
+ Unbounded step size....  1.00E+20       Superbasics limit......        26       Difference interval....  1.00E-03
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....        26       Central difference int.  1.00E-02
  Major step limit.......  2.00E+00       Nonderiv.  linesearch..                 Derivative level.......         3
  Major iterations limit.      1000       Linesearch tolerance...   0.90000       Verify level...........        -1
  Minor iterations limit.     10000       Penalty parameter......  0.00E+00       Major Print Level......         1
@@ -93,7 +93,7 @@
  Nonlinear constraints
  ---------------------
  Nonlinear constraints..         4       Major feasibility tol..  1.00E-05       Violation limit........  1.00E+06
- Nonlinear Jacobian vars        12
+ Nonlinear Jacobian vars        26
 
  Miscellaneous
  -------------
@@ -110,36 +110,27 @@
  -----------------
                Total      Normal        Free       Fixed     Bounded
  Rows              4           4           0           0           0
- Columns          12           0           0           0          12
+ Columns          26           0           0           0          26
 
- No. of matrix elements                   48     Density     100.000
+ No. of matrix elements                  104     Density     100.000
  Biggest  constant element        0.0000E+00  (excluding fixed columns,
  Smallest constant element        0.0000E+00   free rows, and RHS)
 
  No. of objective coefficients             0
 
  Nonlinear constraints       4     Linear constraints       0
- Nonlinear variables        12     Linear variables         0
- Jacobian  variables        12     Objective variables     12
- Total constraints           4     Total variables         12
+ Nonlinear variables        26     Linear variables         0
+ Jacobian  variables        26     Objective variables     26
+ Total constraints           4     Total variables         26
 1
 
 
 
- The user has defined      48   out of      48   constraint gradients.
- The user has defined      12   out of      12   objective  gradients.
+ The user has defined     104   out of     104   constraint gradients.
+ The user has defined      26   out of      26   objective  gradients.
 1
 
 
 
    Itns Major Minors    Step   nCon Feasible  Optimal  MeritFunction     L+U BSwap     nS condZHZ Penalty
-     19     0     19              1  6.5E-03  8.3E-02  6.5258131E+01      14            9 1.3E+08         _  r
-     28     1      9 8.4E-01      2  2.3E-03  1.8E-02 -3.1098735E+02      18           11 3.9E+05 1.8E+01 _  rl
-     30     2      2 1.3E-05      3  2.3E-03  5.6E+00  1.1393380E+02      16           11 3.4E+05 1.4E+02 _s
-     31     3      1 1.0E+00      4  9.2E-04  3.4E+00  7.5924488E+02      16           11 2.0E+05 3.4E+02 _
-     32     4      1 3.5E-01      5  6.8E-04  1.5E+00  9.6495208E+02      16           11 1.6E+05 8.6E+02 _
-     33     5      1 6.3E-02      6  6.4E-04  1.1E+00  1.7331420E+03      16           11 1.4E+05 3.3E+03 _
-     34     6      1 3.4E-02      7  6.3E-04  8.6E-01  2.9157578E+03      16           11 1.3E+05 7.4E+03 _
-     36     7      2 2.4E-02      8  6.1E-04  6.1E-01  5.4386746E+03      18           10 1.7E+05 1.7E+04 _
-     39     8      3 5.9E-03      9  6.1E-04  5.4E-01  2.0721889E+05      16           11 1.2E+05 7.6E+05 _
-     47     9      8 7.4E-02     10  5.9E-04  3.3E-01  8.0992517E+04      18            8 6.9E+01 3.0E+05 _    i
+     24     0     24              1  4.1E-01  1.6E-01  9.4894075E-01       8           23 2.0E+00         _  r

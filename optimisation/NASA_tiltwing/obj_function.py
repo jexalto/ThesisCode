@@ -16,13 +16,14 @@ class obj_function(om.ExplicitComponent):
         # self.declare_partials('objective', 'fuelburn')
         # self.declare_partials('objective', 'lift')
         # self.declare_partials('objective', 'drag')
-        self.declare_partials('objective', 'power', cols=[0], rows=[0])
+        self.declare_partials('objective', 'power', cols=[0], rows=[0], val=1)
 
     def compute(self, inputs, outputs):
         power = inputs['power']
+        # print(f"======================\n====== {power} ======\n======================")
         outputs['objective'] = power[0]
 
-    def compute_partials(self, inputs, partials):
+    # def compute_partials(self, inputs, partials):
 
-        # partials['objective', 'lift'] = 0.6
-        partials['objective', 'power'] = 1.
+    #     # partials['objective', 'lift'] = 0.6
+    #     partials['objective', 'power'] = 1.

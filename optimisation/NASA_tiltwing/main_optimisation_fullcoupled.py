@@ -26,17 +26,23 @@ import niceplots
 class master(om.Group):
 
     def setup(self):
-        nr_props = 2
-
-        self.add_subsystem('parameters', subsys=parameters())
-
-        self.add_subsystem('linear_radius0', subsys=linear_radius())
-
-        self.add_subsystem('linear_radius1', subsys=linear_radius())
-
         simparam_def = simparam_definition()
         references_def = references_definition()
         geometry_def = geometry_definition()
+        N_elem_span = 0
+        for iParametric in range(0, np.size(geometry_def)):
+            N_span = np.size(geometry_def.parametric_def[iParametric].span)
+            for iSpan in range(0, N_span):
+                N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
+        nx = 5
+        ny = 81
+        self.span = 13.49
+        span_max = 5*self.span
+        self.nr_props = 2
+        
+        self.add_subsystem('parameters', subsys=parameters())
+        self.add_subsystem('linear_radius0', subsys=linear_radius())
+        self.add_subsystem('linear_radius1', subsys=linear_radius())
         self.add_subsystem('helix0', subsys=HELIX_Group(
                                                         simparam_def=simparam_def,
                                                         references_def=references_def,
@@ -49,7 +55,6 @@ class master(om.Group):
                                                         velocity_distribution_calc=True,
                                                         ),
         )
-
         self.add_subsystem('helix1', subsys=HELIX_Group(
                                                         simparam_def=simparam_def,
                                                         references_def=references_def,
@@ -61,34 +66,20 @@ class master(om.Group):
                                                         power_calc=True,
                                                         velocity_distribution_calc=True,
                                                         ),
-        )
-        
-        N_elem_span = 0
-        for iParametric in range(0, np.size(geometry_def)):
-            N_span = np.size(geometry_def.parametric_def[iParametric].span)
-            for iSpan in range(0, N_span):
-                N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
-        
-        self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=nr_props, vel_distr_shape=N_elem_span))
-
-        span_max = 0.748*5
-        nx = 3
-        ny = 91
+        )        
+        self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=self.nr_props, vel_distr_shape=N_elem_span))
         self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
+        self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=self.span, radii_shape=N_elem_span+1))
 
         # self.add_subsystem('prop_weight', subsys=propweight())
-
-        self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=0.748*2, radii_shape=N_elem_span+1))
-
         # self.add_subsystem('propinflow', subsys=propinflow(nr_props=nr_props, ny=ny, nx=nx, propdist_chord=0.1))
 
         self.add_subsystem('constraints', subsys=constraints())
-
         self.add_subsystem('obj_function', subsys=obj_function())
         
-    # =================================
-    # ===== Connecting Subsystems =====
-    # =================================
+        # =================================
+        # ===== Connecting Subsystems =====
+        # =================================
         self.connect('parameters.radius0',                              'linear_radius0.radius')
         self.connect('parameters.radius1',                              'linear_radius1.radius')
         self.connect('linear_radius0.propspan_sectional',               'helix0.geodef_parametric_0_span')
@@ -144,51 +135,40 @@ class master(om.Group):
         # self.nonlinear_solver.linesearch.options['maxiter'] = 10
         # self.nonlinear_solver.linesearch.options['iprint'] = 2
 
-    # ================================      
-    # ===== Connecting Objective =====      
-    # ================================      
+        # ================================      
+        # ===== Connecting Objective =====      
+        # ================================      
         self.connect('helix0.rotorcomp_0_power',                         'obj_function.power')
-        # self.connect('EOAS.AS_point_0.wing_perf.D',                     'obj_function.drag')
-        # self.connect('EOAS.wing.structural_mass',                       'obj_function.power')
 
-    # ==================================
-    # ===== Connecting Constraints =====
-    # ==================================
+        # ==================================
+        # ===== Connecting Constraints =====
+        # ==================================
         self.connect('EOAS.AS_point_0.L_equals_W',                          'constraints.L_W')
-        self.connect('helix0.rotorcomp_0_thrust',                            'constraints.thrust')
+        self.connect('helix0.rotorcomp_0_thrust',                           'constraints.thrust')
         self.connect('EOAS.AS_point_0.wing_perf.CD',                        'constraints.CD')
-        self.connect('EOAS.AS_point_0.coupled.wing.S_ref',                  'constraints.CDv')
         self.connect('parameters.rho',                                      'constraints.rho')
         self.connect('parameters.vinf',                                     'constraints.V')
         self.connect('EOAS.AS_point_0.coupled.wing.S_ref',                  'constraints.surface')
         
     def configure(self):
-        nr_props = 2
-
         geometry_def = geometry_definition()
         parametric = geometry_def
 
         if True:
-            for iProp in range(nr_props):
+            for iProp in range(self.nr_props):
                 for iParametric in range(0, np.size(parametric)):
                     name = "helix{:d}.geodef_parametric_{:d}_".format(iProp, iParametric)
-                    self.add_design_var(name + "rot_rate",          lower=-1700, upper=-1200)
-                    # self.add_design_var(name + "span",lower=0.003, upper=.05)
-                    # self.add_design_var(name + "chord",lower=0.05, upper=0.1)
-                    # self.add_design_var(name + "twist",lower=20, upper=70)
-                    # self.add_design_var(name + "alpha_0",lower=0.1, upper=1)
-                    # self.add_design_var(name + "alpha_L0",lower=-0.5, upper=0.5)
-                    # self.add_design_var(name + "Cl_alpha",lower=np.pi, upper=2.5*np.pi)
+                    self.add_design_var(name + "rot_rate",          lower=20, upper=200, scaler=1/80)
+                    self.add_design_var(name + "twist",             lower=10, upper=70, scaler=1/40)
 
-        self.add_design_var('parameters.radius0',                    lower=0.08, upper=0.2)
-        self.add_design_var('parameters.radius1',                    lower=0.08, upper=0.2)
+        self.add_design_var('parameters.radius0',                    lower=0.55, upper=2.)
+        self.add_design_var('parameters.radius1',                    lower=0.55, upper=2.)
 
-        # self.add_design_var('parameters.span', lower=1.*0.5, upper=3., scaler=1/0.748)
-        # self.add_design_var('parameters.jet_loc', lower=[-0.748*0.9, 0.1], upper=[-0.1, 0.748*0.9])
-        self.add_design_var('parameters.chord',                     lower=0.015, upper=2.0, scaler=10.)
-        self.add_design_var('parameters.twist',                     lower=-5, upper=5, scaler=1.)
+        self.add_design_var('parameters.jet_loc',                   lower=[-self.span/2, 1.], upper=[-1., self.span/2])
+        self.add_design_var('parameters.chord',                     lower=0.10, upper=2.0, scaler=1.)
+        self.add_design_var('parameters.twist',                     lower=-3.5, upper=5, scaler=1.)
 
-        self.add_objective("obj_function.objective",                scaler=0.1)
+        self.add_objective("obj_function.objective",                scaler=1/50938.53744861)
 
         self.add_constraint('constraints.constraint_lift_weight',   upper=0.)
         self.add_constraint('constraints.constraint_thrust_drag',   lower=0.)
@@ -203,7 +183,9 @@ prob.model = master()
 # --- Adding design variables ---
 parametric = geometry_definition()
 
-nr_props = 2
+prob.setup(mode='fwd')
+
+nr_props = prob.model.nr_props
 if True:
     for iProp in range(nr_props):
         for iParametric in range(0, np.size(parametric)):
@@ -234,18 +216,12 @@ if True:
                 sweep[iSpan] = parametric.parametric_def[iParametric].span[iSpan].sweep
                 dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
-prob.setup(mode='fwd')
+            prob.set_val(name + "chord",val=chord)
+            prob.set_val(name + "twist",val=twist)
+            prob.set_val(name + "alpha_0",val=alpha_0)
+            prob.set_val(name + "alpha_L0",val=alpha_L0)
+            prob.set_val(name + "Cl_alpha",val=Cl_alpha)
 
-prob.set_val(name + "span", val=span)
-prob.set_val(name + "chord",val=chord)
-prob.set_val(name + "twist",val=twist)
-prob.set_val(name + "alpha_0",val=alpha_0)
-prob.set_val(name + "alpha_L0",val=alpha_L0)
-prob.set_val(name + "Cl_alpha",val=Cl_alpha)
-# prob.set_val('prop_weight.power', val=10000000)
-# prob.set_val('EOAS.correction', val=0)
-# prob.set_val('EOAS.velocity_distr', val=40.)
-# prob.set_val('prop_weight.power', val=[12000, 12000])
 
 prob.driver = om.pyOptSparseDriver()
 prob.driver.options['optimizer'] = 'SNOPT'
@@ -257,18 +233,21 @@ prob.driver.opt_settings = {
     "Function precision": 1.0e-6,
     # "Major iterations limit": 50,
     "Nonderivative linesearch": None,
-    "Print file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/fullycoupled/00_results/snopt_output/opt_SNOPT_print.txt",
-    "Summary file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/fullycoupled/00_results/snopt_output/opt_SNOPT_summary.txt",
+    "Print file": "00_results/snopt_output/opt_SNOPT_print.txt",
+    "Summary file": "00_results/snopt_output/opt_SNOPT_summary.txt",
 }
+
+prob.driver.options['debug_print'] = ['desvars', 'objs']
 
 span_orig_prop = prob.get_val("helix0.geodef_parametric_0_span")
 chord_orig_prop  = prob.get_val("helix0.geodef_parametric_0_chord")
 twist_orig_prop  = prob.get_val("helix0.geodef_parametric_0_twist")
 
-prob.run_model()
+# prob.run_model()
 # prob.model.approx_totals()
-# prob.run_driver()
-prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['*helix_coupler*', '*rethorst*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+# prob.model.list_inputs(includes=['*helix0.geodef_parametric_0_span*', '*helix1.geodef_parametric_0_span*'])
+prob.run_driver()
+# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['constraints'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True,  form='central')
 
 # ===========================
@@ -276,7 +255,6 @@ prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['*he
 # ===========================
 print('chord: \t\t', prob.get_val('parameters.chord'))
 print('jet loc: \t\t', prob.get_val('parameters.jet_loc'))
-# print('radius: \t\t', prob.get_val('parameters.radius'))
 print('twist: \t\t', prob.get_val('parameters.twist'))
 print('L/D:\t\t', prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.L')/prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.D'))
 print('L: \t\t', prob.get_val('EOAS.AS_point_0.wing_perf.L'))
@@ -286,9 +264,6 @@ print("The fuel burn value:\t", prob["EOAS.AS_point_0.fuelburn"][0], "[kg]")
 print("Structural mass:\t", prob.get_val('EOAS.wing.structural_mass'), " kg")
 print()
 print('Power: ', prob.get_val("obj_function.objective"))
-# print("Span: ", prob.get_val("helix.geodef_parametric_0_span"))
-# print("Chord: ", prob.get_val("helix.geodef_parametric_0_chord"))
-# print("Velocity distribution: ", prob.get_val("helix.rotorcomp_0_velocity_distribution"))
 
 
 if False:

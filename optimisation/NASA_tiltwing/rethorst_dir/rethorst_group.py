@@ -64,13 +64,11 @@ class Rethorst(om.ExplicitComponent):
             raise ValueError('total correction contains nan!')
         if np.isnan(any(vel_vec)):
             raise ValueError('total correction contains nan!')
-        print()
-        print('=====================')
-        print('====== Rethorst =====')
-        print('=====================')
-        print(f'span {span}')
-        print(f'jet_loc {jet_loc_list}\n')
-        # print(f'radius {radii_input[-1]}')
+        # print()
+        # print('=====================')
+        # print('====== Rethorst =====')
+        # print('=====================')
+        # print(f'jet_loc {jet_loc_list}\n')
         
         outputs['correction_matrix'] = total_correction
         outputs['wing_veldistr'] = vel_vec
@@ -119,15 +117,19 @@ class Rethorst(om.ExplicitComponent):
         # Reverse Mode
         # ================================================
 
-        # elif mode=='rev':
-        #     self._set_seeds_rev(d_outputs)
-            
-        #     multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
-        #                 self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
-        #                 panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
+        elif mode=='rev':
+            print('START: Rethorst derivatives:\tReverse')
 
-        #     self._get_seeds_rev(d_inputs)
-            # print('Rethorst derivatives:\tReverse')
+            self._set_seeds_rev(d_outputs)
+            
+            multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
+                        self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
+                        panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
+
+            self._get_seeds_rev(d_inputs)
+
+            print('END: Rethorst derivatives:\tReverse')
+
         
         # timediff = time.time() - start
         # print(f'total time computing {mode} Rethorst derivatives: {timediff}')

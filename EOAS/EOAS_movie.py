@@ -50,7 +50,6 @@ if False:
 # --- Loc gif ---
 if False:
     for index, element in enumerate(jet_locs):
-        print(f'jetloc: {element}')
         filelist_locs.append(EOAS_system_(jet_radius, element, Vinf, Vjet, r_min, span_max, filename_loc))
 
     with imageio.get_writer('/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/figures/movie/locs.gif', mode='I') as writer:

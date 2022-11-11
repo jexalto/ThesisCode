@@ -16,14 +16,14 @@ def simparam_definition():
     simparam = py_simparam_def.t_simparam_def()
     simparam.basename = "exampleOpt"
 
-    simparam.nt = 5
+    simparam.nt = 10
     simparam.t_start = 0.0
     simparam.t_end = 0.1
 
     simparam.nt_rev = 30
 
-    simparam.v_inf = np.array([0.0, 0.0, -40.0])
-    simparam.rho_inf = 1.2087
+    simparam.v_inf = np.array([79.7389, 0.0, 0.0])
+    simparam.rho_inf = 0.907
 
     return simparam
 
@@ -64,10 +64,9 @@ def references_definition():
 # rst geodef
 def geometry_definition():
     # Load rotor data
-    f = open('ThesisCode/optimisation/NASA_tiltwing/helix_dir/prop_data/rotor.json')
-    airfoilSecs = json.load(f)
-    f.close()
-    
+    with open('helix_dir/prop_data/rotor.json') as f:
+        airfoilData = json.load(f)
+
     # Initialize Geometry Component Definitions Holder
     geometry_def = geo_def.t_geometry_def()
 
@@ -81,8 +80,12 @@ def geometry_definition():
     rotor.RefName = "Hub"
 
     # Reference Parameters
-    N_span = len(airfoilSecs["span"])
-    rotor.ref_point = airfoilSecs["ref_point"]
+    nSpan = np.size(airfoilData["span"])
+    nBlades = 5
+    collective = np.deg2rad(37.0)
+
+    # Reference Parameters
+    rotor.ref_point = airfoilData["ref_point"]
     rotor.ref_chord_frac = 0.5
 
     # Symmetry Parameters
@@ -91,16 +94,11 @@ def geometry_definition():
     rotor.symmetry_normal = np.array([0.0, 1.0, 0.0])
 
     # Mirror Parameters
-    rotor.mirror = True
+    rotor.mirror = False
     rotor.mirror_point = np.array([0.0, 0.0, 0.0])
     rotor.mirror_normal = np.array([0.0, 1.0, 0.0])
 
-    # Initialize Rotor and Allocate Arrays
-    rotor.initialize_parametric_geometry_definition(N_span)
-
-    omega = 81.828 # rad/s
-    nBlades = 5
-    collective = np.deg2rad(37.0)
+    omega = 81.828
 
     rotor.multiple = True
     rotor.multiplicity = {
@@ -108,7 +106,7 @@ def geometry_definition():
         "n_blades": nBlades,
         "rot_axis": np.array([-1.0, 0.0, 0.0]),
         "rot_rate": omega,
-        "psi_0": 0.0,
+        "psi_0": 0,
         "hub_offset": 0.0,
         "n_dofs": 1,
         "dofs": [
@@ -123,20 +121,21 @@ def geometry_definition():
             },
         ],
     }
-    
-    # ------------------------ Blade Section Definition ---------------------- #
-    for iSec in range(len(airfoilSecs['chord'])):
-        # Chord ------------------
-        rotor.sec[iSec].chord = airfoilSecs['chord'][iSec]
-        rotor.sec[iSec].twist = airfoilSecs['theta'][iSec]
-        rotor.sec[iSec].thick = airfoilSecs['thick'][iSec]
-        rotor.sec[iSec].alpha_0 = airfoilSecs['alpha_0'][iSec]
-        rotor.sec[iSec].alpha_L0 = airfoilSecs['alpha_L0'][iSec]
-        rotor.sec[iSec].Cl_alpha = airfoilSecs['Cl_alpha'][iSec]
-        rotor.sec[iSec].M = airfoilSecs['M'][iSec]
 
-    for iSpan in range(len(airfoilSecs["span"])):
-        rotor.span[iSpan].span = airfoilSecs["span"][iSpan]
+    # ----------------------- Blade Section Definition ---------------------- #
+    # Chord Sections
+    rotor.initialize_parametric_geometry_definition(nSpan)
+    for iSection in range(len(airfoilData["chord"])):
+        rotor.sec[iSection].chord = airfoilData["chord"][iSection]
+        rotor.sec[iSection].twist = airfoilData["twist"][iSection]
+        rotor.sec[iSection].alpha_0 = airfoilData["alpha_0"][iSection]
+        rotor.sec[iSection].alpha_L0 = airfoilData["alpha_L0"][iSection]
+        rotor.sec[iSection].Cl_alpha = airfoilData["Cl_alpha"][iSection]
+        rotor.sec[iSection].M = airfoilData["M"][iSection]
+
+    # Span Sections
+    for iSpan in range(len(airfoilData["span"])):
+        rotor.span[iSpan].span = airfoilData["span"][iSpan]
         rotor.span[iSpan].sweep = 0.0
         rotor.span[iSpan].dihed = 0.0
         rotor.span[iSpan].N_elem_span = 1

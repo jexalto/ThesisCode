@@ -13,24 +13,15 @@
 
 
  Nonlinear constraints       4     Linear constraints       0
- Nonlinear variables        12     Linear variables         0
- Jacobian  variables        12     Objective variables     12
- Total constraints           4     Total variables         12
+ Nonlinear variables        26     Linear variables         0
+ Jacobian  variables        26     Objective variables     26
+ Total constraints           4     Total variables         26
 
 
 
- The user has defined      48   out of      48   constraint gradients.
- The user has defined      12   out of      12   objective  gradients.
+ The user has defined     104   out of     104   constraint gradients.
+ The user has defined      26   out of      26   objective  gradients.
 
 
  Major Minors     Step   nCon Feasible  Optimal  MeritFunction     nS Penalty
-     0     19               1  6.5E-03  8.3E-02  6.5258131E+01      9           r
-     1      9  8.4E-01      2  2.3E-03  1.8E-02 -3.1098735E+02     11 1.8E+01   rl
-     2      2  1.3E-05      3  2.3E-03  5.6E+00  1.1393380E+02     11 1.4E+02 s
-     3      1  1.0E+00      4  9.2E-04  3.4E+00  7.5924488E+02     11 3.4E+02
-     4      1  3.5E-01      5  6.8E-04  1.5E+00  9.6495208E+02     11 8.6E+02
-     5      1  6.3E-02      6  6.4E-04  1.1E+00  1.7331420E+03     11 3.3E+03
-     6      1  3.4E-02      7  6.3E-04  8.6E-01  2.9157578E+03     11 7.4E+03
-     7      2  2.4E-02      8  6.1E-04  6.1E-01  5.4386746E+03     10 1.7E+04
-     8      3  5.9E-03      9  6.1E-04  5.4E-01  2.0721889E+05     11 7.6E+05
-     9      8  7.4E-02     10  5.9E-04  3.3E-01  8.0992517E+04      8 3.0E+05     i
+     0     24               1  4.1E-01  1.6E-01  9.4894075E-01     23           r
