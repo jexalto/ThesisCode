@@ -62,7 +62,7 @@ def references_definition():
 # rst ref (end)
 
 # rst geodef
-def geometry_definition():
+def geometry_definition(nr_blades):
     # Load rotor data
     with open('helix_dir/prop_data/rotor.json') as f:
         airfoilData = json.load(f)
@@ -81,7 +81,7 @@ def geometry_definition():
 
     # Reference Parameters
     nSpan = np.size(airfoilData["span"])
-    nBlades = 5
+    nBlades = nr_blades
     collective = np.deg2rad(37.0)
 
     # Reference Parameters

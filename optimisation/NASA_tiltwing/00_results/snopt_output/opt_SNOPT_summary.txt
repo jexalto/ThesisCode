@@ -25,3 +25,4 @@
 
  Major Minors     Step   nCon Feasible  Optimal  MeritFunction     nS Penalty
      0     24               1  4.1E-01  1.6E-01  9.4894075E-01     23           r
+     1      2  1.0E+00      2  8.1E-02  3.0E-02  1.3369020E+00     24 5.2E+01   r

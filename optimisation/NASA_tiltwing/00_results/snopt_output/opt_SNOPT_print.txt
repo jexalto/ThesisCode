@@ -134,3 +134,4 @@
 
    Itns Major Minors    Step   nCon Feasible  Optimal  MeritFunction     L+U BSwap     nS condZHZ Penalty
      24     0     24              1  4.1E-01  1.6E-01  9.4894075E-01       8           23 2.0E+00         _  r
+     26     1      2 1.0E+00      2  8.1E-02  3.0E-02  1.3369020E+00       9           24 4.1E+00 5.2E+01 _  r

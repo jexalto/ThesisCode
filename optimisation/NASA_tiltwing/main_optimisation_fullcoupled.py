@@ -26,19 +26,21 @@ import niceplots
 class master(om.Group):
 
     def setup(self):
+        nx = 5
+        ny = 81
+        self.span = 13.49
+        span_max = 5*self.span
+        self.nr_blades = 5
+        self.nr_props = 2
+
         simparam_def = simparam_definition()
         references_def = references_definition()
-        geometry_def = geometry_definition()
+        geometry_def = geometry_definition(self.nr_blades)
         N_elem_span = 0
         for iParametric in range(0, np.size(geometry_def)):
             N_span = np.size(geometry_def.parametric_def[iParametric].span)
             for iSpan in range(0, N_span):
                 N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
-        nx = 5
-        ny = 81
-        self.span = 13.49
-        span_max = 5*self.span
-        self.nr_props = 2
         
         self.add_subsystem('parameters', subsys=parameters())
         self.add_subsystem('linear_radius0', subsys=linear_radius())
@@ -67,7 +69,7 @@ class master(om.Group):
                                                         velocity_distribution_calc=True,
                                                         ),
         )        
-        self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=self.nr_props, vel_distr_shape=N_elem_span))
+        self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=self.nr_props, nr_blades=self.nr_blades,vel_distr_shape=N_elem_span))
         self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
         self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=self.span, radii_shape=N_elem_span+1))
 
@@ -151,7 +153,7 @@ class master(om.Group):
         self.connect('EOAS.AS_point_0.coupled.wing.S_ref',                  'constraints.surface')
         
     def configure(self):
-        geometry_def = geometry_definition()
+        geometry_def = geometry_definition(self.nr_blades)
         parametric = geometry_def
 
         if True:
@@ -181,7 +183,7 @@ model = prob.model
 prob.model = master()
 
 # --- Adding design variables ---
-parametric = geometry_definition()
+parametric = geometry_definition(5)
 
 prob.setup(mode='fwd')
 
@@ -243,12 +245,12 @@ span_orig_prop = prob.get_val("helix0.geodef_parametric_0_span")
 chord_orig_prop  = prob.get_val("helix0.geodef_parametric_0_chord")
 twist_orig_prop  = prob.get_val("helix0.geodef_parametric_0_twist")
 
-# prob.run_model()
+prob.run_model()
 # prob.model.approx_totals()
 # prob.model.list_inputs(includes=['*helix0.geodef_parametric_0_span*', '*helix1.geodef_parametric_0_span*'])
-prob.run_driver()
+# prob.run_driver()
 # prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['constraints'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
-# prob.check_totals(compact_print=True,  form='central')
+prob.check_totals(compact_print=True,  form='central')
 
 # ===========================
 # === Printing of results ===
