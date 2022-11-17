@@ -64,9 +64,8 @@ def references_definition():
 # rst geodef
 def geometry_definition():
     # Load rotor data
-    f = open('/home/jexalto99/code/MDO_lab_env/GitSucks/ThesisCode/HELIX_verification/data/rotor.json')
-    airfoilSecs = json.load(f)
-    f.close()
+    with open('helix_dir/prop_data/rotor.json') as f:
+        airfoilData = json.load(f)
     
     # Initialize Geometry Component Definitions Holder
     geometry_def = geo_def.t_geometry_def()
@@ -81,7 +80,7 @@ def geometry_definition():
     rotor.RefName = "Hub"
 
     # Reference Parameters
-    N_span = len(airfoilSecs["span"])
+    N_span = len(airfoilData["span"])
     rotor.ref_point = np.array([0.0, 0.0174195, 0.0])
     rotor.ref_chord_frac = 0.5
 
@@ -110,18 +109,18 @@ def geometry_definition():
     }
     
     # ------------------------ Blade Section Definition ---------------------- #
-    for iSec in range(len(airfoilSecs['chord'])):
+    for iSec in range(len(airfoilData['chord'])):
         # Chord ------------------
-        rotor.sec[iSec].chord = airfoilSecs['chord'][iSec]
-        rotor.sec[iSec].twist = airfoilSecs['theta'][iSec]
-        rotor.sec[iSec].thick = airfoilSecs['thick'][iSec]
-        rotor.sec[iSec].alpha_0 = airfoilSecs['alpha_0'][iSec]
-        rotor.sec[iSec].alpha_L0 = airfoilSecs['alpha_L0'][iSec]
-        rotor.sec[iSec].Cl_alpha = airfoilSecs['Cl_alpha'][iSec]
-        rotor.sec[iSec].M = airfoilSecs['M'][iSec]
+        rotor.sec[iSec].chord = airfoilData['chord'][iSec]
+        rotor.sec[iSec].twist = airfoilData['twist'][iSec]
+        rotor.sec[iSec].thick = airfoilData['thick'][iSec]
+        rotor.sec[iSec].alpha_0 = airfoilData['alpha_0'][iSec]
+        rotor.sec[iSec].alpha_L0 = airfoilData['alpha_L0'][iSec]
+        rotor.sec[iSec].Cl_alpha = airfoilData['Cl_alpha'][iSec]
+        rotor.sec[iSec].M = airfoilData['M'][iSec]
 
-    for iSpan in range(len(airfoilSecs["span"])):
-        rotor.span[iSpan].span = airfoilSecs["span"][iSpan]
+    for iSpan in range(len(airfoilData["span"])):
+        rotor.span[iSpan].span = airfoilData["span"][iSpan]
         rotor.span[iSpan].sweep = 0.0
         rotor.span[iSpan].dihed = 0.0
         rotor.span[iSpan].N_elem_span = 1

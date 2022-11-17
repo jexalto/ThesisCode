@@ -85,8 +85,8 @@ class EOAS(om.Group):
             # "strength_factor_for_upper_skin": 1.0, 
             "mesh": mesh,
             "span": span_0,
-            "chord_cp": np.ones(5)*0.15,  # Define chord using 3 B-spline cp's
-            "twist_cp": np.zeros(5),
+            "chord_cp": np.ones(3)*0.15,  # Define chord using 3 B-spline cp's
+            "twist_cp": np.zeros(3),
             "propeller": 2,
             "n_point_masses": 2,
             "radii_shape": radii_shape,

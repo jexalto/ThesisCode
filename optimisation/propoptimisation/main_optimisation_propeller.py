@@ -135,28 +135,29 @@ prob.set_val(name + "twist",val=twist)
 prob.set_val(name + "alpha_0",val=alpha_0)
 prob.set_val(name + "alpha_L0",val=alpha_L0)
 prob.set_val(name + "Cl_alpha",val=Cl_alpha)
-# prob.set_val('prop_weight.power', val=10000000)
-# prob.set_val('EOAS.correction', val=0)
-# prob.set_val('EOAS.velocity_distr', val=40.)
 
-prob.driver = om.pyOptSparseDriver()
-prob.driver.options['optimizer'] = 'SNOPT'
-prob.driver.opt_settings = {
-    "Major feasibility tolerance": 1.0e-5,
-    "Major optimality tolerance": 1.0e-10,
-    "Minor feasibility tolerance": 1.0e-10,
-    "Verify level": -1,
-    "Function precision": 1.0e-10,
-    # "Major iterations limit": 50,
-    "Nonderivative linesearch": None,
-    "Print file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/snopt_output/opt_SNOPT_print.txt",
-    "Summary file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/snopt_output/opt_SNOPT_summary.txt",
-}
+prob.driver = om.ScipyOptimizeDriver()
+prob.driver.options['optimizer'] = 'SLSQP'
+
+# prob.driver = om.ScipyOptimizeDriver()
+# prob.driver.options['optimizer'] = 'SNOPT'
+# prob.driver.opt_settings = {
+#     "Major feasibility tolerance": 1.0e-5,
+#     "Major optimality tolerance": 1.0e-10,
+#     "Minor feasibility tolerance": 1.0e-10,
+#     "Verify level": -1,
+#     "Function precision": 1.0e-10,
+#     # "Major iterations limit": 50,
+#     "Nonderivative linesearch": None,
+#     "Print file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/snopt_output/opt_SNOPT_print.txt",
+#     "Summary file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/propoptimisation/00_results/snopt_output/opt_SNOPT_summary.txt",
+# }
+
+prob.driver.options['debug_print'] = ['desvars', 'objs']
 
 span_orig = prob.get_val("helix.geodef_parametric_0_span")
 chord_orig  = prob.get_val("helix.geodef_parametric_0_chord")
 twist_orig  = prob.get_val("helix.geodef_parametric_0_twist")
-prob.run_model()
 vel_distr_orig = np.copy(prob.get_val("helix.rotorcomp_0_velocity_distribution"))
 
 # prob.run_model()

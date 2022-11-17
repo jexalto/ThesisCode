@@ -13,16 +13,60 @@
 
 
  Nonlinear constraints       4     Linear constraints       0
- Nonlinear variables        26     Linear variables         0
- Jacobian  variables        26     Objective variables     26
- Total constraints           4     Total variables         26
+ Nonlinear variables        22     Linear variables         0
+ Jacobian  variables        22     Objective variables     22
+ Total constraints           4     Total variables         22
 
 
 
- The user has defined     104   out of     104   constraint gradients.
- The user has defined      26   out of      26   objective  gradients.
+ The user has defined      88   out of      88   constraint gradients.
+ The user has defined      22   out of      22   objective  gradients.
 
 
  Major Minors     Step   nCon Feasible  Optimal  MeritFunction     nS Penalty
-     0     24               1  4.1E-01  1.6E-01  9.4894075E-01     23           r
-     1      2  1.0E+00      2  8.1E-02  3.0E-02  1.3369020E+00     24 5.2E+01   r
+     0     20               1  3.3E-01  2.5E-02  9.4894075E-01     20           r
+     1      1  2.1E-01      2  2.6E-01  2.5E-02  1.1737966E+00     20 3.9E+00   r
+     2      4  1.0E+00      3  3.0E-02  6.5E-01  1.1241790E+00     17 3.9E+00 s
+     3      5  1.0E-01      5  2.6E-02  1.7E-01  1.0727988E+00     15 3.9E+00  m D
+     4      5  1.0E-03      7  2.6E-02  1.8E-01  1.0723005E+00     13 3.9E+00  m D
+     5      8  1.0E-03      9  2.6E-02  2.0E-01  1.0718376E+00     16 3.9E+00  m D
+     6      2  1.0E-01     10  2.7E-02  3.5E-02  1.0293579E+00     17 3.9E+00    D
+     7      3  1.0E-01     12  2.4E-02  1.9E-01  9.9091348E-01     17 3.9E+00  m D
+     8      3  1.0E-01     13  2.6E-02  5.1E-02  9.5705608E-01     17 3.9E+00    D
+     9      2  1.0E-01     15  2.3E-02  4.1E-02  9.2437868E-01     16 3.9E+00  m D
+
+ Major Minors     Step   nCon Feasible  Optimal  MeritFunction     nS Penalty
+    10      3  1.0E-01     16  2.1E-02  3.8E-01  8.9336491E-01     18 3.9E+00    D
+    11      2  1.0E-03     17  2.1E-02  4.2E-01  8.9307005E-01     17 3.9E+00    D
+    12      2  1.0E-03     18  2.0E-02  3.8E-01  8.9276860E-01     16 3.9E+00    D
+    13      1  1.0E-03     19  2.0E-02  3.5E-01  8.9245958E-01     16 3.9E+00    D
+    14      2  1.0E-07     20  2.0E-02  3.1E-01  8.9245955E-01     15 3.9E+00    D
+    15      1  1.0E-07     21  2.0E-02  2.5E-01  8.9245952E-01     15 3.9E+00    D
+    16      1  1.0E-07     22  2.0E-02  2.4E-01  8.9245948E-01     15 3.9E+00    D
+    17      1  1.0E-07     23  2.0E-02  2.2E-01  8.9245945E-01     15 3.9E+00    D
+    18      1  1.0E-07     24  2.0E-02  2.0E-01  8.9245942E-01     15 3.9E+00    D
+    19      1  1.0E-07     25  2.0E-02  1.7E-01  8.9245939E-01     15 3.9E+00    D
+
+ Major Minors     Step   nCon Feasible  Optimal  MeritFunction     nS Penalty
+    20      2  1.0E-07     26  2.0E-02  1.5E-01  8.9245935E-01     14 3.9E+00    D
+    21      1  1.0E-07     27  2.0E-02  1.1E-01  8.9245932E-01     14 3.9E+00    D
+    22      1  1.0E-07     28  2.0E-02  6.0E-02  8.9245928E-01     14 3.9E+00    D
+    23      1  1.0E-07     29  2.0E-02  1.6E-02  8.9245925E-01     14 3.9E+00    D
+    24      1  1.0E-07     30  2.0E-02  7.6E-02  8.9245921E-01     14 3.9E+00    D
+    25      2  1.0E-07     31  2.0E-02  3.7E-02  8.9245918E-01     13 3.9E+00    D
+    26      1  1.0E-07     32  2.0E-02  2.0E-02  8.9245914E-01     13 3.9E+00    D
+    27      1  1.0E-07     33  2.0E-02  2.0E-02  8.9245911E-01     13 3.9E+00    D
+    28     13  1.0E-07     34  2.0E-02  3.1E-01  8.9245907E-01     21 3.9E+00   RD
+    29      5  1.0E-03     35  2.0E-02  4.3E-01  8.9264478E-01     17 3.9E+00 s  D
+
+ Major Minors     Step   nCon Feasible  Optimal  MeritFunction     nS Penalty
+    30      3  1.0E+00     36  1.6E-02  2.5E-02  6.1490595E-01     17 3.9E+00
+    31      1  1.0E+00     37  1.2E-02  1.2E-02  6.0856642E-01     17 3.9E+00
+    32      2  1.0E+00     38  1.8E-05  6.2E-02  6.0807082E-01     16 3.9E+00
+    33      1  1.0E+00     39  3.5E-03  6.4E-03  6.0449056E-01     16 3.9E+00
+    34      1  1.0E+00     40  6.5E-04  8.3E-03  6.0331320E-01     16 3.9E+00
+    35      1  1.0E+00     41  2.5E-05  1.8E-02  6.0315999E-01     16 3.9E+00
+    36      1  1.0E+00     42  1.9E-03  5.6E-03  6.0275307E-01     16 3.9E+00
+    37      3  1.0E+00     43  2.6E-03  1.4E-02  6.0247386E-01     16 3.9E+00
+    38      2  1.0E+00     44  4.6E-03  7.6E-03  6.0202446E-01     15 3.9E+00
+    39      1  1.0E+00     45  9.3E-04  5.2E-03  6.0175061E-01     15 3.9E+00

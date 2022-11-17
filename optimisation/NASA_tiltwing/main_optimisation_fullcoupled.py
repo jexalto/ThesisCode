@@ -163,11 +163,11 @@ class master(om.Group):
                     self.add_design_var(name + "rot_rate",          lower=20, upper=200, scaler=1/80)
                     self.add_design_var(name + "twist",             lower=10, upper=70, scaler=1/40)
 
-        self.add_design_var('parameters.radius0',                    lower=0.55, upper=2.)
-        self.add_design_var('parameters.radius1',                    lower=0.55, upper=2.)
+        self.add_design_var('parameters.radius0',                    lower=0.55, upper=2., scaler=1/0.8936)
+        self.add_design_var('parameters.radius1',                    lower=0.55, upper=2., scaler=1/0.8936)
 
         self.add_design_var('parameters.jet_loc',                   lower=[-self.span/2, 1.], upper=[-1., self.span/2])
-        self.add_design_var('parameters.chord',                     lower=0.10, upper=2.0, scaler=1.)
+        self.add_design_var('parameters.chord',                     lower=0.35, upper=2.0, scaler=1.)
         self.add_design_var('parameters.twist',                     lower=-3.5, upper=5, scaler=1.)
 
         self.add_objective("obj_function.objective",                scaler=1/50938.53744861)
@@ -245,12 +245,12 @@ span_orig_prop = prob.get_val("helix0.geodef_parametric_0_span")
 chord_orig_prop  = prob.get_val("helix0.geodef_parametric_0_chord")
 twist_orig_prop  = prob.get_val("helix0.geodef_parametric_0_twist")
 
-prob.run_model()
+# prob.run_model()
 # prob.model.approx_totals()
 # prob.model.list_inputs(includes=['*helix0.geodef_parametric_0_span*', '*helix1.geodef_parametric_0_span*'])
-# prob.run_driver()
+prob.run_driver()
 # prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['constraints'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
-prob.check_totals(compact_print=True,  form='central')
+# prob.check_totals(compact_print=True,  form='central')
 
 # ===========================
 # === Printing of results ===
