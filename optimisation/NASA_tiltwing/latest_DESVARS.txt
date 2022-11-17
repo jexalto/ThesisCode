@@ -1,0 +1,9 @@
+{'helix0.geodef_parametric_0_rot_rate': array([75.16287449]),
+ 'helix0.geodef_parametric_0_twist': array([38.10964346, 38.32570079, 27.87092557, 15.18835812, 17.70201507]),
+ 'helix1.geodef_parametric_0_rot_rate': array([74.12491413]),
+ 'helix1.geodef_parametric_0_twist': array([70.        , 69.55515196, 17.06697049, 14.47890726, 21.38510181]),
+ 'parameters.chord': array([0.35, 0.35, 0.35]),
+ 'parameters.jet_loc': array([-1.01152344,  1.00880029]),
+ 'parameters.radius0': array([0.75097022]),
+ 'parameters.radius1': array([0.90162432]),
+ 'parameters.twist': array([-1.22074163, -0.28519199, -1.34144081])}
