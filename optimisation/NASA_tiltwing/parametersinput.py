@@ -22,7 +22,7 @@ class parameters(om.IndepVarComp):
         self.add_output("rho", val=0.907, units="kg/m**3")
         self.add_output("CT", val=grav_constant * 17.0e-6, units="1/s")
         self.add_output("R", val=500, units="m")
-        self.add_output("W0", val=1+2*pointmass, units="kg")
+        self.add_output("W0", val=300, units="kg") # 1+2*pointmass
         self.add_output("speed_of_sound", val=295.4, units="m/s")
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
@@ -32,7 +32,7 @@ class parameters(om.IndepVarComp):
         self.add_output("jet_loc", val=np.array([jetloc1, jetloc2]), units="m")
         self.add_output("point_masses", val=np.array([pointmass, pointmass]), units="kg")
 
-        chord_cp = np.ones(wing_discr)*0.9369
+        chord_cp = np.ones(wing_discr)*0.6# 9369
         twist_cp = np.zeros(wing_discr)
         self.add_output("twist", shape=(len(twist_cp)), val=twist_cp, units="deg")
         self.add_output("chord", shape=(len(chord_cp)), val=chord_cp, units="m")

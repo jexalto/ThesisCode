@@ -7,3 +7,4 @@
  'parameters.radius0': array([0.75097022]),
  'parameters.radius1': array([0.90162432]),
  'parameters.twist': array([-1.22074163, -0.28519199, -1.34144081])}
+ {'obj_function.objective': array([30421.2670297])}
