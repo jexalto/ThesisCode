@@ -11,7 +11,7 @@ class parameters(om.IndepVarComp):
     def setup(self):
         pointmass = 0.5
         radius = 0.22339999999999993*4
-        wing_discr = 3
+        wing_discr = 5
         
         self.add_output('radius0', val=radius, units='m')
         self.add_output('radius1', val=radius, units='m')
@@ -22,7 +22,7 @@ class parameters(om.IndepVarComp):
         self.add_output("rho", val=0.907, units="kg/m**3")
         self.add_output("CT", val=grav_constant * 17.0e-6, units="1/s")
         self.add_output("R", val=500, units="m")
-        self.add_output("W0", val=300, units="kg") # 1+2*pointmass
+        self.add_output("W0", val=10, units="kg") # 1+2*pointmass
         self.add_output("speed_of_sound", val=295.4, units="m/s")
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
