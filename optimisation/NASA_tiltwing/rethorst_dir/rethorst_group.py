@@ -50,16 +50,21 @@ class Rethorst(om.ExplicitComponent):
         panels_jet              = self.options['panels_jet']
         panels_overset_wing     = self.options['panels_overset_wing']
         nr_props                = self.options['nr_props']
-        nr_radii_input          = len(radii_input_)
+        nr_radii_input          = len(radii_input_[0])
         radii_input             = np.array(radii_input_, order='F')
-        vel_distr_input         = np.array(np.copy(inputs['velocity_vector']), order='F')
-
+        vel_distr_input = np.zeros(np.shape(inputs['velocity_vector']), order='F')
+        vel_distr_input          = np.array(np.copy(inputs['velocity_vector']), order='F')
+        # vel_distr_input[0][:]          = np.array(np.copy(inputs['velocity_vector'][0][::-1]), order='F')
+        # vel_distr_input[1][:]         = np.array(np.copy(inputs['velocity_vector'][1][::-1]), order='F')
+        # vel_distr_input         = vel_distr_input[::-1]
+        
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
 
         multiprop(  span, nr_props, jet_loc_list, vel_distr_input, radii_input, nr_radii_input, prop_discr, Vinf, panels_jet, \
                     panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
-        
+        mat = np.matrix(total_correction.copy())
+
         if np.isnan(any(sum(total_correction))):
             raise ValueError('total correction contains nan!')
         if np.isnan(any(vel_vec)):
@@ -117,18 +122,18 @@ class Rethorst(om.ExplicitComponent):
         # Reverse Mode
         # ================================================
 
-        elif mode=='rev':
-            print('START: Rethorst derivatives:\tReverse')
+        # elif mode=='rev':
+        #     print('START: Rethorst derivatives:\tReverse')
 
-            self._set_seeds_rev(d_outputs)
+        #     self._set_seeds_rev(d_outputs)
             
-            multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
-                        self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
-                        panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
+        #     multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
+        #                 self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
+        #                 panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
 
-            self._get_seeds_rev(d_inputs)
+        #     self._get_seeds_rev(d_inputs)
 
-            print('END: Rethorst derivatives:\tReverse')
+        #     print('END: Rethorst derivatives:\tReverse')
 
         
         # timediff = time.time() - start

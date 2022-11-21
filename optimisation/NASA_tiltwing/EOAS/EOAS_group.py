@@ -17,6 +17,7 @@ class EOAS(om.Group):
     def setup(self):
         span_0 = self.options['span_0']
         radii_shape = self.options['radii_shape']
+        wing_discr = 5
 
         mesh_dict = {
             # Wing definition
@@ -85,8 +86,8 @@ class EOAS(om.Group):
             # "strength_factor_for_upper_skin": 1.0, 
             "mesh": mesh,
             "span": span_0,
-            "chord_cp": np.ones(3)*0.15,  # Define chord using 3 B-spline cp's
-            "twist_cp": np.zeros(3),
+            "chord_cp": np.ones(wing_discr)*0.15,  # Define chord using 3 B-spline cp's
+            "twist_cp": np.zeros(wing_discr),
             "propeller": 2,
             "n_point_masses": 2,
             "radii_shape": radii_shape,
