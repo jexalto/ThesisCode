@@ -26,6 +26,7 @@ class parameters(om.IndepVarComp):
         jetloc1 = -0.
         jetloc2 = -0.748*(0.5-0.444)
         self.add_output("jet_loc", val=np.array([jetloc1]), units="m")
+        self.add_output("radius", val=np.array(0.005315011557610244*19), units="m")
 
         chord_cp = np.ones(5)*0.24
         twist_cp = np.zeros(5)

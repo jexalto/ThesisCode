@@ -50,14 +50,10 @@ class Rethorst(om.ExplicitComponent):
         panels_jet              = self.options['panels_jet']
         panels_overset_wing     = self.options['panels_overset_wing']
         nr_props                = self.options['nr_props']
-        nr_radii_input          = len(radii_input_)
-        vel_distr_input         = np.zeros((nr_props, len(radii_input_)), order='F')
-        radii_input             = np.zeros((2, len(radii_input_)), order='F')
-        radii_input[0, :]       = radii_input_[:]
-        radii_input[1, :]       = radii_input_[:]
-        vel_distr_input         = np.zeros((2, len(inputs['velocity_vector'])), order='F')
-        vel_distr_input[0, :]   = inputs['velocity_vector']
-        vel_distr_input[1, :]   = inputs['velocity_vector']
+        nr_radii_input          = len(radii_input_[0])
+        radii_input             = np.array(radii_input_, order='F')
+        vel_distr_input = np.zeros(np.shape(inputs['velocity_vector']), order='F')
+        vel_distr_input          = np.array(np.copy(inputs['velocity_vector']), order='F')
 
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
@@ -67,19 +63,12 @@ class Rethorst(om.ExplicitComponent):
 
         multiprop(  span, nr_props, jet_loc_list, vel_distr_input, radii_input, nr_radii_input, prop_discr, Vinf, panels_jet, \
                     panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
-        
-        if np.isnan(any(sum(total_correction))):
+
+        if np.isnan(total_correction.any()):
             raise ValueError('total correction contains nan!')
-        if np.isnan(any(vel_vec)):
+        if np.isnan(vel_vec.any()):
             raise ValueError('total correction contains nan!')
 
-        print('\n============')
-        print('==Rethorst==')
-        print('============')
-        print(f'span {span}')
-        print(f'jet_loc {jet_loc_list}')
-        # print(f'radius {radii_input[-1]}')
-        
         outputs['correction_matrix'] = total_correction
         outputs['wing_veldistr'] = vel_vec
 
@@ -103,13 +92,6 @@ class Rethorst(om.ExplicitComponent):
         panels_overset_wing     = self.options['panels_overset_wing']
         nr_props                = self.options['nr_props']
 
-        radii_input             = np.zeros((2, len(radii_input_)), order='F')
-        radii_input[0, :]       = radii_input_
-        radii_input[1, :]       = radii_input_
-        vel_distr_input         = np.zeros((2, len(inputs['velocity_vector'])), order='F')
-        vel_distr_input[0, :]   = inputs['velocity_vector']
-        vel_distr_input[1, :]   = inputs['velocity_vector']
-
         # ================================================
         # Forward Mode
         # ================================================
@@ -119,7 +101,7 @@ class Rethorst(om.ExplicitComponent):
         if mode=='fwd':
             self._set_seeds_fwd(d_inputs)
 
-            multiprop_d(span, self.spand, nr_props, jet_loc_list, self.jet_loc_listd, vel_distr_input, self.vel_distr_inputd, radii_input, \
+            multiprop_d(span, self.spand, nr_props, jet_loc_list, self.jet_loc_listd, vel_distr_input, self.vel_distr_inputd, radii_input_, \
                         self.radii_inputd, nr_radii_input, prop_discr, Vinf, self.vinfd, panels_jet, panels_overset_wing, panels_chord_VLM, \
                         panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecd, total_correction, self.total_correctiond)
 
@@ -158,26 +140,26 @@ class Rethorst(om.ExplicitComponent):
         self.spand                      = np.array([0.], order='F')
         self.jet_loc_listd              = np.zeros(nr_props, order='F')
         self.vinfd                      = np.array([0.], order='F')
-        self.vel_distr_inputd           = np.zeros((nr_props, len(inputs['velocity_vector'])), order='F')
-        self.radii_inputd               = np.zeros((nr_props, len(inputs['velocity_vector'])), order='F')
-        self.vel_vecd                   = np.zeros((panels_span_vlm*panels_chord_vlm), order='F')
+        self.vel_distr_inputd           = np.zeros((np.shape(inputs['velocity_vector'])), order='F')
+        self.radii_inputd               = np.zeros((np.shape((inputs['velocity_vector']))), order='F')
+        self.vel_vecd                   = np.zeros((panels_span_vlm), order='F')
         self.total_correctiond          = np.zeros((panels_span_vlm*panels_chord_vlm, panels_span_vlm*panels_chord_vlm), order='F')
 
         # ===== Reverse Seeds ===== 
         self.spanb                      = np.array([0.], order='F')
         self.jet_loc_listb              = np.zeros(nr_props, order='F')
         self.vinfb                      = np.array([0.], order='F')
-        self.vel_distr_inputb           = np.zeros((nr_props, len(inputs['velocity_vector'])), order='F')
-        self.radii_inputb               = np.zeros((nr_props, len(inputs['velocity_vector'])), order='F')
-        self.vel_vecb                   = np.zeros((panels_span_vlm*panels_chord_vlm), order='F')
+        self.vel_distr_inputb           = np.zeros((np.shape(inputs['velocity_vector'])), order='F')
+        self.radii_inputb               = np.zeros((np.shape(inputs['velocity_vector'])), order='F')
+        self.vel_vecb                   = np.zeros((panels_span_vlm), order='F')
         self.total_correctionb          = np.zeros((panels_span_vlm*panels_chord_vlm, panels_span_vlm*panels_chord_vlm), order='F')
 
     def _set_seeds_fwd(self, d_inputs):
         self.spand                      = d_inputs['span']
         self.jet_loc_listd              = d_inputs['jet_loc']
         self.vinfd                      = d_inputs['vinf']
-        self.vel_distr_inputd           = np.array([d_inputs['velocity_vector'], d_inputs['velocity_vector']], order='F')
-        self.radii_inputd               = np.array([d_inputs['radii'], d_inputs['radii']], order='F')
+        self.vel_distr_inputd           = np.array(d_inputs['velocity_vector'], order='F')
+        self.radii_inputd               = np.array(d_inputs['radii'], order='F')
 
     def _get_seeds_fwd(self, d_outputs):
         if "correction_matrix" in d_outputs:

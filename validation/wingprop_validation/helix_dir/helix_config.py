@@ -64,7 +64,7 @@ def references_definition():
 # rst geodef
 def geometry_definition(J):
     # Load rotor data
-    f = open('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/rotor.json')
+    f = open('/home/mdolabuser/mount/ThesisCode/HELIX_verification/data/rotor.json')
     airfoilSecs = json.load(f)
     f.close()
     

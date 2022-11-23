@@ -7,19 +7,20 @@ import niceplots
 from wingprop_analysis import wingprop
 from wing_analysis import wing
 
-file = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/TUD_data/prowim/SecIIIC_ModelII/SecIIIC_Fig24_CLCD_ModelII_conventional_ReD640k.txt'
+
+file = '/home/mdolabuser/mount/ThesisCode/HELIX_verification/TUD_data/prowim/SecIIIC_ModelII/SecIIIC_Fig24_CLCD_ModelII_conventional_ReD640k.txt'
 
 data = pd.read_csv(file, delimiter=',', skiprows=22)
 
-n=0
-index1 = n*19
-index2 = (n+1)*19
-aoa = data['AoA'][index1:index2]
-CL_Jinf = data['CL'][index1:index2]
-CD_Jinf = data['CD'][index1:index2]
-J_inf = data['J'][index1+1]
+# n=0
+# index1 = n*19
+# index2 = (n+1)*19
+# aoa = data['AoA'][index1:index2]
+# CL_Jinf = data['CL'][index1:index2]
+# CD_Jinf = data['CD'][index1:index2]
+# J_inf = data['J'][index1+1]
 
-alphas, CL_num_Jinf, CD_num_Jinf = wing()
+# alphas, CL_num_Jinf, CD_num_Jinf = wing()
 
 n=1
 index1 = n*19

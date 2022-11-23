@@ -12,6 +12,8 @@ from helix.openmdao.om_helix import HELIX_Group
 from helix_dir.helix_config import simparam_definition, geometry_definition, references_definition
 from rethorst_dir.rethorst_group import Rethorst
 from EOAS.inducedAoA import propinflow
+from helix_dir.helixcoupling import helixcoupler
+from helix_dir.linear_radius import linear_radius
 from obj_function import obj_function
 from constraints import constraints
 
@@ -57,17 +59,26 @@ def wingprop(J):
 
             self.add_subsystem('propinflow', subsys=propinflow(ny=ny, nx=nx, propdist_chord=0.2))
             
+            self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=1, nr_blades=4,vel_distr_shape=N_elem_span))
+            
+            self.add_subsystem('linear_radius', subsys=linear_radius())
+            
             # =================================
             # ===== Connecting Subsystems =====
             # =================================
-            self.connect('helix.rotorcomp_0_velocity_distribution',         'rethorst.velocity_vector')
-            self.connect('helix.rotorcomp_0_radii',                         'rethorst.radii')
+            self.connect('parameters.radius',                              'linear_radius.radius')
+            self.connect('linear_radius.propspan_sectional',               'helix.geodef_parametric_0_span')
+            self.connect('helix.rotorcomp_0_velocity_distribution',        'helix_coupler.vel_distr_0')
+            self.connect('helix.rotorcomp_0_radii',                        'helix_coupler.radii_0')
+            
+            self.connect('helix_coupler.vel_distr_tot',                     'rethorst.velocity_vector')
+            self.connect('helix_coupler.radii_tot',                         'rethorst.radii')
 
             self.connect('parameters.jet_loc',                              'rethorst.jet_loc')
             self.connect('parameters.span',                                 'rethorst.span')
             self.connect('parameters.vinf',                                 'rethorst.vinf')
 
-            self.connect('helix.rotorcomp_0_radii',                         'EOAS.wing.geometry.mesh.jet_radius')
+            self.connect('helix_coupler.radii_tot',                         'EOAS.wing.geometry.mesh.jet_radius')
             self.connect('rethorst.correction_matrix',                      'EOAS.correction')
             self.connect('rethorst.wing_veldistr',                          'EOAS.velocity_distr')
 

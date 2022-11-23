@@ -60,7 +60,7 @@ class master(om.Group):
 
         self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=0.748*2, radii_shape=N_elem_span+1))
 
-        self.add_subsystem('propinflow', subsys=propinflow(ny=ny, nx=nx, propdist_chord=0.1))
+        # self.add_subsystem('propinflow', subsys=propinflow(ny=ny, nx=nx, propdist_chord=0.1))
 
         self.add_subsystem('constraints', subsys=constraints())
 
@@ -101,20 +101,20 @@ class master(om.Group):
         self.connect('parameters.span',                                 'rethorst.span')
         self.connect('parameters.vinf',                                 'rethorst.vinf')
 
-        self.connect('EOAS.AS_point_0.coupled.aero_states.horseshoe_circulations',  'propinflow.circulation')
-        self.connect('EOAS.wing.mesh',                                              'propinflow.mesh')
-        self.connect('parameters.jet_loc',                                          'propinflow.jet_loc')
-        self.connect('propinflow.propinflow',                                       'helix.simparamdef_v_inf')
+        # self.connect('EOAS.AS_point_0.coupled.aero_states.horseshoe_circulations',  'propinflow.circulation')
+        # self.connect('EOAS.wing.mesh',                                              'propinflow.mesh')
+        # self.connect('parameters.jet_loc',                                          'propinflow.jet_loc')
+        # self.connect('propinflow.propinflow',                                       'helix.simparamdef_v_inf')
 
-        self.nonlinear_solver = om.NonlinearBlockGS(rtol=1e-10, atol=1e-2)
-        self.linear_solver = om.LinearBlockGS()
+        # self.nonlinear_solver = om.NonlinearBlockGS(rtol=1e-10, atol=1e-2)
+        # self.linear_solver = om.LinearBlockGS()
 
-        self.nonlinear_solver.options['iprint'] = 2
-        # self.nonlinear_solver.options['maxiter'] = 10
-        # self.nonlinear_solver.options['solve_subsystems'] = True
-        self.nonlinear_solver.linesearch = om.ArmijoGoldsteinLS()
-        self.nonlinear_solver.linesearch.options['maxiter'] = 10
-        self.nonlinear_solver.linesearch.options['iprint'] = 2
+        # self.nonlinear_solver.options['iprint'] = 2
+        # # self.nonlinear_solver.options['maxiter'] = 10
+        # # self.nonlinear_solver.options['solve_subsystems'] = True
+        # self.nonlinear_solver.linesearch = om.ArmijoGoldsteinLS()
+        # self.nonlinear_solver.linesearch.options['maxiter'] = 10
+        # self.nonlinear_solver.linesearch.options['iprint'] = 2
 
         # ================================      
         # ===== Connecting Objective =====      
@@ -152,7 +152,7 @@ class master(om.Group):
         self.add_design_var('parameters.radius',                    lower=0.08, upper=0.2, scaler=10)
 
         # self.add_design_var('parameters.span', lower=1.*0.5, upper=3., scaler=1/0.748)
-        # self.add_design_var('parameters.jet_loc',                   lower=[-0.748*0.96/2, 0.1], upper=[-0.1, 0.748*0.96/2])
+        self.add_design_var('parameters.jet_loc',                   lower=[-0.748*0.96/2, 0.1], upper=[-0.1, 0.748*0.96/2])
         self.add_design_var('parameters.chord',                     lower=0.015, upper=2.0, scaler=10.)
         self.add_design_var('parameters.twist',                     lower=-5, upper=5, scaler=1.)
 
@@ -239,12 +239,12 @@ prob.driver.recording_options["record_desvars"] = True
 prob.driver.recording_options["record_inputs"] = True
 # prob.driver.recording_options['includes'] = ['helix.rotorcomp_0_thrust']
 
-prob.run_model()
+# prob.run_model()
 # prob.model.approx_totals()
-# prob.run_driver()
+prob.run_driver()
 # prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['*constraints*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True,  form='central')
-prob.cleanup()
+# prob.cleanup()
 # ===========================
 # === Printing of results ===
 # ===========================
