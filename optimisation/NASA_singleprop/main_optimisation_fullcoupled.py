@@ -135,7 +135,7 @@ class master(om.Group):
         self.connect('EOAS.AS_point_0.L_equals_W',                          'constraints.L_W')
         self.connect('helix0.rotorcomp_0_thrust',                           'constraints.thrust0')
         self.connect('helix0.rotorcomp_0_thrust',                           'constraints.thrust1')
-        self.connect('EOAS.AS_point_0.wing_perf.CD',                        'constraints.CD')
+        self.connect('EOAS.AS_point_0.CD',                                  'constraints.CD')
         self.connect('parameters.rho',                                      'constraints.rho')
         self.connect('parameters.vinf',                                     'constraints.V')
         self.connect('EOAS.AS_point_0.coupled.wing.S_ref',                  'constraints.surface')
@@ -153,7 +153,7 @@ class master(om.Group):
 
         self.add_design_var('parameters.radius0',                    lower=0.55, upper=2., scaler=1/0.8936)
 
-        # self.add_design_var('parameters.jet_loc',                   lower=[-self.span/2, 1.], upper=[-1., self.span/2])
+        self.add_design_var('parameters.jet_loc',                   lower=[-self.span/2, 1.], upper=[-1., self.span/2])
         self.add_design_var('parameters.chord',                     lower=0.3, upper=3.0, scaler=1.)
         self.add_design_var('parameters.twist',                     lower=-3.5, upper=5, scaler=1.)
 
@@ -233,11 +233,11 @@ span_orig_prop = prob.get_val("helix0.geodef_parametric_0_span")
 chord_orig_prop  = prob.get_val("helix0.geodef_parametric_0_chord")
 twist_orig_prop  = prob.get_val("helix0.geodef_parametric_0_twist")
 
-prob.run_model()
+# prob.run_model()
 # prob.model.approx_totals()
 # prob.model.list_inputs(includes=['*helix0.geodef_parametric_0_span*', '*helix1.geodef_parametric_0_span*'])
-# prob.run_driver()
-# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['EOAS.wing.geometry.mesh.propeller', 'rethorst'], form='central', step=1e-6) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+prob.run_driver()
+# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['rethorst'], form='central', step=1e-6) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True,  form='central')
 
 # ===========================

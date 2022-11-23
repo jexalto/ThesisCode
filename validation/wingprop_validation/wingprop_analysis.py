@@ -51,15 +51,15 @@ def wingprop(J):
                     N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
             
             span_max = 5
-            nx = 11
-            ny = 101
+            nx = 3
+            ny = 151
+            self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=1, nr_blades=4,vel_distr_shape=N_elem_span))
+
             self.add_subsystem('rethorst', subsys=Rethorst(nr_props=1, span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
 
             self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=0.748, radii_shape=N_elem_span+1))
 
             self.add_subsystem('propinflow', subsys=propinflow(ny=ny, nx=nx, propdist_chord=0.2))
-            
-            self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=1, nr_blades=4,vel_distr_shape=N_elem_span))
             
             self.add_subsystem('linear_radius', subsys=linear_radius())
             
@@ -147,16 +147,18 @@ def wingprop(J):
     prob.set_val(name + "alpha_0",val=alpha_0)
     prob.set_val(name + "alpha_L0",val=alpha_L0)
     prob.set_val(name + "Cl_alpha",val=Cl_alpha)
+     
+    steps=6
+    alphas = np.linspace(-8.0, 10.0, steps)
 
-    alphas = np.linspace(-8.0, 10.0, 10)
-
-    CL_numerical = np.zeros(10)
-    CD_numerical = np.zeros(10)
+    CL_numerical = np.zeros(steps)
+    CD_numerical = np.zeros(steps)
     count = 0
     for alpha in alphas:
 
         # Set the alpha in the problem and run analysis
         prob['parameters.alpha'] = alpha
+        print(f'{alpha:_^20}')
         prob.run_model()
 
         print()
@@ -168,6 +170,22 @@ def wingprop(J):
         CD_numerical[count] = prob["EOAS.AS_point_0.wing_perf.CD"][0]
         
         count+=1
+    
+        cl_opt = np.copy(prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl'))
+        print(CL_numerical, cl_opt)
+        y = prob['EOAS.wing.mesh'][0, :, 1]
+        y_ = np.zeros((len(y)-1))
+
+        for index in range(len(y)-1):
+            y_[index] = (y[index+1]+y[index])/2
+        _, ax = plt.subplots(figsize=(10, 7))
+        ax.plot(y_, cl_opt, label='Optimised')
+        ax.set_xlabel(r'Spanwise location $y$')
+        ax.set_ylabel(r'$C_L$')
+        ax.legend()
+        ax.grid()
+        niceplots.adjust_spines(ax, outward=True)
+        plt.savefig(f'00_results/cl_distr_chordproploc{alpha}.png')
     return alphas, CL_numerical, CD_numerical
 
 # ===========================

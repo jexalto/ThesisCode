@@ -58,9 +58,6 @@ class Rethorst(om.ExplicitComponent):
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
 
-        # prop_veldistr = np.array(np.flip(np.array(prop_veldistr).reshape((len(prop_veldistr)))), order='F')
-        # radii_input = np.array(radii_input, order='F').reshape((len(radii_input)))
-
         multiprop(  span, nr_props, jet_loc_list, vel_distr_input, radii_input, nr_radii_input, prop_discr, Vinf, panels_jet, \
                     panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
 

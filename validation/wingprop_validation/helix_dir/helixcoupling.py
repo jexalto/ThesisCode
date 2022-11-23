@@ -18,7 +18,6 @@ class helixcoupler(om.ExplicitComponent):
         nr_blades = self.options['nr_blades']
         vel_distr_shape = self.options['vel_distr_shape']
         for iProp in range(nr_propellers):
-
             self.add_input('vel_distr_'+str(iProp), shape_by_conn=True, units='m/s')
             self.add_input('radii_'+str(iProp), shape_by_conn=True, units='m')
 
@@ -38,12 +37,12 @@ class helixcoupler(om.ExplicitComponent):
 
         vel_distr_tot   = np.zeros((nr_propellers, vel_distr_shape))
         radii_tot       = np.zeros((nr_propellers, vel_distr_shape))
-
+        
         for iProp in range(nr_propellers):
             print('//////////////////////////////////////')
             print(inputs["vel_distr_"+str(iProp)])
             vel_distr_tot[iProp, :]  = inputs["vel_distr_"+str(iProp)]
             radii_tot[iProp, :]      = inputs["radii_"+str(iProp)]
-        print(vel_distr_tot, radii_tot)
+
         outputs['vel_distr_tot'] = vel_distr_tot
         outputs['radii_tot'] = radii_tot

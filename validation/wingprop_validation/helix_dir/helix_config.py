@@ -22,7 +22,7 @@ def simparam_definition():
 
     simparam.nt_rev = 30
 
-    simparam.v_inf = np.array([0.0, 0.0, -40.0])
+    simparam.v_inf = np.array([40.0, 0.0, 0.])
     simparam.rho_inf = 1.25
 
     return simparam
@@ -64,7 +64,7 @@ def references_definition():
 # rst geodef
 def geometry_definition(J):
     # Load rotor data
-    f = open('/home/mdolabuser/mount/ThesisCode/HELIX_verification/data/rotor.json')
+    f = open('../../HELIX_verification/data/rotor.json')
     airfoilSecs = json.load(f)
     f.close()
     
@@ -82,7 +82,7 @@ def geometry_definition(J):
 
     # Reference Parameters
     N_span = len(airfoilSecs["span"])
-    rotor.ref_point = np.array([0.0, 0.0174195, 0.0])
+    rotor.ref_point = np.array([0.0, 0.2234, 0.0])
     rotor.ref_chord_frac = 0.5
 
     # Symmetry Parameters
@@ -107,7 +107,7 @@ def geometry_definition(J):
     rotor.multiplicity = {
         "mult_type": "rotor",
         "n_blades": 4,
-        "rot_axis": np.array([0.0, 0.0, 1.0]),
+        "rot_axis": np.array([-1.0, 0.0, 0.0]),
         "rot_rate": -omega,
         "psi_0": 0.0,
         "hub_offset": 0.0,

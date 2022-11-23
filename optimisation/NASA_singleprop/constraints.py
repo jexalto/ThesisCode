@@ -50,7 +50,7 @@ class constraints(om.ExplicitComponent):
         print('==== Constraints ====')
         print('=====================')
         print(f'Lift equals Weight: {LW}')
-        print('Thrust equals Drag: ', 1-drag/thrust, 'Thrust: ', thrust, 'Drag: ', drag, '\n')
+        print('Thrust equals Drag: ', 1-drag/thrust, 'Thrust: ', thrust, 'Drag: ', drag, 'CD', inputs['CD'], '\n')
         
         outputs['constraint_lift_weight'] = LW
         outputs['constraint_thrust_drag'] = 1-drag/thrust

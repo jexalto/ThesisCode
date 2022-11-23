@@ -17,7 +17,7 @@ class EOAS(om.Group):
     def setup(self):
         span_0 = self.options['span_0']
         radii_shape = self.options['radii_shape']
-        wing_discr = 5
+        wing_discr = 7
 
         mesh_dict = {
             # Wing definition
@@ -32,7 +32,7 @@ class EOAS(om.Group):
             # reflected across the plane y = 0
             # Simple Geometric Variables
             "span": span_0,  # full wingspan, even for symmetric cases
-            "chord": 0.15,
+            "chord": 0.6,
             # "dihedral": 0.0,  # wing dihedral angle in degrees
             # positive is upward
             # "sweep": 0.0,  # wing sweep angle in degrees
@@ -98,7 +98,7 @@ class EOAS(om.Group):
             # the total CL and CD.
             # These CL0 and CD0 values do not vary wrt alpha.
             "CL0": 0.0,  # CL of the surface at alpha=0
-            "CD0": 0.0,  # CD of the surface at alpha=0
+            "CD0": 0.02,  # CD of the surface at alpha=0
             # Airfoil properties for viscous drag calculation
             "k_lam": 0.15,  # percentage of chord with laminar
             # flow, used for viscous drag

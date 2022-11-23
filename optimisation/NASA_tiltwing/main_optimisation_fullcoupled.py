@@ -252,7 +252,7 @@ prob.run_model()
 # prob.model.approx_totals()
 # prob.model.list_inputs(includes=['*helix0.geodef_parametric_0_span*', '*helix1.geodef_parametric_0_span*'])
 # prob.run_driver()
-# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['EOAS.wing.geometry.mesh.propeller', 'rethorst'], form='central', step=1e-6) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['rethorst'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 prob.check_totals(compact_print=True,  form='central')
 
 # ===========================
