@@ -1,0 +1,6 @@
+numpy
+openmdao
+scipy
+matplotlib
+bezier
+f90wrap

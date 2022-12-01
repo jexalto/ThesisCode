@@ -19,7 +19,11 @@ class constraints(om.ExplicitComponent):
         self.add_output('constraint_thrust', val=0.)
         
         self.declare_partials('constraint_thrust', 'thrust0', cols=[0], rows=[0], val=-1.)
+<<<<<<< HEAD
         self.declare_partials('constraint_thrust', 'thrus1', cols=[0], rows=[0], val=-1.)
+=======
+        self.declare_partials('constraint_thrust', 'thrust1', cols=[0], rows=[0], val=-1.)
+>>>>>>> 42f583f0058ba86be8df1779054ede3fddd12c12
         self.declare_partials('constraint_lift_weight', 'L_W', val=1.)
         self.declare_partials('constraint_lift_weight', 'thrust0', val=0)
         self.declare_partials('constraint_lift_weight', 'thrust1', val=0)
@@ -65,7 +69,14 @@ class constraints(om.ExplicitComponent):
 
         partials['constraint_thrust_drag', 'thrust0'] = -(0.5*rho*V**2*S*(CD))/thrust**2
         partials['constraint_thrust_drag', 'thrust1'] = -(0.5*rho*V**2*S*(CD))/thrust**2
+<<<<<<< HEAD
         partials['constraint_thrust_drag', 'CD'] = (0.5*rho*V**2*S)/thrust
         partials['constraint_thrust_drag', 'rho'] = (0.5*V**2*S*(CD))/thrust
         partials['constraint_thrust_drag', 'V'] = (rho*V*S*(CD))/thrust
         partials['constraint_thrust_drag', 'surface'] = (0.5*rho*V**2*(CD))/thrust
+=======
+        partials['constraint_thrust_drag', 'CD'] = -(0.5*rho*V**2*S)/thrust
+        partials['constraint_thrust_drag', 'rho'] = -(0.5*V**2*S*(CD))/thrust
+        partials['constraint_thrust_drag', 'V'] = -(rho*V*S*(CD))/thrust
+        partials['constraint_thrust_drag', 'surface'] = -(0.5*rho*V**2*(CD))/thrust
+>>>>>>> 42f583f0058ba86be8df1779054ede3fddd12c12

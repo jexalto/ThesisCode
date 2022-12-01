@@ -1,0 +1,209 @@
+
+%%% Preamble Requirements %%%
+% \usepackage{geometry}
+% \usepackage{amsfonts}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{tikz}
+
+% Optional packages such as sfmath set through python interface
+% \usepackage{sfmath}
+
+% \usetikzlibrary{arrows,chains,positioning,scopes,shapes.geometric,shapes.misc,shadows}
+
+%%% End Preamble Requirements %%%
+
+\input{"/home/qualtech4/.local/lib/python3.9/site-packages/pyxdsm/diagram_styles"}
+\begin{tikzpicture}
+
+\matrix[MatrixSetup]{
+%Row 0
+&
+\node [DataIO] (output_opt) {$\begin{array}{c}l^0, \mathbf{\phi}^0, c_r^0, c_t^0 \\ B^0, R^0, \mathbf{\theta}^0 \\ \mathbf{c}^0, J^0, c^0\end{array}$};&
+\node [DataIO] (output_MDA) {$W_f^0$};&
+&
+&
+&
+&
+&
+&
+\\
+%Row 1
+\node [DataIO] (left_output_opt) {$\begin{array}{c}l^*, \mathbf{\phi}^*, c_r^*, c_t^* \\ B^*, R^*, \mathbf{\theta}^* \\ \mathbf{c}^*, J^*, c^*\end{array}$};&
+\node [Optimization] (opt) {$\text{Optimizer (SNOPT)}$};&
+&
+\node [DataInter] (opt-helix) {$\begin{array}{c}B, R, \mathbf{\theta} \\ \mathbf{c}, J, c\end{array}$};&
+&
+\node [DataInter] (opt-OAS) {$l, \mathbf{\phi}, c_r, c_t$};&
+&
+&
+&
+\\
+%Row 2
+&
+&
+\node [MDA] (MDA) {$\text{MDA coordinator}$};&
+\node [DataInter] (MDA-helix) {$\hat{\alpha}$};&
+&
+\node [DataInter] (MDA-OAS) {$\hat{W}_f$};&
+&
+&
+&
+\\
+%Row 3
+\node [DataIO] (left_output_helix) {$\mathbf{v_j}^*, P_{in}^*, T^*$};&
+&
+&
+\node [Function] (helix) {$\text{HELIX}$};&
+\node [DataInter] (helix-slipstream) {$\mathbf{v_j}$};&
+&
+\node [DataInter] (helix-F) {$P_{in}$};&
+\node [DataInter] (helix-G) {$T$};&
+&
+\\
+%Row 4
+\node [DataIO] (left_output_slipstream) {$\mathbf{G}^*$};&
+&
+&
+&
+\node [Function] (slipstream) {$\text{Slipstream model}$};&
+\node [DataInter] (slipstream-OAS) {$\mathbf{G}, mesh$};&
+&
+&
+&
+\\
+%Row 5
+\node [DataIO] (left_output_OAS) {$C_L^*, C_D^*, W_{str}^*$};&
+&
+\node [DataInter] (OAS-MDA) {$\alpha$};&
+&
+&
+\node [Function] (OAS) {$\text{EnhancedOpenAeroStruct}$};&
+&
+\node [DataInter] (OAS-G) {$C_D$};&
+\node [DataInter] (OAS-G2) {$C_L, W_{str}$};&
+\\
+%Row 6
+\node [DataIO] (left_output_F) {$f^*$};&
+\node [DataInter] (F-opt) {$f$};&
+&
+&
+&
+&
+\node [ImplicitFunction] (F) {$\text{Objective function}$};&
+&
+&
+\\
+%Row 7
+\node [DataIO] (left_output_G) {$g_1^*$};&
+\node [DataInter] (G-opt) {$g_1$};&
+&
+&
+&
+&
+&
+\node [ImplicitFunction] (G) {$\begin{array}{c}\text{Thrust} \\ \text{constraint}\end{array}$};&
+&
+\\
+%Row 8
+\node [DataIO] (left_output_G2) {$g_2^*$};&
+\node [DataInter] (G2-opt) {$g_2$};&
+&
+&
+&
+&
+&
+&
+\node [ImplicitFunction] (G2) {$\begin{array}{c}\text{Lift} \\ \text{constraint}\end{array}$};&
+\\
+%Row 9
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+};
+
+% XDSM process chains
+{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (helix);
+\chainin (F) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (helix);
+\chainin (G) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (OAS);
+\chainin (MDA) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (OAS);
+\chainin (G) [join=by ProcessHVA];
+\chainin (opt) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (OAS);
+\chainin (G2) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (MDA);
+\chainin (OAS) [join=by ProcessHVA];
+\end{pgfonlayer}
+}
+
+\begin{pgfonlayer}{data}
+\path
+% Horizontal edges
+(opt) edge [DataLine] (opt-helix)
+(opt) edge [DataLine] (opt-OAS)
+(MDA) edge [DataLine] (MDA-OAS)
+(MDA) edge [DataLine] (MDA-helix)
+(helix) edge [DataLine] (helix-slipstream)
+(slipstream) edge [DataLine] (slipstream-OAS)
+(OAS) edge [DataLine] (OAS-MDA)
+(helix) edge [DataLine] (helix-F)
+(helix) edge [DataLine] (helix-G)
+(OAS) edge [DataLine] (OAS-G)
+(OAS) edge [DataLine] (OAS-G2)
+(F) edge [DataLine] (F-opt)
+(G) edge [DataLine] (G-opt)
+(G2) edge [DataLine] (G2-opt)
+(opt) edge [DataLine] (left_output_opt)
+(helix) edge [DataLine] (left_output_helix)
+(slipstream) edge [DataLine] (left_output_slipstream)
+(OAS) edge [DataLine] (left_output_OAS)
+(F) edge [DataLine] (left_output_F)
+(G) edge [DataLine] (left_output_G)
+(G2) edge [DataLine] (left_output_G2)
+% Vertical edges
+(opt-helix) edge [DataLine] (helix)
+(opt-OAS) edge [DataLine] (OAS)
+(MDA-OAS) edge [DataLine] (OAS)
+(MDA-helix) edge [DataLine] (helix)
+(helix-slipstream) edge [DataLine] (slipstream)
+(slipstream-OAS) edge [DataLine] (OAS)
+(OAS-MDA) edge [DataLine] (MDA)
+(helix-F) edge [DataLine] (F)
+(helix-G) edge [DataLine] (G)
+(OAS-G) edge [DataLine] (G)
+(OAS-G2) edge [DataLine] (G2)
+(F-opt) edge [DataLine] (opt)
+(G-opt) edge [DataLine] (opt)
+(G2-opt) edge [DataLine] (opt)
+(MDA) edge [DataLine] (output_MDA)
+(opt) edge [DataLine] (output_opt);
+\end{pgfonlayer}
+
+\end{tikzpicture}

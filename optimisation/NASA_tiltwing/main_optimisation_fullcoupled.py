@@ -26,10 +26,10 @@ import niceplots
 class master(om.Group):
 
     def setup(self):
-        nx = 5
-        ny = 81
+        nx = 2
+        ny = 201
         self.span = 13.49
-        span_max = 5*self.span
+        span_max = 13.5
         self.nr_blades = 5
         self.nr_props = 2
 
@@ -71,7 +71,7 @@ class master(om.Group):
         )        
         self.add_subsystem('helix_coupler', subsys=helixcoupler(nr_propellers=self.nr_props, nr_blades=self.nr_blades,vel_distr_shape=N_elem_span))
         self.add_subsystem('rethorst', subsys=Rethorst(span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
-        self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=self.span, radii_shape=N_elem_span+1))
+        self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=self.span, radii_shape=N_elem_span))
 
         # self.add_subsystem('prop_weight', subsys=propweight())
         # self.add_subsystem('propinflow', subsys=propinflow(nr_props=nr_props, ny=ny, nx=nx, propdist_chord=0.1))
@@ -168,8 +168,13 @@ class master(om.Group):
         self.add_design_var('parameters.radius0',                    lower=0.55, upper=2., scaler=1/0.8936)
         self.add_design_var('parameters.radius1',                    lower=0.55, upper=2., scaler=1/0.8936)
 
+<<<<<<< HEAD
         self.add_design_var('parameters.jet_loc',                   lower=[-self.span/2, 1.], upper=[-1., self.span/2])
         self.add_design_var('parameters.chord',                     lower=0.3, upper=2.0, scaler=1.)
+=======
+        # self.add_design_var('parameters.jet_loc',                   lower=[-self.span/2, 1.], upper=[-1., self.span/2])
+        self.add_design_var('parameters.chord',                     lower=0.2, upper=3.0, scaler=1.)
+>>>>>>> 42f583f0058ba86be8df1779054ede3fddd12c12
         self.add_design_var('parameters.twist',                     lower=-3.5, upper=5, scaler=1.)
 
         self.add_objective("obj_function.objective",                scaler=1/50938.53744861)
@@ -247,13 +252,19 @@ prob.driver.options['debug_print'] = ['desvars', 'objs']
 span_orig_prop = prob.get_val("helix0.geodef_parametric_0_span")
 chord_orig_prop  = prob.get_val("helix0.geodef_parametric_0_chord")
 twist_orig_prop  = prob.get_val("helix0.geodef_parametric_0_twist")
-
-# prob.run_model()
+# 
+prob.run_model()
 # prob.model.approx_totals()
 # prob.model.list_inputs(includes=['*helix0.geodef_parametric_0_span*', '*helix1.geodef_parametric_0_span*'])
+<<<<<<< HEAD
 prob.run_driver()
 # prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['helix1.velocity_distribution'], form='central', step=1e-6) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True,  form='central')
+=======
+# prob.run_driver()
+# prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['rethorst'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+prob.check_totals(compact_print=True,  form='central')
+>>>>>>> 42f583f0058ba86be8df1779054ede3fddd12c12
 
 # ===========================
 # === Printing of results ===
@@ -270,6 +281,20 @@ print("Structural mass:\t", prob.get_val('EOAS.wing.structural_mass'), " kg")
 print()
 print('Power: ', prob.get_val("obj_function.objective"))
 
+cl_opt = np.copy(prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl'))
+y = prob['EOAS.wing.mesh'][0, :, 1]
+y_ = np.zeros((len(y)-1))
+
+for index in range(len(y)-1):
+    y_[index] = (y[index+1]+y[index])/2
+_, ax = plt.subplots(figsize=(10, 7))
+ax.plot(y_, cl_opt, label='Optimised')
+ax.set_xlabel(r'Spanwise location $y$')
+ax.set_ylabel(r'$C_L$')
+ax.legend()
+ax.grid()
+niceplots.adjust_spines(ax, outward=True)
+plt.savefig('cl_distr_chordproploc.png')
 
 if False:
     # ===========================
@@ -314,7 +339,7 @@ if False:
     ax.legend()
     ax.grid()
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/fullycoupled/00_results/figures/cl_distr_chordproploc.png')
+    plt.savefig('cl_distr_chordproploc.png')
 
     chord_len = np.linspace(0, len(chord), len(chord))
     cl_dist_len = np.linspace(0, len(chord), len(cl_opt))

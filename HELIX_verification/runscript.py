@@ -17,11 +17,11 @@ import json
 
 import niceplots
 
-from rotor import generateRotor
+# from rotor import generateRotor
 
 niceplots.setRCParams()
 
-generateRotor()
+# generateRotor()
 
 def main():
     """
@@ -31,7 +31,7 @@ def main():
     # =========================================================================
     # Import Experimental Data
     # =========================================================================
-    with open("/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/prowim_data.json", "r") as file:
+    with open("data/prowim_data.json", "r") as file:
         dataPROWIM = json.load(file)
         file.close()
 
@@ -80,7 +80,7 @@ def main():
     # plt.tight_layout()
     niceplots.adjust_spines(ax, outward=True)
 
-    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/CT_bs.png')
+    plt.savefig('HELIX_verification/figures/CT_bs.png')
 
 
 def runHelix(omega):
@@ -110,9 +110,8 @@ def runHelix(omega):
     model.initialize_run()
 
     model.run()
-    print(np.sum(model.f_geometry.geo_comp[0].a_ref))
 
-    return model.f_geometry.rotor[0].ct[0]
+    return model._f_geometry.rotor[0].ct[0]
 
 
 def set_simparam():
@@ -181,7 +180,7 @@ def geometry_definition(omega):
         running a HELIX case
     """
     # Load rotor data
-    fileName = "/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/rotor.json"
+    fileName = "data/rotor.json"
     with open(fileName, "r") as file:
         airfoilData = json.load(file)
         file.close()

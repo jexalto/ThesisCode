@@ -94,7 +94,7 @@ class EOAS(om.Group):
             "twist_cp": np.zeros(5),
             "propeller": 1,
             "n_point_masses": 1,
-            "radii_shape": radii_shape,
+            "radii_shape": radii_shape-1,
             # Aerodynamic performance of the lifting surface at
             # an angle of attack of 0 (alpha=0).
             # These CL0 and CD0 values are added to the CL and CD

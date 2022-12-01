@@ -17,6 +17,7 @@ class EOAS(om.Group):
     def setup(self):
         span_0 = self.options['span_0']
         radii_shape = self.options['radii_shape']
+        wing_discr = 5
 
         mesh_dict = {
             # Wing definition
@@ -85,12 +86,11 @@ class EOAS(om.Group):
             # "strength_factor_for_upper_skin": 1.0, 
             "mesh": mesh,
             "span": span_0,
-            "chord_cp": np.ones(5)*0.15,  # Define chord using 3 B-spline cp's
-            "twist_cp": np.zeros(5),
+            "chord_cp": np.ones(wing_discr)*0.15,  # Define chord using 3 B-spline cp's
+            "twist_cp": np.zeros(wing_discr),
             "propeller": 2,
             "n_point_masses": 2,
             "radii_shape": radii_shape,
-            "electric": 0,
             # Aerodynamic performance of the lifting surface at
             # an angle of attack of 0 (alpha=0).
             # These CL0 and CD0 values are added to the CL and CD

@@ -6,8 +6,8 @@ from scipy.interpolate import Akima1DInterpolator
 from scipy.optimize import root
 import matplotlib.pyplot as plt
 
-# dir = '/home/jexalto/code/MDO_lab_env/ThesisCode/HELIX_verification/airfoils/N250/airfoils/'
-dir = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/xfoil/xfoil_runner/data_output/Re96000/'
+dir = 'airfoils/'
+# dir = 'xfoil/xfoil_runner/data_output/Re96000/'
 
 import pandas as pd
 import numpy as np
@@ -21,7 +21,7 @@ J = 0.8
 v_inf = 40.
 n = (J*v_inf/diameter)**(-1)
 
-path = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/TUD_data/prowim/geometry/PROWIM.txt'
+path = 'TUD_data/prowim/geometry/PROWIM.txt'
 
 data = pd.read_csv(path, sep=',')
 rR = data.iloc[:,1]
@@ -352,7 +352,7 @@ airfoilSecs_table = [
 ]
 
 for index, iAirfoilSec in enumerate(airfoilSecs_table):
-    name = f'st{index+1}.txt'
+    name = f'st{index+1}.dat'
     airfoildata = pd.read_csv(dir+name, skiprows=[11], header=5, delim_whitespace=True)
     alpha = airfoildata['alpha'][:]
     # alpha = np.where(np.isnan(alpha), 0, alpha)

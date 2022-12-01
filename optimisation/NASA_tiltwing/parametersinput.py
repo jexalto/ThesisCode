@@ -27,7 +27,7 @@ class parameters(om.IndepVarComp):
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
         self.add_output("span", val=13.49, units="m") # 0.748
-        jetloc1 = -2.
+        jetloc1 = -2.3
         jetloc2 = -jetloc1
         self.add_output("jet_loc", val=np.array([jetloc1, jetloc2]), units="m")
         self.add_output("point_masses", val=np.array([pointmass, pointmass]), units="kg")

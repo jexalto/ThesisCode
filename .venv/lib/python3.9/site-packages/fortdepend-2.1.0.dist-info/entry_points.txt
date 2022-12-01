@@ -1,0 +1,2 @@
+[console_scripts]
+fortdepend = fortdepend.__main__:main

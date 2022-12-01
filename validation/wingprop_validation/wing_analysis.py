@@ -59,11 +59,11 @@ def wing():
 
     prob.set_val('EOAS.correction', val=0)
     prob.set_val('EOAS.velocity_distr', val=40)
+    steps = 6
+    alphas = np.linspace(-8.0, 10.0, steps)
 
-    alphas = np.linspace(-8.0, 10.0, 10)
-
-    CL_numerical = np.zeros(10)
-    CD_numerical = np.zeros(10)
+    CL_numerical = np.zeros(steps)
+    CD_numerical = np.zeros(steps)
     count = 0
     for alpha in alphas:
 
@@ -80,6 +80,7 @@ def wing():
         CD_numerical[count] = prob["EOAS.AS_point_0.wing_perf.CD"][0]
         
         count+=1
+
     return alphas, CL_numerical, CD_numerical
 
 # ===========================

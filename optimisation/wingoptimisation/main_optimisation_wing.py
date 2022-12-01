@@ -8,7 +8,7 @@ from openaerostruct.utils.constants import grav_constant
 
 from parametersinput import parameters
 from EOAS.EOAS_group_wing import EOAS
-from obj_function_wing import obj_function
+from obj_function import obj_function
 from constraints import constraints
 
 import niceplots
@@ -44,7 +44,8 @@ class master(om.Group):
         # ================================      
         # ===== Connecting Objective =====      
         # ================================      
-        self.connect('EOAS.AS_point_0.wing_perf.D',                     'obj_function.drag')
+        self.connect('EOAS.AS_point_0.CD',                              'obj_function.drag')
+        self.connect('EOAS.AS_point_0.CL',                              'obj_function.lift')
 
         # ==================================
         # ===== Connecting Constraints =====
@@ -86,12 +87,14 @@ prob.driver.opt_settings = {
     "Function precision": 1.0e-6,
     # "Major iterations limit": 50,
     "Nonderivative linesearch": None,
-    "Print file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/snopt_output/opt_SNOPT_print.txt",
-    "Summary file": "/home/jexalto99/code/MDO_lab_env/ThesisCode/optimisation/multiprop/00_results/snopt_output/opt_SNOPT_summary.txt",
+    "Print file": "00_results/snopt_output/opt_SNOPT_print.txt",
+    "Summary file": "00_results/snopt_output/opt_SNOPT_summary.txt",
 }
 
+prob.driver.options['debug_print'] = ['desvars', 'objs']
+
 # prob.run_model()
-prob.model.approx_totals()
+# prob.model.approx_totals()
 prob.run_driver()
 # prob.check_partials(compact_print=True, show_only_incorrect=True, includes=['*EOAS.wing.geometry*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True,  form='central')

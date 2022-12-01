@@ -45,7 +45,7 @@ def generateRotor(fileName="rotor.json"):
     # =========================================================================
     _ = airfoilAnalysis(plotting=False, screwXFOIL=True)
 
-    f = open('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json')
+    f = open('data/airfoilsecs.json')
     airfoilSecs = json.load(f)
     f.close()
     # =========================================================================

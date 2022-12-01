@@ -97,7 +97,7 @@ def airfoilAnalysis(plotting=False, screwXFOIL=True):
     if plotting:
         plot(airfoilSecs)
     
-    datadir = '/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/airfoilsecs.json'
+    datadir = 'data/airfoilsecs.json'
     writeJSON(airfoilSecs, datadir)
 
     return airfoilSecs
@@ -298,7 +298,7 @@ def plot(airfoilSecs):
         ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.275))
         ax.grid()
         niceplots.adjust_spines(ax, outward=True)
-        plt.savefig(f'/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/airfoils/cl_alpha_airfoil{iSec}.png')
+        plt.savefig(f'figures/airfoils/cl_alpha_airfoil{iSec}.png')
 
     fig, ax = plt.subplots(figsize=(10, 8))
     for iSec in range(0, np.size(airfoilSecs)):
@@ -316,7 +316,7 @@ def plot(airfoilSecs):
     ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
     # ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.275))
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_alpha.png')
+    plt.savefig('figures/cl_alpha.png')
 
     # Coefficient of Drag (Cd) vs. Angle of Attack (alpha)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -332,7 +332,7 @@ def plot(airfoilSecs):
     ax.set_xlim(airfoilSecs[0]['alphaMin'], airfoilSecs[0]['alphaMax'])
     # ax.legend()
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cd_alpha.png')
+    plt.savefig('figures/cd_alpha.png')
 
     # Coefficient of Moment (Cm) vs. Angle of Attack (alpha)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -348,7 +348,7 @@ def plot(airfoilSecs):
     ax.set_xlim(-4.5, 16)
     ax.legend()
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cm_alpha.png')
+    plt.savefig('figures/cm_alpha.png')
 
     # Coefficient of Lift (Cl) vs Coefficient of Drag (Cd)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -366,7 +366,7 @@ def plot(airfoilSecs):
 
     # Show Plots
     plt.show()
-    plt.savefig('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/figures/cl_cd.png')
+    plt.savefig('figures/cl_cd.png')
 
 
 if __name__ == "__main__":
