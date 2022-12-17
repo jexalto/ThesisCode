@@ -34,11 +34,11 @@ class linear_radius(om.ExplicitComponent):
         mesh = inputs['mesh'][0, :, 1]
         radii = inputs['radii'][-1]
         
-        with open(f'00_results/meshresults/mesh_{radius}.txt', 'w') as file:
+        with open(f'00_results/data/meshresults/mesh_{radius}.txt', 'w') as file:
             np.savetxt(file, mesh, fmt='%.8f')
             file.write(str(radii))
             
-        with open(f'00_results/meshresults/diff_mesh_{radius}.txt', 'w') as file:
+        with open(f'00_results/data/meshresults/diff_mesh_{radius}.txt', 'w') as file:
             for i in range(0, len(mesh)-1):
                 val = mesh[i+1]-mesh[i-1]
                 file.write(str(val)+'\n')

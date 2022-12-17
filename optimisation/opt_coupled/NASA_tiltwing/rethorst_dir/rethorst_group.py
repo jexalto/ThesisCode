@@ -12,9 +12,9 @@ class Rethorst(om.ExplicitComponent):
         self.options.declare('span_max', default=20., desc='maximum span')
         self.options.declare('r_min', default=0.025, desc='minimum radius')
         self.options.declare('vel_distr_shape', default=100, desc='number of vel discretisation point given by helix')
-        self.options.declare('prop_discr', default=5, desc='prop vel distribution discretisation')
-        self.options.declare('panels_jet', default=61, desc='panels in jet in overset mesh')
-        self.options.declare('panels_overset_wing', default=601, desc='panels on wing in overset mesh')
+        self.options.declare('prop_discr', default=11, desc='prop vel distribution discretisation')
+        self.options.declare('panels_jet', default=15, desc='panels in jet in overset mesh')
+        self.options.declare('panels_overset_wing', default=401, desc='panels on wing in overset mesh')
         self.options.declare('nr_props', default=2, desc='number of propellers')
 
     def setup(self):
@@ -56,14 +56,24 @@ class Rethorst(om.ExplicitComponent):
 
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
+        print(vel_distr_input, radii_input)
 
         multiprop(  span, nr_props, jet_loc_list, vel_distr_input, radii_input, nr_radii_input, prop_discr, Vinf, panels_jet, \
                     panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
         
+        mat = np.matrix(total_correction)*10000
+        with open('00_results/data/outfile.txt','wb') as f:
+            for line in mat:
+                np.savetxt(f, line, fmt='%.5f')
+                
+        with open('00_results/data/velvec.txt', 'w') as file:
+            np.savetxt(file, vel_vec)
+
         if np.isnan(any(sum(total_correction))):
             raise ValueError('total correction contains nan!')
         if np.isnan(any(vel_vec)):
             raise ValueError('total correction contains nan!')
+        
         print()
         print('=====================')
         print('====== Rethorst =====')
@@ -119,15 +129,15 @@ class Rethorst(om.ExplicitComponent):
         # Reverse Mode
         # ================================================
 
-        # elif mode=='rev':
-        #     self._set_seeds_rev(d_outputs)
+        elif mode=='rev':
+            self._set_seeds_rev(d_outputs)
             
-        #     multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
-        #                 self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
-        #                 panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
+            multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
+                        self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
+                        panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
 
-        #     self._get_seeds_rev(d_inputs)
-            # print('Rethorst derivatives:\tReverse')
+            self._get_seeds_rev(d_inputs)
+            print('Rethorst derivatives:\tReverse')
         
         # timediff = time.time() - start
         # print(f'total time computing {mode} Rethorst derivatives: {timediff}')
@@ -175,9 +185,8 @@ class Rethorst(om.ExplicitComponent):
         self.vel_vecb                   = np.array(d_outputs['wing_veldistr'], order='F')
 
     def _get_seeds_rev(self, d_inputs):
-        d_inputs['span']                += self.spand
-        d_inputs['jet_loc']             += self.jet_loc_inputd
-        d_inputs['vinf']                += self.vinfd
-        d_inputs['velocity_vector']     += self.vel_distr_inputd
-        d_inputs['radii']               += self.radii_inputd
-
+        d_inputs['span']                += self.spanb
+        d_inputs['jet_loc']             += self.jet_loc_listb
+        d_inputs['vinf']                += self.vinfb
+        d_inputs['velocity_vector']     += self.vel_distr_inputb
+        d_inputs['radii']               += self.radii_inputb

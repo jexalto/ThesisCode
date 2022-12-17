@@ -101,7 +101,7 @@ def correction_(panels_VLM, panels_chord_VLM, span, jet_loc, jet_radius, Vinf, V
     plt.xlim((400, 700))
     plt.tight_layout()
     plt.show()
-    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/figures/peaks/original_data.png')
+    plt.savefig('EOAS/figures/peaks/original_data.png')
 
     plt.clf()
     plt.figure(1)
@@ -114,7 +114,7 @@ def correction_(panels_VLM, panels_chord_VLM, span, jet_loc, jet_radius, Vinf, V
     plt.ylabel('Correction value')
     plt.tight_layout()
     plt.show()
-    plt.savefig('/home/jexalto/code/MDO_lab_env/ThesisCode/EOAS/figures/peaks/correctioncheck.png')    
+    plt.savefig('EOAS/figures/peaks/correctioncheck.png')    
 
     return correction_scipy, panels_jet, panels_overset_wing, G_, discr_interp, y_VLM, delta_wing, delta_jet
 

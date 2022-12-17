@@ -44,18 +44,6 @@ def references_definition():
     # Append to References
     references_def.append_frame(Hub)
 
-    # # Hub Frame
-    # Hub1 = py_ref_def.t_frame_def()
-    # Hub1.Name = "Hub1"
-    # Hub1.Parent = "Root"
-    # Hub1.origin = np.array([0.0, 0.0, 0.0])
-    # Hub1.orientation = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
-
-    # Hub1.moving = False
-
-    # # Append to References
-    # references_def.append_frame(Hub1)
-
     return references_def
 
 
@@ -64,7 +52,7 @@ def references_definition():
 # rst geodef
 def geometry_definition():
     # Load rotor data
-    f = open('../../HELIX_verification/data/rotor.json')
+    f = open('helix_dir/prop_data/rotor.json')
     airfoilSecs = json.load(f)
     f.close()
     

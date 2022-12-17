@@ -23,6 +23,4 @@ class obj_function(om.ExplicitComponent):
         outputs['objective'] = power[0]
 
     def compute_partials(self, inputs, partials):
-
-        # partials['objective', 'lift'] = 0.6
         partials['objective', 'power'] = 1.

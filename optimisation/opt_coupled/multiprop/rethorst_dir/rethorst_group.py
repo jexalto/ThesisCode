@@ -60,28 +60,20 @@ class Rethorst(om.ExplicitComponent):
         vel_distr_input         = np.zeros((2, len(inputs['velocity_vector'])), order='F')
         vel_distr_input[0, :]   = inputs['velocity_vector']
         vel_distr_input[1, :]   = inputs['velocity_vector']
-
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
 
-        # prop_veldistr = np.array(np.flip(np.array(prop_veldistr).reshape((len(prop_veldistr)))), order='F')
-        # radii_input = np.array(radii_input, order='F').reshape((len(radii_input)))
-
         multiprop(  span, nr_props, jet_loc_list, vel_distr_input, radii_input, nr_radii_input, prop_discr, Vinf, panels_jet, \
                     panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
+        
         mat = np.matrix(total_correction)*10000
-        with open('00_results/data/outfile.txt','wb') as f:
+        with open('00_results/data/correctionmatrix.txt','wb') as f:
             for line in mat:
                 np.savetxt(f, line, fmt='%.5f')
                 
         with open('00_results/data/velvec.txt', 'w') as file:
             np.savetxt(file, vel_vec)
-        
-        # mat = np.array(total_correction)[40,:]
-        # plt.plot(np.linspace(0, len(mat), len(mat)), mat)
-        # mat = np.array(total_correction)[110,:]
-        # plt.plot(np.linspace(0, len(mat), len(mat)), mat[::-1])
-        # plt.show()
+
         if np.isnan(any(sum(total_correction))):
             raise ValueError('total correction contains nan!')
         if np.isnan(any(vel_vec)):
@@ -92,14 +84,12 @@ class Rethorst(om.ExplicitComponent):
         print('=====================')
         print(f'span {span}')
         print(f'jet_loc {jet_loc_list}\n')
-        # print(f'radius {radii_input[-1]}')
         
         outputs['correction_matrix'] = total_correction
         outputs['wing_veldistr'] = vel_vec
 
     def compute_jacvec_product(self, inputs, d_inputs, d_outputs, mode):
-         # Clear all Seeds in Memory
-        # start = time.time()
+        # Clear all Seeds in Memory
         self._zero_seeds(inputs)
 
         span                    = inputs['span']
@@ -138,29 +128,22 @@ class Rethorst(om.ExplicitComponent):
                         panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecd, total_correction, self.total_correctiond)
 
             self._get_seeds_fwd(d_outputs)
-            # if any(d_inputs['jet_loc']!=0):
-            #     print('jetloc: ', jet_loc_list)
-            #     print(d_inputs['jet_loc'])
-            #     print(d_outputs['wing_veldistr'])
-            # print('Rethorst derivatives:\tForward')
+            print('Rethorst derivatives:\tForward')
 
         # ================================================
         # Reverse Mode
         # ================================================
 
-        # elif mode=='rev':
-        #     self._set_seeds_rev(d_outputs)
+        elif mode=='rev':
+            self._set_seeds_rev(d_outputs)
             
-        #     multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
-        #                 self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
-        #                 panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
+            multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
+                        self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
+                        panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)
 
-        #     self._get_seeds_rev(d_inputs)
-            # print('Rethorst derivatives:\tReverse')
+            self._get_seeds_rev(d_inputs)
+            print('Rethorst derivatives:\tReverse')
         
-        # timediff = time.time() - start
-        # print(f'total time computing {mode} Rethorst derivatives: {timediff}')
-
     def _zero_seeds(self, inputs):
         # ===== Clear Seeds =====
         panels_span_vlm                 = self.options['panels_span_VLM']
@@ -204,9 +187,9 @@ class Rethorst(om.ExplicitComponent):
         self.vel_vecb                   = np.array(d_outputs['wing_veldistr'], order='F')
 
     def _get_seeds_rev(self, d_inputs):
-        d_inputs['span']                += self.spand
-        d_inputs['jet_loc']             += self.jet_loc_inputd
-        d_inputs['vinf']                += self.vinfd
-        d_inputs['velocity_vector']     += self.vel_distr_inputd
-        d_inputs['radii']               += self.radii_inputd
+        d_inputs['span']                += self.spanb
+        d_inputs['jet_loc']             += self.jet_loc_listb
+        d_inputs['vinf']                += self.vinfb
+        d_inputs['velocity_vector']     += self.vel_distr_inputb[0,:]
+        d_inputs['radii']               += self.radii_inputb[0,:]
 

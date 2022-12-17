@@ -10,7 +10,7 @@ class parameters(om.IndepVarComp):
 
     def setup(self):
         pointmass = 0.5
-        radius = 2.23/2
+        radius = 5*0.223
         
         self.add_output('radius0', val=radius, units='m')
         self.add_output('radius1', val=radius, units='m')
@@ -26,7 +26,7 @@ class parameters(om.IndepVarComp):
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
         self.add_output("span", val=13.49, units="m") # 0.748
-        jetloc1 = -0.4
+        jetloc1 = -3.
         jetloc2 = -jetloc1
         self.add_output("jet_loc", val=np.array([jetloc1, jetloc2]), units="m")
         self.add_output("point_masses", val=np.array([pointmass, pointmass]), units="kg")
