@@ -130,19 +130,19 @@ class master(om.Group):
             for iParametric in range(0, np.size(parametric)):
                 name = "helix.geodef_parametric_{:d}_".format(iParametric)
                 self.add_design_var(name + "rot_rate",              lower=-1700, upper=-800, scaler=1/1000)
-                self.add_design_var(name + "twist",lower=10, upper=70, scaler=1/50)
+                self.add_design_var(name + "twist",lower=10, upper=70, scaler=1/100)
 
         # self.add_design_var('parameters.radius',                    lower=0.08, upper=0.2, scaler=1.)
 
-        self.add_design_var('parameters.chord',                     lower=0.07, upper=2.0, scaler=10)
-        self.add_design_var('parameters.twist',                     lower=-5, upper=5, scaler=1)
+        self.add_design_var('parameters.chord',                     lower=0.01, upper=2.0, scaler=10)
+        self.add_design_var('parameters.twist',                     lower=-5, upper=10, scaler=100)
 
-        self.add_objective("obj_function.objective",                scaler=1/10)
+        self.add_objective("obj_function.objective",                scaler=1/1000)
 
         self.add_constraint('constraints.constraint_lift_weight',   equals=0., scaler=10)
-        self.add_constraint('constraints.constraint_thrust_drag',   equals=0., scaler=10)
-        self.add_constraint('EOAS.wing.structural_mass',            lower=0., scaler=1/4)
-        self.add_constraint('EOAS.AS_point_0.wing_perf.failure',    upper=0.)
+        self.add_constraint('constraints.constraint_thrust_drag',   equals=0., scaler=1)
+        self.add_constraint('EOAS.wing.structural_mass',            lower=2., scaler=1)
+        self.add_constraint('EOAS.AS_point_0.wing_perf.failure',    upper=0., scaler=1000)
 
 
 prob = om.Problem()
@@ -183,7 +183,7 @@ if True:
             sweep[iSpan] = parametric.parametric_def[iParametric].span[iSpan].sweep
             dihed[iSpan] = parametric.parametric_def[iParametric].span[iSpan].dihed
 
-prob.setup(mode='fwd')
+prob.setup(mode='rev')
 
 prob.set_val(name + "span", val=span)
 prob.set_val(name + "chord",val=chord)
@@ -212,10 +212,10 @@ twist_orig_prop  = prob.get_val("helix.geodef_parametric_0_twist")
 prob.driver.options['debug_print'] = ['desvars', 'objs']
 # om.n2(prob, outfile='coupled.html')
 
-prob.run_model()
+# prob.run_model()
 # prob.model.approx_totals()
-# prob.run_driver()
-prob.check_partials(compact_print=True, show_only_incorrect=False, includes=['*rethorst*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
+prob.run_driver()
+# prob.check_partials(compact_print=True, show_only_incorrect=False, includes=['*rethorst*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
 # prob.check_totals(compact_print=True, form='central')
 # prob.cleanup()
 
@@ -251,6 +251,9 @@ print("Velocity distribution: ", prob.get_val("helix.rotorcomp_0_velocity_distri
 # === Plotting of results ===
 # ===========================
 if True:
+    chordsections = 7
+    niceplots.setRCParams()
+    
     _, ax = plt.subplots(figsize=(10, 7))
     ax.plot(y_, cl_opt, label='Optimised')
     ax.set_xlabel(r'Spanwise location $y$')
@@ -258,22 +261,24 @@ if True:
     ax.legend()
     ax.grid()
     niceplots.adjust_spines(ax, outward=True)
-    plt.savefig('cl_distr_chordproploc.png')
+    plt.savefig('00_results/figures/cl_distr.png')
 
-    chord = [0.24, 0.24, 0.24, 0.24, 0.24] # np.copy(prob.get_val('parameters.chord'))
+    chord = np.ones(chordsections)*0.24 # np.copy(prob.get_val('parameters.chord'))
     CDopt = np.copy(prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.CD'))
     chord_opt = np.copy(prob.get_val('parameters.chord'))
     twist_opt = np.copy(prob.get_val('parameters.twist'))
     cl_opt = np.copy(prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl'))
 
     # ========== Reset ==========
-    prob.set_val('parameters.jet_loc', val=[-0.29])
-    prob.set_val('parameters.chord', val=np.ones((3))*0.24)
-    prob.set_val('parameters.twist', val=np.zeros(3))
+    prob.set_val('parameters.jet_loc', val=[-0.2])
+    prob.set_val('parameters.chord', val=np.ones((4))*0.24)
+    prob.set_val('parameters.twist', val=np.zeros(4))
 
-    chord_orig = [0.24, 0.24, 0.24, 0.24, 0.24] # prob.get_val('parameters.chord')
+    chord_orig = np.ones(chordsections)*0.24 # prob.get_val('parameters.chord')
     twist_orig = prob.get_val('parameters.twist')
-    chord_b = [0.07      , 0.13457321, 0.19426579,      0.13457321,       0.07]#prob.get_val('parameters.chord')
+    chord_b = prob.get_val('parameters.chord')
+    chord_b = chord_b.append(chord_b[1])
+    chord_b = chord_b.append(chord_b[0])
     cl_dist_b = np.copy(prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl'))
     CD = np.copy(prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.CD'))
 
@@ -323,18 +328,15 @@ if True:
             {"Chord (m)": chord_opt,
             "Twist (deg)": twist_opt}]
 
-    niceplots.setRCParams()
-
-    f, axarr = niceplots.stacked_plots(
-        "Span (m)",
-        span_chord,
-        data,
-        figsize=(10, 6),
-        line_scaler=0.5,
-        filename='00_results/figures/chord_opt.png',
-        dpi=400,
-        legend=['Original', 'Optimised']
-    )
+    # f, axarr = niceplots.stacked_plots(
+    #     "Span (m)",
+    #     span_chord,
+    #     data,
+    #     figsize=(10, 6),
+    #     line_scaler=0.5,
+    #     filename='00_results/figures/chord_opt.png',
+    #     dpi=400
+    # )
 
     span = prob.get_val("helix.geodef_parametric_0_span")
     chord = prob.get_val("helix.geodef_parametric_0_chord")

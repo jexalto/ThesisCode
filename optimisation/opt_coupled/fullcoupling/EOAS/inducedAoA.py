@@ -23,7 +23,9 @@ class propinflow(om.ImplicitComponent):
         for iProp in range(nr_props):
             self.add_output('propinflow'+str(iProp), val=np.zeros((3)))
 
-        self.declare_partials('*', '*', method='fd')
+            self.declare_partials('propinflow'+str(iProp), 'circulation')#, val=0)
+            self.declare_partials('propinflow'+str(iProp), 'jet_loc')#, val=0)
+            self.declare_partials('propinflow'+str(iProp), 'mesh')#, val=0)
 
     def compute(self, inputs, outputs):
         nx              = self.options['nx']
@@ -55,5 +57,40 @@ class propinflow(om.ImplicitComponent):
                 v_ind += -prop_circ/d_total
             
             induced_aoa[index, 2] = v_ind
+        print('induced velocity: ', induced_aoa)
+            # outputs['propinflow'+str(index)] = induced_aoa
 
-            outputs['propinflow'+str(index)] = induced_aoa
+    def _compute_partials(self, inputs, partials):
+        nx              = self.options['nx']
+        ny              = self.options['ny']
+        propdist_chord  = self.options['propdist_chord']
+
+        mesh            = np.copy(inputs['mesh'])
+        y_              = np.copy(inputs['mesh'][0, :, 1])
+        jet_loc         = np.copy(inputs['jet_loc'])
+        circulation     = np.copy(inputs['circulation'])
+
+        y = np.zeros((len(y_)-1))
+        for i in range(len(y_)-1):
+            y[i] = 0.5*(y_[i]+y_[i+1])
+
+        induced_aoa = np.zeros((3))
+
+        for index, iJetloc in enumerate(jet_loc):
+            iCirculation    = np.argmin(abs(y-iJetloc))
+
+            induced_aoa = np.zeros((3))
+            v_ind = 0
+            d_chord = 0
+            for inx in range(nx-1):
+                prop_circ = circulation[iCirculation+ny*(inx)]
+                d_chord += (mesh[inx+1, 0, 0] - mesh[inx, 0, 0])/2
+                d_total = d_chord+propdist_chord
+
+                v_ind += -prop_circ/d_total
+            
+            induced_aoa[index, 2] = v_ind
+
+            partials['propinflow'+str(index), 'mesh'] = induced_aoa
+            partials['propinflow'+str(index), 'jet_loc'] = induced_aoa
+            partials['propinflow'+str(index), 'circulation'] = induced_aoa

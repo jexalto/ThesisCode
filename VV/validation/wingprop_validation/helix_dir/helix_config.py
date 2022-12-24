@@ -64,7 +64,7 @@ def references_definition():
 # rst geodef
 def geometry_definition(J):
     # Load rotor data
-    f = open('/home/jexalto99/code/MDO_lab_env/ThesisCode/HELIX_verification/data/rotor.json')
+    f = open('/home/jexalto99/code/MDO_lab_env/HELIX_verification/data/rotor.json')
     airfoilSecs = json.load(f)
     f.close()
     
@@ -103,6 +103,8 @@ def geometry_definition(J):
 
     omega =  V_inf / (J * diameter) * 2.0 * np.pi
 
+    pitch = 22.7/360.*2.*np.pi
+
     rotor.multiple = True
     rotor.multiplicity = {
         "mult_type": "rotor",
@@ -112,6 +114,7 @@ def geometry_definition(J):
         "psi_0": 0.0,
         "hub_offset": 0.0,
         "n_dofs": 0,
+        "collective": pitch
     }
     
     # ------------------------ Blade Section Definition ---------------------- #

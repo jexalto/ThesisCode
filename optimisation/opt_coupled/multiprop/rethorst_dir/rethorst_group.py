@@ -136,7 +136,7 @@ class Rethorst(om.ExplicitComponent):
 
         elif mode=='rev':
             self._set_seeds_rev(d_outputs)
-            
+
             multiprop_b(span, self.spanb, nr_props, jet_loc_list, self.jet_loc_listb, vel_distr_input, self.vel_distr_inputb, radii_input, \
                         self.radii_inputb, nr_radii_input, prop_discr, Vinf, self.vinfb, panels_jet, panels_overset_wing, panels_chord_VLM, \
                         panels_span_VLM, span_max, r_min, vel_vec, self.vel_vecb, total_correction, self.total_correctionb)

@@ -12,7 +12,7 @@ class Rethorst(om.ExplicitComponent):
         self.options.declare('span_max', default=20., desc='maximum span')
         self.options.declare('r_min', default=0.025, desc='minimum radius')
         self.options.declare('vel_distr_shape', default=100, desc='number of vel discretisation point given by helix')
-        self.options.declare('prop_discr', default=11, desc='prop vel distribution discretisation')
+        self.options.declare('prop_discr', default=3, desc='prop vel distribution discretisation')
         self.options.declare('panels_jet', default=15, desc='panels in jet in overset mesh')
         self.options.declare('panels_overset_wing', default=401, desc='panels on wing in overset mesh')
         self.options.declare('nr_props', default=2, desc='number of propellers')
@@ -50,13 +50,12 @@ class Rethorst(om.ExplicitComponent):
         panels_jet              = self.options['panels_jet']
         panels_overset_wing     = self.options['panels_overset_wing']
         nr_props                = self.options['nr_props']
-        nr_radii_input          = len(radii_input_)
+        nr_radii_input          = len(radii_input_[0,:])
         radii_input             = np.array(radii_input_, order='F')
         vel_distr_input         = np.array(np.copy(inputs['velocity_vector']), order='F')
 
         total_correction = np.zeros((panels_chord_VLM*panels_span_VLM, panels_chord_VLM*panels_span_VLM), order='F')
         vel_vec = np.zeros((panels_span_VLM), order='F')
-        print(vel_distr_input, radii_input)
 
         multiprop(  span, nr_props, jet_loc_list, vel_distr_input, radii_input, nr_radii_input, prop_discr, Vinf, panels_jet, \
                     panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
@@ -95,7 +94,7 @@ class Rethorst(om.ExplicitComponent):
         Vinf                    = np.array(inputs['vinf'], order='F')
         radii_input             = np.array(inputs['radii'], order='F')
         vel_distr_input         = np.array(inputs['velocity_vector'], order='F')
-        nr_radii_input          = len(radii_input)
+        nr_radii_input          = len(radii_input[0,:])
         panels_span_VLM         = self.options['panels_span_VLM']
         panels_chord_VLM        = self.options['panels_chord_VLM']
         span_max                = self.options['span_max']

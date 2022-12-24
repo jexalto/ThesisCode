@@ -2,9 +2,10 @@ from bezier import Surface
 import numpy as np
 import openmdao.api as om
 
-from openaerostruct.utils.constants import grav_constant
 from openaerostruct.geometry.utils import generate_mesh
-from openaerostruct.integration.aerostruct_groups import AerostructGeometry, AerostructPoint
+from openaerostruct.integration.aerostruct_groups import AerostructGeometry
+from openaerostruct.aerodynamics.aero_groups import AeroPoint
+
 
 from EOAS.camber_finder import camber
 
@@ -111,7 +112,7 @@ class EOAS(om.Group):
         point_name = "AS_point_0"
 
         # Create the aero point group and add it to the model
-        AS_point = AerostructPoint(surfaces=[surface])
+        AS_point = AeroPoint(surfaces=[surface])
 
         self.add_subsystem(
             point_name,
@@ -123,40 +124,15 @@ class EOAS(om.Group):
                 "Mach_number",
                 "re",
                 "rho",
-                "CT",
-                "R",
-                "W0",
-                "speed_of_sound",
-                "empty_cg",
-                "load_factor",
                 'correction',
             ],
         )
 
-        self.connect('wing.mesh', 'AS_point_0.coupled.mesh')
+        # Connect the mesh from the geometry component to the analysis point
+        self.connect(name + ".mesh", point_name + "." + name + ".def_mesh")
 
-        self.connect(name + ".local_stiff_transformed", point_name + ".coupled." + name + ".local_stiff_transformed")
-        self.connect(name + ".nodes", point_name + ".coupled." + name + ".nodes")
+        # Perform the connections with the modified names within the
+        # 'aero_states' group.
+        self.connect(name + ".mesh", point_name + ".aero_states." + name + "_def_mesh")
 
-        # Connect aerodyamic mesh to coupled group mesh
-        self.connect(name + ".mesh", point_name + ".coupled." + name + ".mesh")
-
-        # Connect performance calculation variables
-        com_name = point_name + "." + name + "_perf"
-        self.connect(name + ".radius", com_name + ".radius")
-        self.connect(name + ".thickness", com_name + ".thickness")
-        self.connect(name + ".nodes", com_name + ".nodes")
-        self.connect(name + ".cg_location", point_name + "." + "total_perf." + name + "_cg_location")
-        self.connect(name + ".structural_mass", point_name + "." + "total_perf." + name + "_structural_mass")
-        self.connect(name + ".t_over_c", com_name + ".t_over_c")
-        com_name = "AS_point_0" + "." + name + "_perf."
-
-        # self.connect(name + ".Qz", com_name + "Qz")
-        # self.connect(name + ".J", com_name + "J")
-        # self.connect(name + ".A_enc", com_name + "A_enc")
-        # self.connect(name + ".htop", com_name + "htop")
-        # self.connect(name + ".hbottom", com_name + "hbottom")
-        # self.connect(name + ".hfront", com_name + "hfront")
-        # self.connect(name + ".hrear", com_name + "hrear")
-
-        # self.connect(name + ".spar_thickness", com_name + "spar_thickness")
+        self.connect(name + ".t_over_c", point_name + "." + name + "_perf." + "t_over_c")

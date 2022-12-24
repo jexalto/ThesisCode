@@ -43,13 +43,7 @@ def wing():
             self.connect('parameters.Mach_number',                          'EOAS.Mach_number')
             self.connect('parameters.re',                                   'EOAS.re')
             self.connect('parameters.rho',                                  'EOAS.rho')
-            self.connect('parameters.CT',                                   'EOAS.CT')
-            self.connect('parameters.R',                                    'EOAS.R')
-            self.connect('parameters.W0',                                   'EOAS.W0')
-            self.connect('parameters.speed_of_sound',                       'EOAS.speed_of_sound')
-            self.connect('parameters.load_factor',                          'EOAS.load_factor')
-            self.connect('parameters.empty_cg',                             'EOAS.empty_cg')
-
+    
     prob = om.Problem()
     model = prob.model
 

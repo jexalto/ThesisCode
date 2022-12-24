@@ -49,13 +49,11 @@ def wingprop(J):
                     N_elem_span += geometry_def.parametric_def[iParametric].span[iSpan].N_elem_span
             
             span_max = 5
-            nx = 11
-            ny = 101
-            self.add_subsystem('rethorst', subsys=Rethorst(nr_props=1, span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
+            nx = 5
+            ny = 131
+            self.add_subsystem('rethorst', subsys=Rethorst(nr_props=2, span_max=span_max, vel_distr_shape=N_elem_span, panels_span_VLM=ny-1, panels_chord_VLM=nx-1))
 
             self.add_subsystem('EOAS', subsys=EOAS(panels_chord_VLM=nx-1, panels_span_VLM=ny-1, span_0=0.748, radii_shape=N_elem_span+1))
-
-            self.add_subsystem('propinflow', subsys=propinflow(ny=ny, nx=nx, propdist_chord=0.2))
             
             # =================================
             # ===== Connecting Subsystems =====
@@ -80,16 +78,6 @@ def wingprop(J):
             self.connect('parameters.Mach_number',                          'EOAS.Mach_number')
             self.connect('parameters.re',                                   'EOAS.re')
             self.connect('parameters.rho',                                  'EOAS.rho')
-            self.connect('parameters.CT',                                   'EOAS.CT')
-            self.connect('parameters.R',                                    'EOAS.R')
-            self.connect('parameters.W0',                                   'EOAS.W0')
-            self.connect('parameters.speed_of_sound',                       'EOAS.speed_of_sound')
-            self.connect('parameters.load_factor',                          'EOAS.load_factor')
-            self.connect('parameters.empty_cg',                             'EOAS.empty_cg')
-
-            self.connect('EOAS.AS_point_0.coupled.aero_states.horseshoe_circulations',  'propinflow.circulation')
-            self.connect('EOAS.wing.mesh',                                              'propinflow.mesh')
-            self.connect('parameters.jet_loc',                                          'propinflow.jet_loc')
 
     prob = om.Problem()
     model = prob.model

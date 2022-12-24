@@ -12,7 +12,7 @@ class Rethorst(om.ExplicitComponent):
         self.options.declare('span_max', default=20., desc='maximum span')
         self.options.declare('r_min', default=0.05, desc='minimum radius')
         self.options.declare('vel_distr_shape', default=100, desc='number of vel discretisation point given by helix')
-        self.options.declare('prop_discr', default=5, desc='prop vel distribution discretisation')
+        self.options.declare('prop_discr', default=10, desc='prop vel distribution discretisation')
         self.options.declare('panels_jet', default=61, desc='panels in jet in overset mesh')
         self.options.declare('panels_overset_wing', default=601, desc='panels on wing in overset mesh')
         self.options.declare('nr_props', default=2, desc='number of propellers')

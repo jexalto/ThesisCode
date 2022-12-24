@@ -22,10 +22,10 @@ class parameters(om.IndepVarComp):
         self.add_output("speed_of_sound", val=295.4, units="m/s")
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
-        self.add_output("span", val=0.748*.976*2, units="m") # 0.748
-        jetloc1 = -0.
-        jetloc2 = -0.748*(0.5-0.444)
-        self.add_output("jet_loc", val=np.array([jetloc1]), units="m")
+        self.add_output("span", val=0.73*2, units="m") # 0.748
+        jetloc1 = -0.748*(0.5-0.444)
+        jetloc2 = -jetloc1
+        self.add_output("jet_loc", val=np.array([jetloc1, jetloc2]), units="m")
 
         chord_cp = np.ones(5)*0.24
         twist_cp = np.zeros(5)
