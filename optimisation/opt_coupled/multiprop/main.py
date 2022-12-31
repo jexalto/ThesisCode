@@ -26,9 +26,9 @@ class master(om.Group):
         # =================================
         # ====== Defining parameters ======
         # =================================
-        span_max = 0.748*3
+        span_max = 0.748*2
         nx = 2
-        ny = 141
+        ny = 51
 
         simparam_def = simparam_definition()
         references_def = references_definition()
@@ -117,7 +117,6 @@ class master(om.Group):
         self.connect('EOAS.AS_point_0.L_equals_W',                          'constraints.L_W')
         self.connect('helix.rotorcomp_0_thrust',                            'constraints.thrust')
         self.connect('EOAS.AS_point_0.wing_perf.CD',                        'constraints.CD')
-        self.connect('EOAS.AS_point_0.coupled.wing.S_ref',                  'constraints.CDv')
         self.connect('parameters.rho',                                      'constraints.rho')
         self.connect('parameters.vinf',                                     'constraints.V')
         self.connect('EOAS.AS_point_0.coupled.wing.S_ref',                  'constraints.surface')
@@ -129,20 +128,20 @@ class master(om.Group):
         if True:
             for iParametric in range(0, np.size(parametric)):
                 name = "helix.geodef_parametric_{:d}_".format(iParametric)
-                self.add_design_var(name + "rot_rate",              lower=-1700, upper=-800, scaler=1/1000)
+                self.add_design_var(name + "rot_rate",              lower=-1700, upper=-800, scaler=1/100)
                 self.add_design_var(name + "twist",lower=10, upper=70, scaler=1/100)
 
         # self.add_design_var('parameters.radius',                    lower=0.08, upper=0.2, scaler=1.)
+        # self.add_design_var('parameters.chord',                     lower=0.01, upper=2.0, scaler=10)
+        self.add_design_var('parameters.twist',                     lower=-10, upper=10, scaler=100)
+        # self.add_design_var('EOAS.wing.thickness_cp',                 lower=0.0001, upper=0.1, scaler=100)
 
-        self.add_design_var('parameters.chord',                     lower=0.01, upper=2.0, scaler=10)
-        self.add_design_var('parameters.twist',                     lower=-5, upper=10, scaler=100)
+        self.add_objective("obj_function.objective",                scaler=10)
 
-        self.add_objective("obj_function.objective",                scaler=1/1000)
-
-        self.add_constraint('constraints.constraint_lift_weight',   equals=0., scaler=10)
+        self.add_constraint('constraints.constraint_lift_weight',   equals=0., scaler=1)
         self.add_constraint('constraints.constraint_thrust_drag',   equals=0., scaler=1)
-        self.add_constraint('EOAS.wing.structural_mass',            lower=2., scaler=1)
-        self.add_constraint('EOAS.AS_point_0.wing_perf.failure',    upper=0., scaler=1000)
+        self.add_constraint('EOAS.wing.structural_mass',            lower=0., scaler=1)
+        self.add_constraint('EOAS.AS_point_0.wing_perf.failure',    upper=0., scaler=1)
 
 
 prob = om.Problem()
@@ -196,7 +195,7 @@ prob.driver = om.pyOptSparseDriver()
 prob.driver.options['optimizer'] = 'SNOPT'
 prob.driver.opt_settings = {
     "Major feasibility tolerance": 1.0e-5,
-    "Major optimality tolerance": 1.0e-7,
+    "Major optimality tolerance": 1.0e-9,
     "Minor feasibility tolerance": 1.0e-5,
     "Verify level": -1,
     "Function precision": 1.0e-6,
@@ -211,12 +210,12 @@ twist_orig_prop  = prob.get_val("helix.geodef_parametric_0_twist")
 
 prob.driver.options['debug_print'] = ['desvars', 'objs']
 # om.n2(prob, outfile='coupled.html')
-
-# prob.run_model()
+# 
+prob.run_model()
 # prob.model.approx_totals()
-prob.run_driver()
+# prob.run_driver()
 # prob.check_partials(compact_print=True, show_only_incorrect=False, includes=['*rethorst*'], form='central', step=1e-8) # excludes=['*parameters*, *helix*, *EOAS*, *rethorst*']
-# prob.check_totals(compact_print=True, form='central')
+prob.check_totals(compact_print=True, form='central')
 # prob.cleanup()
 
 # ===========================
@@ -259,7 +258,7 @@ if True:
     ax.set_xlabel(r'Spanwise location $y$')
     ax.set_ylabel(r'$C_L$')
     ax.legend()
-    ax.grid()
+    # ax.grid()
     niceplots.adjust_spines(ax, outward=True)
     plt.savefig('00_results/figures/cl_distr.png')
 

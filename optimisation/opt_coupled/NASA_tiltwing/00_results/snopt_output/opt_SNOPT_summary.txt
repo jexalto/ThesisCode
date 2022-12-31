@@ -1,0 +1,39 @@
+
+ ==============================
+ S N O P T  7.7.7    (Feb 2021)
+ ==============================
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ ==============================
+ S N O P T  7.7.7    (Feb 2021)
+ ==============================
+
+
+
+ Nonlinear constraints       4     Linear constraints       0
+ Nonlinear variables        14     Linear variables         0
+ Jacobian  variables        14     Objective variables     14
+ Total constraints           4     Total variables         14
+
+
+
+
+ SNOPTC EXIT  60 -- undefined user-supplied functions
+ SNOPTC INFO  61 -- undefined function at the first feasible point
+
+ Problem name                 Optimiza
+ No. of iterations                   0
+ Max x                       1 1.2E+03   Max pi                      1 0.0E+00
+ Max Primal infeas           0 0.0E+00   Max Dual infeas             0 0.0E+00
+
+
+
+ Solution printed on file  18
+
+ Time for MPS input                             0.00 seconds
+ Time for solving problem                       0.00 seconds
+ Time for solution output                       0.00 seconds
+ Time for constraint functions                  0.00 seconds
+ Time for objective function                    0.00 seconds

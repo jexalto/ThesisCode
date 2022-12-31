@@ -60,9 +60,9 @@ class EOAS(om.Group):
             dtype="complex128",
         )   
 
-        mesh = generate_mesh(mesh_dict) # twist_cp
-        # chord_cp = np.ones((10))
-        twist_cp = np.zeros((5))
+        mesh = generate_mesh(mesh_dict)
+
+        spanwisesections = 7
 
         surface = {
             # Wing definition
@@ -79,14 +79,14 @@ class EOAS(om.Group):
             # "data_y_upper": upper_y,
             # "data_y_lower": lower_y,
             # "thickness_cp": np.array([0.1, 0.2, 0.3]),
-            # "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
-            # "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
-            # "original_wingbox_airfoil_t_over_c": 0.12,
+            "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
+            "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
+            "original_wingbox_airfoil_t_over_c": 0.12,
             # "strength_factor_for_upper_skin": 1.0, 
             "mesh": mesh,
             "span": span_0,
-            "chord_cp": np.ones(9)*0.15,  # Define chord using 3 B-spline cp's
-            "twist_cp": np.zeros(9),
+            "chord_cp": np.ones(spanwisesections)*0.24,  # Define chord using 3 B-spline cp's
+            "twist_cp": np.zeros(spanwisesections),
             "propeller": 2,
             "n_point_masses": 2,
             "radii_shape": radii_shape,
@@ -98,11 +98,11 @@ class EOAS(om.Group):
             # the total CL and CD.
             # These CL0 and CD0 values do not vary wrt alpha.
             "CL0": 0.0,  # CL of the surface at alpha=0
-            "CD0": 0.0,  # CD of the surface at alpha=0
+            "CD0": 0.001,  # CD of the surface at alpha=0
             # Airfoil properties for viscous drag calculation
             "k_lam": 0.15,  # percentage of chord with laminar
             # flow, used for viscous drag
-            "t_over_c_cp": np.array([0.15]),  # thickness over chord ratio (NACA0015)
+            "t_over_c_cp": np.array([0.25]),  # thickness over chord ratio (NACA0015)
             "c_max_t": 0.303,  # chordwise location of maximum (NACA0015)
             # thickness
             "with_viscous": True,

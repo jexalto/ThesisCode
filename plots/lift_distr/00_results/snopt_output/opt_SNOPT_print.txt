@@ -1,0 +1,138 @@
+
+         ==============================
+         S N O P T  7.7.7    (Feb 2021)
+         ==============================
+      Print file 18
+      Summary file 19
+      Minor print level               0
+      Minimize
+      Derivative level               3
+      Iterations limit        10000000
+      Minor iterations limit           10000
+      Proximal iterations limit           10000
+      Total character workspace             500
+      Total integer workspace            3800
+      Total real workspace            7100
+      Major feasibility tolerance  1.00000000E-05
+      Major optimality tolerance  1.00000000E-07
+      Minor feasibility tolerance  1.00000000E-05
+      Verify level              -1
+      Function precision  1.00000000E-06
+      Nonderivative linesearch
+1
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+         ==============================
+         S N O P T  7.7.7    (Feb 2021)
+         ==============================
+      Print file 18
+      Summary file 19
+      Minor print level               0
+      Minimize
+      Derivative level               3
+      Iterations limit        10000000
+      Minor iterations limit           10000
+      Proximal iterations limit           10000
+      Total character workspace             500
+      Total integer workspace           22724
+      Total real workspace           13927
+      Major feasibility tolerance  1.00000000E-05
+      Major optimality tolerance  1.00000000E-07
+      Minor feasibility tolerance  1.00000000E-05
+      Verify level              -1
+      Function precision  1.00000000E-06
+      Nonderivative linesearch
+1
+
+ Parameters
+ ==========
+
+ Files
+ -----
+ Solution file..........         0       Old basis file ........         0       Standard input.........         5
+ Insert file............         0       New basis file ........         0       (Printer)..............        18
+ Punch file.............         0       Backup basis file......         0       (Specs file)...........         0
+ Load file..............         0       Dump file..............         0       Standard output........         6
+
+ Frequencies
+ -----------
+ Print frequency........       100       Check frequency........        60       Save new basis map.....       100
+ Summary frequency......       100       Factorization frequency        50       Expand frequency.......     10000
+
+ QP subproblems
+ --------------
+ QPsolver Cholesky......
+ Scale tolerance........     0.900       Minor feasibility tol..  1.00E-05       Iteration limit........  10000000
+ Scale option...........         0       Minor optimality  tol..  5.00E-08       Minor print level......         0
+ Crash tolerance........     0.100       Pivot tolerance........  3.25E-11       New superbasics........        99
+ Crash option...........         3       Elastic weight.........  1.00E+05
+
+ Partial pricing
+ ---------------
+ LP Partial price.......         1       Prtl price section ( A)        29       Prtl price section (-I)         4
+ QP Partial price.......         1       Prtl price section ( A)        29       Prtl price section (-I)         4
+
+ The SQP Method
+ --------------
+ Minimize...............                 Cold start.............                 Proximal Point method..         1
+ Nonlinear objectiv vars        29       Major optimality tol...  1.00E-07       Function precision.....  1.00E-06
+ Unbounded step size....  1.00E+20       Superbasics limit......        29       Difference interval....  1.00E-03
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....        29       Central difference int.  1.00E-02
+ Major step limit.......  2.00E+00       Nonderiv.  linesearch..                 Derivative level.......         3
+ Major iterations limit.      1000       Linesearch tolerance...   0.90000       Verify level...........        -1
+ Minor iterations limit.     10000       Penalty parameter......  0.00E+00       Major Print Level......         1
+ Time limit (secs)...... 9999999.0
+
+ Hessian Approximation
+ ---------------------
+ Hessian full-memory....                 Hessian updates........  99999999       Hessian frequency......  99999999
+                                                                                 Hessian flush..........  99999999
+
+ Nonlinear constraints
+ ---------------------
+ Nonlinear constraints..         4       Major feasibility tol..  1.00E-05       Violation limit........  1.00E+06
+ Nonlinear Jacobian vars        29
+
+ Miscellaneous
+ -------------
+ LU factor tolerance....      3.99       LU singularity tol.....  3.25E-11       Timing level...........         3
+ LU update tolerance....      3.99       LU swap tolerance......  1.22E-04       Debug level............         0
+ LU partial  pivoting...                 eps (machine precision)  2.22E-16       System information.....        No
+                                                                                 Sticky parameters......        No
+1
+
+
+
+
+ Matrix statistics
+ -----------------
+               Total      Normal        Free       Fixed     Bounded
+ Rows              4           2           0           2           0
+ Columns          29           0           0           0          29
+
+ No. of matrix elements                  116     Density     100.000
+ Biggest  constant element        0.0000E+00  (excluding fixed columns,
+ Smallest constant element        0.0000E+00   free rows, and RHS)
+
+ No. of objective coefficients             0
+
+ Nonlinear constraints       4     Linear constraints       0
+ Nonlinear variables        29     Linear variables         0
+ Jacobian  variables        29     Objective variables     29
+ Total constraints           4     Total variables         29
+1
+
+
+
+ The user has defined     116   out of     116   constraint gradients.
+ The user has defined      29   out of      29   objective  gradients.
+1
+
+
+
+   Itns Major Minors    Step   nCon Feasible  Optimal  MeritFunction     L+U BSwap     nS condZHZ Penalty
+     35     0     35              1  6.7E-02  2.9E-01  3.4937981E+02      10            1 6.6E+01         _  r i
+     42     1      7 1.0E-02      2  6.7E-02  2.4E-01  4.8088566E+06       7            4 1.0E+00 1.2E+07 _  rli
+     47     2      5 1.0E-02      4  6.7E-02  2.3E-01  5.7459989E+06       7                      1.5E+07 _sM li

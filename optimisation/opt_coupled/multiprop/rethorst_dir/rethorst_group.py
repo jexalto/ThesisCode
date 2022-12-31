@@ -14,9 +14,9 @@ class Rethorst(om.ExplicitComponent):
         self.options.declare('span_max', default=20., desc='maximum span')
         self.options.declare('r_min', default=0.025, desc='minimum radius')
         self.options.declare('vel_distr_shape', default=100, desc='number of vel discretisation point given by helix')
-        self.options.declare('prop_discr', default=11, desc='prop vel distribution discretisation')
+        self.options.declare('prop_discr', default=2, desc='prop vel distribution discretisation')
         self.options.declare('panels_jet', default=15, desc='panels in jet in overset mesh')
-        self.options.declare('panels_overset_wing', default=401, desc='panels on wing in overset mesh')
+        self.options.declare('panels_overset_wing', default=201, desc='panels on wing in overset mesh')
         self.options.declare('nr_props', default=2, desc='number of propellers')
 
     def setup(self):
@@ -190,6 +190,6 @@ class Rethorst(om.ExplicitComponent):
         d_inputs['span']                += self.spanb
         d_inputs['jet_loc']             += self.jet_loc_listb
         d_inputs['vinf']                += self.vinfb
-        d_inputs['velocity_vector']     += self.vel_distr_inputb[0,:]
-        d_inputs['radii']               += self.radii_inputb[0,:]
+        d_inputs['velocity_vector']     += self.vel_distr_inputb[0,:]+self.vel_distr_inputb[1,:]
+        d_inputs['radii']               += self.radii_inputb[0,:]+self.radii_inputb[1,:]
 

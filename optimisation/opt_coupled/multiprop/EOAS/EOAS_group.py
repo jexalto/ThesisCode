@@ -73,15 +73,15 @@ class EOAS(om.Group):
             "S_ref_type": "projected",  # how we compute the wing area,
             # can be 'wetted' or 'projected'
             "fem_model_type": "tube",
-            "thickness_cp": np.array([0.001, 0.002, 0.003, 0.002, 0.001])*10,
+            "thickness_cp": np.array([0.0001, 0.0001, 0.0001, 0.0001, 0.0001])*1,
             # "data_x_upper": upper_x,
             # "data_x_lower": lower_x,
             # "data_y_upper": upper_y,
             # "data_y_lower": lower_y,
             # "thickness_cp": np.array([0.1, 0.2, 0.3]),
-            "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
-            "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
-            "original_wingbox_airfoil_t_over_c": 0.12,
+            # "spar_thickness_cp": np.array([0.004, 0.005, 0.005, 0.008, 0.008, 0.01]),  # [m]
+            # "skin_thickness_cp": np.array([0.005, 0.01, 0.015, 0.020, 0.025, 0.026]),
+            # "original_wingbox_airfoil_t_over_c": 0.12,
             # "strength_factor_for_upper_skin": 1.0, 
             "mesh": mesh,
             "span": span_0,
