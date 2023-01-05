@@ -121,7 +121,7 @@ class master(om.Group):
     def configure(self):
         # self.add_design_var('parameters.span', lower=1.*0.5, upper=3., scaler=1/0.748)
         self.add_design_var('parameters.jet_loc', lower=-0.256, upper=0.256, scaler=1.)
-        # self.add_design_var('parameters.chord', lower=0.1, upper=2.0, scaler=1.)
+        self.add_design_var('parameters.chord', lower=0.1, upper=2.0, scaler=1.)
         self.add_design_var('parameters.twist', lower=-3, upper=3, scaler=1.)
         
         self.add_objective("EOAS.AS_point_0.wing_perf.D", scaler=1.)

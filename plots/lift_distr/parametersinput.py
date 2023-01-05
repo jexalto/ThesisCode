@@ -10,7 +10,7 @@ class parameters(om.IndepVarComp):
     def setup(self):
         pointmass = 0.5
         spanwisesections = 4
-        radius = np.linspace(0.0125, 0.09, 40)
+        radius = np.linspace(0.05, 0.09, 40)
         veldistr = self._parabola(np.linspace(-5, 5, 40))
 
         print(veldistr)

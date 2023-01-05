@@ -18,8 +18,8 @@ class master(om.Group):
         # =================================
         # ====== Defining parameters ======
         # =================================
-        span_max = 0.748*3
-        nx = 2
+        span_max = 0.748*2
+        nx = 5
         ny = 201
 
         # simparam_def = simparam_definition()
@@ -111,7 +111,7 @@ class master(om.Group):
         # ====== Defining parameters ======
         # =================================
         span_max = 0.748*3
-        nx = 2
+        nx = 5
         ny = 201
 
         # simparam_def = simparam_definition()
@@ -177,7 +177,7 @@ prob.model = master()
 # ===========================
 prob.setup(mode='rev')
 
-prob.set_val('EOAS.correction', val=0)
+prob.set_val('EOAS.correction', val=0.)
 prob.run_model()
 cl_opt_ = np.copy(prob.get_val('EOAS.AS_point_0.wing_perf.aero_funcs.Cl'))
 
@@ -189,7 +189,7 @@ niceplots.setRCParams()
 
 _, (ax,ax2) = plt.subplots(2, 1, figsize=(16, 12))
 ax.plot(y_, cl_opt, label='Lift distribution')
-# ax.plot(y_, cl_opt_, label='No Correction')s
+ax.plot(y_, cl_opt_, label='No Correction')
 ax.set_ylabel(r'$C_L$')
 ax.legend()
 # ax.grid()

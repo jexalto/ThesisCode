@@ -19,12 +19,12 @@ class parameters(om.IndepVarComp):
         self.add_output("rho", val=1.225, units="kg/m**3")
         self.add_output("CT", val=grav_constant * 17.0e-6, units="1/s")
         self.add_output("R", val=500, units="m")
-        self.add_output("W0", val=15, units="kg")
+        self.add_output("W0", val=0, units="kg")
         self.add_output("speed_of_sound", val=295.4, units="m/s")
         self.add_output("load_factor", val=1.)
         self.add_output("empty_cg", val=np.zeros((3)), units="m")
         self.add_output("span", val=0.748*2, units="m") # 0.748
-        jetloc1 = -0.25
+        jetloc1 = -0.25 # 0.25
         jetloc2 = -jetloc1
         self.add_output("jet_loc", val=np.array([jetloc1, jetloc2]), units="m")
         self.add_output("point_masses", val=np.array([pointmass, pointmass]), units="kg")

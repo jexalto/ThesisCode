@@ -1,5 +1,6 @@
 import niceplots
 import matplotlib.pyplot as plt
+import numpy as np
 
 data = []
 iterations = []
@@ -37,17 +38,21 @@ with open("firstorderopt.txt", "r") as f:
         feasibility.append(feasible)
         obj_function.append(merit_function)
 
+iterations = np.linspace(0,205,len(optimality))
 niceplots.setRCParams()
-_, (ax1,ax2,ax3) = plt.subplots(3,1,figsize=(8, 10))
-ax1.plot(iterations[:40], optimality[:40])
+fig, (ax1,ax2,ax3) = plt.subplots(3,1,figsize=(8, 10))
+ax1.plot(iterations[:], optimality[:])
 ax1.set_ylabel('Optimality')
-ax1.set_ylim((-1e-2, 5e-2))
-ax2.plot(iterations[:40], feasibility[:40])
+ax1.set_yscale("log")
+# ax1.set_ylim((-1e-2, 5e-2))
+ax2.plot(iterations[:], feasibility[:])
 ax2.set_ylabel('Feasibility')
-ax2.set_ylim((-1e-2, 6e-2))
-ax3.plot(iterations[:40], obj_function[:40])
+# ax2.set_ylim((-1e-2, 6e-2))
+ax2.set_yscale("log")
+ax3.plot(iterations[:], obj_function[:])
 ax3.set_ylabel('Objective function')
 ax3.set_xlabel('Iterations')
+# ax3.set_yscale("log")
 plt.savefig('optimisation_040.png')
 plt.savefig('optimisation_040.eps', format='eps')
 

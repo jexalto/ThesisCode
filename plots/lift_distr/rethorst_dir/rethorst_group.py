@@ -12,10 +12,10 @@ class Rethorst(om.ExplicitComponent):
         self.options.declare('panels_span_VLM', default=100, desc='number of spanwise panels on the VLM')
         self.options.declare('panels_chord_VLM', default=1, desc='number of chordwise panels')
         self.options.declare('span_max', default=20., desc='maximum span')
-        self.options.declare('r_min', default=0.01, desc='minimum radius')
+        self.options.declare('r_min', default=0.05, desc='minimum radius')
         self.options.declare('vel_distr_shape', default=100, desc='number of vel discretisation point given by helix')
-        self.options.declare('prop_discr', default=11, desc='prop vel distribution discretisation')
-        self.options.declare('panels_jet', default=11, desc='panels in jet in overset mesh')
+        self.options.declare('prop_discr', default=2, desc='prop vel distribution discretisation')
+        self.options.declare('panels_jet', default=31, desc='panels in jet in overset mesh')
         self.options.declare('panels_overset_wing', default=300, desc='panels on wing in overset mesh')
         self.options.declare('nr_props', default=2, desc='number of propellers')
 
@@ -67,6 +67,10 @@ class Rethorst(om.ExplicitComponent):
                     panels_overset_wing, panels_chord_VLM, panels_span_VLM, span_max, r_min, vel_vec, total_correction)
         
         mat = np.matrix(total_correction)*10000
+        # plt.plot(np.linspace(0,1,len(np.array(mat[0])[0])), np.array(mat[0])[0])
+        # print(np.array(mat[0])[0])
+        # plt.show()
+
         with open('00_results/data/correctionmatrix.txt','wb') as f:
             for line in mat:
                 np.savetxt(f, line, fmt='%.5f')
